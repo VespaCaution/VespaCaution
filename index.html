@@ -40,10 +40,20 @@
 
         .header-left { display: flex; align-items: center; gap: 15px; }
         
+        /* LOCAL LOGO STYLES */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+        }
+
         .logo-container img {
-            height: 35px; /* Smaller logo */
-            cursor: pointer;
+            height: 40px; /* Keeps the header compact */
+            width: auto;
+            max-width: 250px;
             object-fit: contain;
+            /* Makes white background of image blend with the beige header */
+            mix-blend-mode: multiply; 
         }
 
         /* Language Selector */
@@ -119,6 +129,33 @@
         .app-details ul { margin-left: 20px; margin-bottom: 20px; }
         .app-details h3 { margin-top: 20px; font-size: 1.2rem; }
 
+        /* Resource Links */
+        .resource-link {
+            display: block;
+            padding: 15px;
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin-bottom: 12px;
+            text-decoration: none;
+            color: var(--text-main);
+            transition: border-color 0.2s, transform 0.2s;
+        }
+        .resource-link:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+        .resource-link strong {
+            display: block;
+            color: var(--primary);
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+        .resource-link span {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
         /* Forms */
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--text-main); }
@@ -161,13 +198,10 @@
     <!-- COMPACT HEADER -->
     <header>
         <div class="header-left">
-            <div class="logo-container">
-                <a href="#">
-                    <!-- REPLACE WITH YOUR GOOGLE DRIVE LINK -->
-                    <!-- Example: https://drive.google.com/uc?export=view&id=YOUR_FILE_ID -->
-                    <img src="https://drive.google.com/uc?export=view&id=d&id=1_3Qc1Qbh36B4NTPlqPXumKHQg05Rq3NX" alt="VespaCaution Logo" onerror="this.src='https://via.placeholder.com/120x35/f4ebd9/d35400?text=Logo'">
-                </a>
-            </div>
+            <!-- FETCHES LOCAL LOGO.PNG -->
+            <a href="#" class="logo-container">
+                <img src="logo.png" alt="VespaCaution Logo" onerror="this.src='https://via.placeholder.com/150x40/f4ebd9/d35400?text=VespaCaution'">
+            </a>
             
             <!-- LANGUAGE SELECTOR -->
             <div class="lang-selector">
@@ -289,7 +323,8 @@
                 privacy_title: "Datenschutzerklärung", privacy_date: "Zuletzt aktualisiert:", privacy_p1: "Datenschutz hat Priorität. Diese Richtlinie erklärt, wie wir mit Ihren Daten umgehen.",
                 privacy_h1: "1. Lokale Speicherung", privacy_t1: "Apps wie ApiGuide und AlvearCheck speichern Daten lokal in Ihrem Browser. Wir haben keinen Zugriff darauf.",
                 privacy_h2: "2. Cloud-Konten (VespaTimer)", privacy_t2: "VespaTimer funktioniert offline. Bei Erstellung eines Kontos werden Daten über Supabase sicher gespeichert. Löschung jederzeit möglich.",
-                privacy_h3: "3. KI-Diktat (AlvearCheck)", privacy_t3: "Bei der Sprachdiktat-Funktion wird Audio über Drittanbieter (Groq/Whisper) verarbeitet. Audio wird nur zur Datenextraktion genutzt.",
+                privacy_h3: "3. KI-Diktat (AlvearCheck)", privacy_t3: "Bei der Sprachdiktat-Funktion
+                wird Audio über Drittanbieter (Groq/Whisper) verarbeitet. Audio wird nur zur Datenextraktion genutzt.",
                 privacy_h4: "4. Kontaktformulare", privacy_t4: "Wir nutzen Web3Forms. Name, E-Mail und Nachricht werden nur zur Beantwortung genutzt.",
                 privacy_h5: "5. Kontakt", privacy_t5: "Bei Fragen nutzen Sie bitte die Kontaktseite."
             },
@@ -447,11 +482,26 @@
             
             <div class="app-details" style="margin-top: 20px;">
                 <h3>${t('res_swiss')}</h3>
-                <ul>
-                    <li><strong><a href="https://frelonasiatique.ch" target="_blank">frelonasiatique.ch</a></strong> — Official information and coordination for the Asian hornet in Switzerland.</li>
-                    <li><strong><a href="https://stopfrelons.ch" target="_blank">stopfrelons.ch</a></strong> — Resources and reporting tools for hornet hunters.</li>
-                    <li><strong><a href="https://abeilles.ch" target="_blank">abeilles.ch</a></strong> — The Swiss Beekeepers Association (APISUISSE).</li>
-                </ul>
+                
+                <a href="https://frelonasiatique.ch" target="_blank" class="resource-link">
+                    <strong>frelonasiatique.ch</strong>
+                    <span>Official information and coordination for the Asian hornet in Switzerland.</span>
+                </a>
+
+                <a href="https://stopfrelons.ch" target="_blank" class="resource-link">
+                    <strong>stopfrelons.ch</strong>
+                    <span>Resources and reporting tools for hornet hunters.</span>
+                </a>
+
+                <a href="https://abeilles.ch" target="_blank" class="resource-link">
+                    <strong>abeilles.ch</strong>
+                    <span>The Swiss Beekeepers Association (APISUISSE).</span>
+                </a>
+
+                <a href="https://melizoe.ch" target="_blank" class="resource-link">
+                    <strong>melizoe.ch</strong>
+                    <span> platform for beekeeping products and honey.</span>
+                </a>
             </div>
 
             <div class="app-details" style="margin-top: 20px;">
@@ -464,7 +514,7 @@
                 </ul>
             </div>
         `;
-
+        
         const getContactHtml = () => `
             <h1 id="contact">${t('contact_title')}</h1>
             <p>${t('contact_desc')}</p>
@@ -490,7 +540,7 @@
                             <option value="General">${t('contact_general')}</option>
                             ${Object.keys(appsConfig).map(key => `<option value="${appsConfig[key].title}">${appsConfig[key].title}</option>`).join('')}
                         </select>
-             </div>
+                    </div>
 
                     <div class="form-group">
                         <label for="type">${t('contact_type')}</label>
