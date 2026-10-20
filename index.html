@@ -6,10 +6,9 @@
     <title>VespaCaution</title>
     <style>
         :root {
-            /* Colors pulled from your AlvearCheck screenshot */
             --bg-color: #fcf9f2;
             --surface: #f4ebd9;
-            --primary: #d35400; /* Warm orange/brown */
+            --primary: #d35400;
             --primary-hover: #e67e22;
             --text-main: #5c4a3d;
             --text-muted: #8c7a6b;
@@ -48,11 +47,10 @@
         }
 
         .logo-container img {
-            height: 40px; /* Keeps the header compact */
+            height: 40px;
             width: auto;
             max-width: 250px;
             object-fit: contain;
-            /* Makes white background of image blend with the beige header */
             mix-blend-mode: multiply; 
         }
 
@@ -323,8 +321,7 @@
                 privacy_title: "Datenschutzerklärung", privacy_date: "Zuletzt aktualisiert:", privacy_p1: "Datenschutz hat Priorität. Diese Richtlinie erklärt, wie wir mit Ihren Daten umgehen.",
                 privacy_h1: "1. Lokale Speicherung", privacy_t1: "Apps wie ApiGuide und AlvearCheck speichern Daten lokal in Ihrem Browser. Wir haben keinen Zugriff darauf.",
                 privacy_h2: "2. Cloud-Konten (VespaTimer)", privacy_t2: "VespaTimer funktioniert offline. Bei Erstellung eines Kontos werden Daten über Supabase sicher gespeichert. Löschung jederzeit möglich.",
-                privacy_h3: "3. KI-Diktat (AlvearCheck)", privacy_t3: "Bei der Sprachdiktat-Funktion
-                wird Audio über Drittanbieter (Groq/Whisper) verarbeitet. Audio wird nur zur Datenextraktion genutzt.",
+                privacy_h3: "3. KI-Diktat (AlvearCheck)", privacy_t3: "Bei der Sprachdiktat-Funktion wird Audio über Drittanbieter (Groq/Whisper) verarbeitet. Audio wird nur zur Datenextraktion genutzt.",
                 privacy_h4: "4. Kontaktformulare", privacy_t4: "Wir nutzen Web3Forms. Name, E-Mail und Nachricht werden nur zur Beantwortung genutzt.",
                 privacy_h5: "5. Kontakt", privacy_t5: "Bei Fragen nutzen Sie bitte die Kontaktseite."
             },
@@ -377,9 +374,10 @@
         function setLanguage(lang) {
             currentLang = lang;
             document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelector(`.lang-btn[onclick="setLanguage('${lang}')"]`).classList.add('active');
+            const activeBtn = document.querySelector(`.lang-btn[onclick="setLanguage('${lang}')"]`);
+            if(activeBtn) activeBtn.classList.add('active');
             
-            // Translate all elements with data-i18n
+            // Translate all static elements
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translations[lang] && translations[lang][key]) {
@@ -387,7 +385,7 @@
                 }
             });
 
-            // Re-render the main content to update dynamic text (like button names)
+            // Re-render dynamic page content
             render();
         }
 
@@ -396,8 +394,9 @@
         }
 
         // ==========================================
-        // 2. CONFIGURATION: ADD NEW APPS HERE
+        // 2. CONFIGURATION: APP DETAILS
         // ==========================================
+        // We use functions to build the HTML so we don't break template literals
         const appsConfig = {
             'vespatimer': {
                 title: 'VespaTimer',
@@ -410,11 +409,11 @@
                     rm: "L'assistent digital dal Pot-à-Mèche"
                 },
                 html: {
-                    en: `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer is a web tool (and mobile PWA) designed specifically to facilitate the field work of volunteers fighting the Asian hornet.</p><p>Its goal is to replace the stopwatch and paper sheet by automating average calculations and triangulation to locate nests faster.</p><h3>Features</h3><ul><li><strong>Multi-Stopwatch:</strong> Track up to 13 hornets simultaneously.</li><li><strong>Triangulation:</strong> Estimates nest position based on flight time.</li><li><strong>Compass:</strong> Uses phone sensors for exact takeoff direction.</li><li><strong>Export:</strong> PDF, JSON, GPX/KML.</li><li><strong>History:</strong> Saves sessions from the last 90 days.</li><li><strong>Optional Account:</strong> Cloud sync and unlimited history.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`,
-                    fr: `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer est un outil web (et application mobile PWA) conçu spécifiquement pour faciliter le travail de terrain des télémètres et des bénévoles qui luttent contre le frelon asiatique.</p><p>Son but est de remplacer le chronomètre et la feuille de papier en automatisant les calculs de moyennes et la triangulation.</p><h3>Fonctionnalités</h3><ul><li><strong>Multi-Chronomètre :</strong> Suivez jusqu'à 13 frelons.</li><li><strong>Triangulation :</strong> Estime la position du nid.</li><li><strong>Boussole :</strong> Direction exacte via capteurs.</li><li><strong>Exportation :</strong> PDF, JSON, GPX/KML.</li><li><strong>Historique :</strong> 90 jours de données.</li><li><strong>Compte Optionnel :</strong> Synchro cloud et historique étendu.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`,
-                    de: `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer ist ein Web-Tool für die Feldarbeit gegen die Asiatische Hornisse.</p><h3>Funktionen</h3><ul><li>Multi-Stoppuhr für bis zu 13 Hornissen.</li><li>Triangulation zur Nestfindung.</li><li>Integrierter Kompass.</li><li>Export: PDF, JSON, GPX/KML.</li><li>Verlauf der letzten 90 Tage.</li><li>Optionales Konto für Cloud-Sync.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`,
-                    it: `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer è uno strumento web per il lavoro sul campo contro il calabrone asiatico.</p><h3>Funzionalità</h3><ul><li>Multi-cronometro per 13 calabroni.</li><li>Triangolazione per trovare il nido.</li><li>Bussola integrata.</li><li>Esportazione: PDF, JSON, GPX/KML.</li><li>Cronologia di 90 giorni.</li><li>Account opzionale per la sincronizzazione.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`,
-                    rm: `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer è in instrument web per la lavur cunter la vespra asiatica.</p><h3>Funcziuns</h3><ul><li>Multi-cronometer per 13 vespras.</li><li>Triangulaziun per chattar il gnieu.</li><li>Bussola integrada.</li><li>Export: PDF, JSON, GPX/KML.</li><li>Istorgia da 90 dis.</li><li>Conto opzional per la sincronisaziun.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`
+                    en: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer is a web tool (and mobile PWA) designed specifically to facilitate the field work of volunteers fighting the Asian hornet.</p><p>Its goal is to replace the stopwatch and paper sheet by automating average calculations and triangulation to locate nests faster.</p><h3>Features</h3><ul><li><strong>Multi-Stopwatch:</strong> Track up to 13 hornets simultaneously.</li><li><strong>Triangulation:</strong> Estimates nest position based on flight time.</li><li><strong>Compass:</strong> Uses phone sensors for exact takeoff direction.</li><li><strong>Export:</strong> PDF, JSON, GPX/KML.</li><li><strong>History:</strong> Saves sessions from the last 90 days.</li><li><strong>Optional Account:</strong> Cloud sync and unlimited history.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; },
+                    fr: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer est un outil web (et application mobile PWA) conçu spécifiquement pour faciliter le travail de terrain des télémètres et des bénévoles qui luttent contre le frelon asiatique.</p><p>Son but est de remplacer le chronomètre et la feuille de papier en automatisant les calculs de moyennes et la triangulation.</p><h3>Fonctionnalités</h3><ul><li><strong>Multi-Chronomètre :</strong> Suivez jusqu'à 13 frelons.</li><li><strong>Triangulation :</strong> Estime la position du nid.</li><li><strong>Boussole :</strong> Direction exacte via capteurs.</li><li><strong>Exportation :</strong> PDF, JSON, GPX/KML.</li><li><strong>Historique :</strong> 90 jours de données.</li><li><strong>Compte Optionnel :</strong> Synchro cloud et historique étendu.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; },
+                    de: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer ist ein Web-Tool für die Feldarbeit gegen die Asiatische Hornisse.</p><h3>Funktionen</h3><ul><li>Multi-Stoppuhr für bis zu 13 Hornissen.</li><li>Triangulation zur Nestfindung.</li><li>Integrierter Kompass.</li><li>Export: PDF, JSON, GPX/KML.</li><li>Verlauf der letzten 90 Tage.</li><li>Optionales Konto für Cloud-Sync.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; },
+                    it: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer è uno strumento web per il lavoro sul campo contro il calabrone asiatico.</p><h3>Funzionalità</h3><ul><li>Multi-cronometro per 13 calabroni.</li><li>Triangolazione per trovare il nido.</li><li>Bussola integrata.</li><li>Esportazione: PDF, JSON, GPX/KML.</li><li>Cronologia di 90 giorni.</li><li>Account opzionale per la sincronizzazione.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; },
+                    rm: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer è in instrument web per la lavur cunter la vespra asiatica.</p><h3>Funcziuns</h3><ul><li>Multi-cronometer per 13 vespras.</li><li>Triangulaziun per chattar il gnieu.</li><li>Bussola integrada.</li><li>Export: PDF, JSON, GPX/KML.</li><li>Istorgia da 90 dis.</li><li>Conto opzional per la sincronisaziun.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; }
                 }
             },
             'apiguide': {
@@ -428,11 +427,11 @@
                     rm: "Cudesch da las stagiuns e activitats da las avieuls"
                 },
                 html: {
-                    en: `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide is a PWA designed to accompany beekeepers throughout the year.</p><ul><li><strong>Seasons:</strong> Spring, Summer, Autumn, Winter.</li><li><strong>Activities:</strong> 10 main activities per season.</li><li><strong>Sub-activities:</strong> Detailed breakdown.</li><li><strong>Sheets:</strong> Read-only text sheets with advice.</li></ul><p>Available in 5 languages and works 100% offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`,
-                    fr: `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide est une PWA conçue pour accompagner les apiculteurs tout au long de l'année.</p><ul><li><strong>Saisons :</strong> Printemps, Été, Automne, Hiver.</li><li><strong>Activités :</strong> 10 activités principales par saison.</li><li><strong>Sous-activités :</strong> Affinage des sujets.</li><li><strong>Fiches :</strong> Textes de conseils en lecture seule.</li></ul><p>Disponible en 5 langues et fonctionne 100% hors ligne.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`,
-                    de: `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide ist eine PWA für Imker über das ganze Jahr.</p><ul><li>Jahreszeiten: Frühling, Sommer, Herbst, Winter.</li><li>10 Hauptaktivitäten pro Jahreszeit.</li><li>Unteraktivitäten für mehr Details.</li><li>Textblätter mit Ratschlägen.</li></ul><p>In 5 Sprachen verfügbar und 100% offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`,
-                    it: `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è una PWA per accompagnare gli apicoltori tutto l'anno.</p><ul><li>Stagioni: Primavera, Estate, Autunno, Inverno.</li><li>10 attività principali per stagione.</li><li>Sotto-attività dettagliate.</li><li>Schede di testo con consigli.</li></ul><p>Disponibile in 5 lingue e funziona offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`,
-                    rm: `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è ina PWA per apiculturs durant tut l'on.</p><ul><li>Stagiuns: Primavaira, Stad, Atun, Enviern.</li><li>10 activitats principalas per stagiun.</li><li>Sut-activitats detagliadas.</li><li>Fichas da text cun cussegls.</li></ul><p>En 5 linguas e 100% offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`
+                    en: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide is a PWA designed to accompany beekeepers throughout the year.</p><ul><li><strong>Seasons:</strong> Spring, Summer, Autumn, Winter.</li><li><strong>Activities:</strong> 10 main activities per season.</li><li><strong>Sub-activities:</strong> Detailed breakdown.</li><li><strong>Sheets:</strong> Read-only text sheets with advice.</li></ul><p>Available in 5 languages and works 100% offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
+                    fr: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide est une PWA conçue pour accompagner les apiculteurs tout au long de l'année.</p><ul><li><strong>Saisons :</strong> Printemps, Été, Automne, Hiver.</li><li><strong>Activités :</strong> 10 activités principales par saison.</li><li><strong>Sous-activités :</strong> Affinage des sujets.</li><li><strong>Fiches :</strong> Textes de conseils en lecture seule.</li></ul><p>Disponible en 5 langues et fonctionne 100% hors ligne.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
+                    de: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide ist eine PWA für Imker über das ganze Jahr.</p><ul><li>Jahreszeiten: Frühling, Sommer, Herbst, Winter.</li><li>10 Hauptaktivitäten pro Jahreszeit.</li><li>Unteraktivitäten für mehr Details.</li><li>Textblätter mit Ratschlägen.</li></ul><p>In 5 Sprachen verfügbar und 100% offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
+                    it: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è una PWA per accompagnare gli apicoltori tutto l'anno.</p><ul><li>Stagioni: Primavera, Estate, Autunno, Inverno.</li><li>10 attività principali per stagione.</li><li>Sotto-attività dettagliate.</li><li>Schede di testo con consigli.</li></ul><p>Disponibile in 5 lingue e funziona offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
+                    rm: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è ina PWA per apiculturs durant tut l'on.</p><ul><li>Stagiuns: Primavaira, Stad, Atun, Enviern.</li><li>10 activitats principalas per stagiun.</li><li>Sut-activitats detagliadas.</li><li>Fichas da text cun cussegls.</li></ul><p>En 5 linguas e 100% offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; }
                 }
             },
             'alvearcheck': {
@@ -446,11 +445,11 @@
                     rm: "Il cudesch digital da l'apiari"
                 },
                 html: {
-                    en: `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>A standalone web app replacing the paper notebook. Your data is saved locally via localStorage (100% private).</p><ul><li><strong>Apiaries:</strong> GPS coordinates and orientation.</li><li><strong>Hives:</strong> Track frames, queen color, varroa.</li><li><strong>Swarm Alerts:</strong> Visual warning after 14 days of risk.</li><li><strong>History & CSV:</strong> Export your visits.</li><li><strong>AI Dictaphone:</strong> Hands-free voice input.</li><li><strong>Multilingual:</strong> EN, FR, DE, IT, RM.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`,
-                    fr: `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Une application web autonome remplaçant le carnet papier. Vos données sont stockées localement (100% privé).</p><ul><li><strong>Ruchers :</strong> Coordonnées GPS et orientation.</li><li><strong>Ruches :</strong> Cadres, couleur de la reine, varroas.</li><li><strong>Alertes d'essaimage :</strong> Alerte visuelle après 14 jours.</li><li><strong>Historique & CSV :</strong> Exportez vos visites.</li><li><strong>Dictaphone IA :</strong> Saisie vocale mains libres.</li><li><strong>Multilingue :</strong> EN, FR, DE, IT, RM.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`,
-                    de: `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Eine Web-App, die das Papier-Notizbuch ersetzt. Daten werden lokal gespeichert.</p><ul><li>Bienenstände: GPS und Ausrichtung.</li><li>Völker: Rahmen, Königinfarbe, Varroa.</li><li>Schwarmalarm: Warnung nach 14 Tagen.</li><li>Verlauf & CSV-Export.</li><li>KI-Diktiergerät: Freisprech-Eingabe.</li><li>Mehrsprachig.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`,
-                    it: `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Un'app web che sostituisce il quaderno cartaceo. Dati salvati localmente.</p><ul><li>Apiari: GPS e orientamento.</li><li>Arnie: Telai, colore regina, varroa.</li><li>Avvisi sciamatura: dopo 14 giorni.</li><li>Cronologia ed esportazione CSV.</li><li>Dettatura AI: input vocale.</li><li>Multilingue.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`,
-                    rm: `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Ina web-app che remplazza il cudesch da palpiri. Datas localas.</p><ul><li>Apiaris: GPS ed orientaziun.</li><li>Avieuls: Caders, colur da la regina, varroa.</li><li>Avvis da schigientar: suenter 14 dis.</li><li>Istorgia ed export CSV.</li><li>Dictafon AI: entrada vocala.</li><li>Multilingua.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`
+                    en: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>A standalone web app replacing the paper notebook. Your data is saved locally via localStorage (100% private).</p><ul><li><strong>Apiaries:</strong> GPS coordinates and orientation.</li><li><strong>Hives:</strong> Track frames, queen color, varroa.</li><li><strong>Swarm Alerts:</strong> Visual warning after 14 days of risk.</li><li><strong>History & CSV:</strong> Export your visits.</li><li><strong>AI Dictaphone:</strong> Hands-free voice input.</li><li><strong>Multilingual:</strong> EN, FR, DE, IT, RM.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
+                    fr: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Une application web autonome remplaçant le carnet papier. Vos données sont stockées localement (100% privé).</p><ul><li><strong>Ruchers :</strong> Coordonnées GPS et orientation.</li><li><strong>Ruches :</strong> Cadres, couleur de la reine, varroas.</li><li><strong>Alertes d'essaimage :</strong> Alerte visuelle après 14 jours.</li><li><strong>Historique & CSV :</strong> Exportez vos visites.</li><li><strong>Dictaphone IA :</strong> Saisie vocale mains libres.</li><li><strong>Multilingue :</strong> EN, FR, DE, IT, RM.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
+                    de: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Eine Web-App, die das Papier-Notizbuch ersetzt. Daten werden lokal gespeichert.</p><ul><li>Bienenstände: GPS und Ausrichtung.</li><li>Völker: Rahmen, Königinfarbe, Varroa.</li><li>Schwarmalarm: Warnung nach 14 Tagen.</li><li>Verlauf & CSV-Export.</li><li>KI-Diktiergerät: Freisprech-Eingabe.</li><li>Mehrsprachig.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
+                    it: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Un'app web che sostituisce il quaderno cartaceo. Dati salvati localmente.</p><ul><li>Apiari: GPS e orientamento.</li><li>Arnie: Telai, colore regina, varroa.</li><li>Avvisi sciamatura: dopo 14 giorni.</li><li>Cronologia ed esportazione CSV.</li><li>Dettatura AI: input vocale.</li><li>Multilingue.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
+                    rm: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Ina web-app che remplazza il cudesch da palpiri. Datas localas.</p><ul><li>Apiaris: GPS ed orientaziun.</li><li>Avieuls: Caders, colur da la regina, varroa.</li><li>Avvis da schigientar: suenter 14 dis.</li><li>Istorgia ed export CSV.</li><li>Dictafon AI: entrada vocala.</li><li>Multilingua.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; }
                 }
             }
         };
@@ -500,7 +499,7 @@
 
                 <a href="https://melizoe.ch" target="_blank" class="resource-link">
                     <strong>melizoe.ch</strong>
-                    <span> platform for beekeeping products and honey.</span>
+                    <span>Swiss platform for beekeeping products and honey.</span>
                 </a>
             </div>
 
@@ -514,7 +513,7 @@
                 </ul>
             </div>
         `;
-        
+
         const getContactHtml = () => `
             <h1 id="contact">${t('contact_title')}</h1>
             <p>${t('contact_desc')}</p>
@@ -587,10 +586,11 @@
             window.scrollTo(0, 0);
 
             if (appsConfig[hash]) {
-                mainContent.innerHTML = appsConfig[hash].html[currentLang];
+                mainContent.innerHTML = appsConfig[hash].html[currentLang]();
             } else if (hash === 'apps') {
                 mainContent.innerHTML = getHomeHtml();
-                document.getElementById('apps').scrollIntoView();
+                const el = document.getElementById('apps');
+                if(el) el.scrollIntoView();
             } else if (hash === 'resources') {
                 mainContent.innerHTML = getResourcesHtml();
             } else if (hash === 'contact') {
