@@ -3,35 +3,120 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hardware Test</title>
+  <title>AlvearCheck · Supabase Test</title>
+  <!-- Load Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    body { font-family: sans-serif; background: #fbf6e8; padding: 2rem; }
-    #authScreen { background: white; padding: 2rem; border-radius: 10px; text-align: center; border: 2px solid red; }
-    #app { display: none; background: #e8f5e9; padding: 2rem; border-radius: 10px; text-align: center; border: 2px solid green; }
-    button { padding: 15px; font-size: 18px; background: #c47b2e; color: white; border: none; border-radius: 5px; width: 100%; cursor: pointer; }
+    body { font-family: sans-serif; background: #fbf6e8; padding: 1rem; }
+    
+    /* THE DEBUG BOX */
+    #errorBox { display: none; background: #ffcccc; color: darkred; padding: 1rem; margin-bottom: 1rem; font-weight: bold; border-radius: 5px; border: 2px solid red; }
+
+    #authScreen { max-width: 400px; margin: 0 auto; background: white; padding: 2rem; border-radius: 10px; text-align: center; }
+    #app { display: none; max-width: 800px; margin: 0 auto; background: #e8f5e9; padding: 2rem; border-radius: 10px; text-align: center; border: 2px solid green; }
+    input { display: block; width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    button { padding: 15px; font-size: 16px; background: #c47b2e; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 10px; font-weight: bold; }
+    button.outline { background: transparent; color: #c47b2e; border: 1px solid #c47b2e; }
+    .msg { margin-top: 10px; font-weight: bold; }
   </style>
 </head>
 <body>
 
+  <!-- THIS BOX WILL SHOW ANY ERRORS -->
+  <div id="errorBox"></div>
+
   <!-- LOGIN SCREEN -->
   <div id="authScreen">
-    <h2 style="color: red;">THIS IS THE LOGIN SCREEN</h2>
-    <p>Click the button below. It should hide this red box and show a green box.</p>
-    <button id="loginBtn">CLICK ME TO SWITCH SCREENS</button>
+    <h2>🐝 AlvearCheck</h2>
+    <p>Connectez-vous pour voir vos ruchers.</p>
+    
+    <input type="email" id="authEmail" placeholder="Email">
+    <input type="password" id="authPassword" placeholder="Mot de passe">
+    
+    <button id="loginBtn">Se connecter</button>
+    <button id="registerBtn" class="outline">Créer un compte</button>
+    
+    <p id="authMessage" class="msg"></p>
   </div>
 
-  <!-- MAIN APP -->
+  <!-- MAIN APP (Hidden by default) -->
   <div id="app">
-    <h2 style="color: green;">SUCCESS! THIS IS THE APP SCREEN.</h2>
-    <p>If you can see this, the screen switching works perfectly.</p>
+    <h2 style="color: green;">🎉 LOGIN SUCCESSFUL!</h2>
+    <p>You are now logged into Supabase.</p>
+    <button id="logoutBtn" style="background: #a14d3a;">Se déconnecter (Logout)</button>
   </div>
 
   <script>
-    // We are ONLY testing if the button can hide one div and show another.
-    document.getElementById('loginBtn').addEventListener('click', function() {
-      document.getElementById('authScreen').style.display = 'none';
-      document.getElementById('app').style.display = 'block';
-    });
+    // 1. Catch any crash and show it on the screen
+    window.onerror = function(msg, url, line) {
+      const box = document.getElementById('errorBox');
+      box.style.display = 'block';
+      box.textContent = "JAVASCRIPT CRASH: " + msg + " (Line " + line + ")";
+    };
+
+    // 2. Setup Supabase
+    const SUPABASE_URL = 'https://hdhoctahsnqlvqsmwrsf.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D';
+    
+    // Check if Supabase library actually loaded
+    if (!window.supabase) {
+      document.getElementById('errorBox').style.display = 'block';
+      document.getElementById('errorBox').textContent = "ERROR: The Supabase library failed to load. Check your internet connection or adblocker.";
+    } else {
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      
+      // 3. Login Logic
+      document.getElementById('loginBtn').addEventListener('click', async () => {
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+        const msgEl = document.getElementById('authMessage');
+        
+        msgEl.style.color = '#c47b2e';
+        msgEl.textContent = "Connecting...";
+        
+        try {
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          
+          if (error) throw error;
+          
+          // Hide login, show app
+          document.getElementById('authScreen').style.display = 'none';
+          document.getElementById('app').style.display = 'block';
+          
+        } catch (err) {
+          msgEl.style.color = 'red';
+          msgEl.textContent = "Error: " + err.message;
+        }
+      });
+
+      // 4. Register Logic
+      document.getElementById('registerBtn').addEventListener('click', async () => {
+        const email = document.getElementById('authEmail').value;
+        const password = document.getElementById('authPassword').value;
+        const msgEl = document.getElementById('authMessage');
+        
+        msgEl.style.color = '#c47b2e';
+        msgEl.textContent = "Creating account...";
+        
+        try {
+          const { data, error } = await supabase.auth.signUp({ email, password });
+          if (error) throw error;
+          
+          msgEl.style.color = 'green';
+          msgEl.textContent = "Account created! You can now click 'Se connecter'.";
+        } catch (err) {
+          msgEl.style.color = 'red';
+          msgEl.textContent = "Error: " + err.message;
+        }
+      });
+
+      // 5. Logout Logic
+      document.getElementById('logoutBtn').addEventListener('click', async () => {
+        await supabase.auth.signOut();
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('authScreen').style.display = 'block';
+      });
+    }
   </script>
 </body>
 </html>
