@@ -3,205 +3,174 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlvearCheck Debug</title>
+  <title>AlvearCheck v1.0</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: system-ui, sans-serif; background: #fbf6e8; color: #2e241b; padding: 1rem; min-height: 100vh; display: flex; justify-content: center; }
-  .app { max-width: 1000px; width: 100%; background: #fffdf7; border-radius: 2rem; padding: 1.8rem; border: 1px solid #f0e3cf; }
-  .app-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
-  h1 { display: flex; align-items: center; gap: 0.6rem; font-size: 2.2rem; font-weight: 600; color: #c47b2e; }
-  h1 small { font-size: 0.9rem; font-weight: 400; color: #b0967a; margin-left: auto; background: #f3ebdd; padding: 0.2rem 0.8rem; border-radius: 20px; }
-  .lang-selector { margin-left: auto; display: flex; gap: 0.3rem; flex-wrap: wrap; }
-  .lang-btn { background: transparent; border: 1px solid #d9c9b6; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; cursor: pointer; font-weight: 600; color: #7a6a58; }
-  .lang-btn.active { background: #c47b2e; color: white; border-color: #c47b2e; }
-  .subhead { color: #7a6a58; margin-bottom: 1.8rem; font-size: 1rem; border-left: 4px solid #e3b87c; padding-left: 1rem; }
-  button { background: #e8d9c4; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 500; font-size: 0.9rem; color: #3d2e1f; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; }
-  button.primary { background: #c47b2e; color: white; font-weight: 600; padding: 0.7rem 1.8rem; }
-  button.danger { background: #f4e2dc; color: #a14d3a; }
-  button.small { padding: 0.3rem 0.9rem; font-size: 0.8rem; }
-  button.outline { background: transparent; border: 1px solid #d9c9b6; }
-  button.voice-btn { background: #f0e4d4; border-radius: 50%; width: 48px; height: 48px; padding: 0; position: fixed; bottom: 2rem; right: 2rem; z-index: 100; font-size: 1.4rem; display: none; }
-  button.voice-btn.active { background: #c47b2e; color: white; }
-  .apiary-grid { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.2rem; }
-  .apiary-card { background: #fcf8f0; border-radius: 1.5rem; padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee0cf; cursor: pointer; }
-  .apiary-card.has-swarm-risk { border-left: 6px solid #e6a017; background: #fdf8e8; }
-  .apiary-info { display: flex; flex-direction: column; gap: 0.25rem; }
-  .apiary-name { font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-  .apiary-meta { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: #8b7b68; }
-  .hive-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 1rem 0 1.5rem; }
-  .hive-card { background: #faf4ea; border-radius: 1.2rem; padding: 1rem 1.3rem; border-left: 6px solid #e3b87c; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; cursor: pointer; }
-  .hive-card.swarm-warning { border-left-color: #e6a017; background: #fdf8e8; }
-  .hive-name { font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-  .queen-badge { font-size: 0.7rem; background: #f0e4d4; padding: 0.2rem 0.7rem; border-radius: 30px; font-weight: 600; }
-  .swarm-alert-badge { background: #f5d9b0; color: #8a5c00; padding: 0.2rem 0.7rem; border-radius: 30px; font-size: 0.75rem; font-weight: 600; }
-  .form-panel { background: #f9f3e9; border-radius: 1.5rem; padding: 1.8rem; margin-top: 1.8rem; border: 1px solid #e8d9c4; }
-  .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
-  .field { display: flex; flex-direction: column; gap: 0.3rem; }
-  .field label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #7f6b56; }
-  input, select, textarea { background: white; border: 1px solid #ddd0bd; border-radius: 14px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; }
-  .checkbox-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.3rem; }
-  .row-actions { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
-  .back-link { background: none; border: none; color: #7a6a58; cursor: pointer; font-weight: 500; margin-bottom: 1rem; }
-  .empty-state { text-align: center; padding: 2rem; color: #a18d77; background: #f8f1e6; border-radius: 2rem; font-style: italic; }
-  .badge { background: #e8d9c4; padding: 0.2rem 0.8rem; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-  .geo-btn { background: #e8d9c4; border: none; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 600; cursor: pointer; }
-  .visit-history-wrapper { margin-top: 1.5rem; border-radius: 1.2rem; border: 1px solid #e8d9c4; overflow: hidden; }
-  .visit-history-header { background: #f0e4d4; padding: 0.8rem 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-  .visit-table-container { overflow-x: auto; }
-  .visit-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 700px; }
-  .visit-table th { background: #f9f3e9; padding: 0.6rem; text-align: left; font-weight: 600; border-bottom: 1px solid #e8d9c4; }
-  .visit-table td { padding: 0.6rem; border-bottom: 1px solid #f0e8dc; }
-  .voice-status { position: fixed; bottom: 6rem; right: 2rem; background: #2e241b; color: #fbf6e8; padding: 0.6rem 1.2rem; border-radius: 40px; font-size: 0.85rem; z-index: 99; max-width: 280px; display: none; }
-  .voice-status.visible { display: block; }
-  #authScreen { max-width: 400px; margin: 10vh auto; padding: 2rem; background: #fffdf7; border-radius: 2rem; text-align: center; border: 1px solid #f0e3cf; }
-  #authScreen h2 { color: #c47b2e; margin-bottom: 1rem; }
-  #authScreen input { margin-bottom: 1rem; }
-                           </style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; background: #fbf6e8; color: #2e241b; padding: 1rem; min-height: 100vh; display: flex; justify-content: center; }
+    .app { max-width: 1000px; width: 100%; background: #fffdf7; border-radius: 2rem; padding: 1.8rem; border: 1px solid #f0e3cf; }
+    .app-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+    h1 { display: flex; align-items: center; gap: 0.6rem; font-size: 2.2rem; font-weight: 600; color: #c47b2e; }
+    h1 small { font-size: 0.9rem; font-weight: 400; color: #b0967a; margin-left: auto; background: #f3ebdd; padding: 0.2rem 0.8rem; border-radius: 20px; }
+    .subhead { color: #7a6a58; margin-bottom: 1.8rem; font-size: 1rem; border-left: 4px solid #e3b87c; padding-left: 1rem; }
+    button { background: #e8d9c4; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 500; font-size: 0.9rem; color: #3d2e1f; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; }
+    button.primary { background: #c47b2e; color: white; font-weight: 600; padding: 0.7rem 1.8rem; }
+    button.danger { background: #f4e2dc; color: #a14d3a; }
+    button.small { padding: 0.3rem 0.9rem; font-size: 0.8rem; }
+    button.outline { background: transparent; border: 1px solid #d9c9b6; }
+    .apiary-grid { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.2rem; }
+    .apiary-card { background: #fcf8f0; border-radius: 1.5rem; padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee0cf; cursor: pointer; }
+    .apiary-info { display: flex; flex-direction: column; gap: 0.25rem; }
+    .apiary-name { font-weight: 600; font-size: 1.2rem; }
+    .apiary-meta { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: #8b7b68; }
+    #authScreen { max-width: 400px; margin: 10vh auto; padding: 2rem; background: #fffdf7; border-radius: 2rem; text-align: center; border: 1px solid #f0e3cf; }
+    #authScreen input { margin-bottom: 1rem; width: 100%; padding: 10px; border-radius: 10px; border: 1px solid #ddd; }
+    #errorBox { display: none; background: #ffcccc; color: red; padding: 15px; border: 2px solid red; margin-bottom: 20px; font-weight: bold; white-space: pre-wrap; }
+  </style>
 </head>
 <body>
-
-  <!-- IF THERE IS A CRASH, IT WILL SHOW HERE -->
-  <div id="debugBox"></div>
+  <div id="errorBox"></div>
 
   <div id="authScreen">
-    <h2>Login Test</h2>
+    <h2>🐝 AlvearCheck</h2>
     <input type="email" id="email" placeholder="Email">
     <input type="password" id="password" placeholder="Password">
-    <button id="loginBtn">Log In</button>
-    <button id="registerBtn" style="background: gray;">Register</button>
-    <p id="msg"></p>
+    <button id="loginBtn" class="primary" style="width: 100%; margin-bottom: 0.5rem;">Log In</button>
+    <button id="registerBtn" class="outline" style="width: 100%;">Register</button>
+    <p id="msg" style="margin-top: 1rem; font-weight: bold;"></p>
   </div>
 
-  <div id="app">
-    <h2 style="color: green;">🎉 SUCCESS! YOU ARE LOGGED IN.</h2>
-    <p>The app would show here.</p>
-  </div>
+  <div class="app" id="app" style="display:none;"></div>
 
   <script>
     // Catch any crashes and show them on screen
     window.onerror = function(msg, url, line) {
-      var box = document.getElementById('debugBox');
+      var box = document.getElementById('errorBox');
       box.style.display = 'block';
       box.innerHTML += "CRASH: " + msg + "<br>Line: " + line + "<br><br>";
     };
 
-    try {
-      var supabase = window.supabase.createClient('https://hdhoctahsnqlvqsmwrsf.supabase.co', 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D');
+    var supabase = window.supabase.createClient('https://hdhoctahsnqlvqsmwrsf.supabase.co', 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D');
 
-      document.getElementById('loginBtn').onclick = async function() {
-        var email = document.getElementById('email').value;
-        var pass = document.getElementById('password').value;
-        var msg = document.getElementById('msg');
-        msg.innerText = "Connecting...";
-        
-        var result = await supabase.auth.signInWithPassword({ email: email, password: pass });
-        
-        if (result.error) {
-          msg.innerText = "Error: " + result.error.message;
-          msg.style.color = "red";
-        } else {
-          document.getElementById('authScreen').style.display = 'none';
-          document.getElementById('app').style.display = 'block';
+    var appData = { apiaries: [] };
+    var currentView = 'apiary-list';
+    var activeApiaryId = null;
+
+    // --- LOGIN & REGISTER ---
+    document.getElementById('loginBtn').onclick = async function() {
+      var email = document.getElementById('email').value;
+      var pass = document.getElementById('password').value;
+      var msg = document.getElementById('msg');
+      msg.innerText = "Connecting...";
+      
+      var result = await supabase.auth.signInWithPassword({ email: email, password: pass });
+      
+      if (result.error) {
+        msg.innerText = "Error: " + result.error.message;
+        msg.style.color = "red";
+      } else {
+        msg.innerText = "Success! Loading app...";
+        msg.style.color = "green";
+        showApp(); // <--- THIS FIXES THE CRASH
+      }
+    };
+
+    document.getElementById('registerBtn').onclick = async function() {
+      var email = document.getElementById('email').value;
+      var pass = document.getElementById('password').value;
+      var msg = document.getElementById('msg');
+      msg.innerText = "Creating...";
+      
+      var result = await supabase.auth.signUp({ email: email, password: pass });
+      
+      if (result.error) {
+        msg.innerText = "Error: " + result.error.message;
+        msg.style.color = "red";
+      } else {
+        msg.innerText = "Account created! Now click Log In.";
+        msg.style.color = "green";
+      }
+    };
+
+    // --- SHOW APP ---
+    async function showApp() {
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      
+      try {
+        var userResult = await supabase.auth.getUser();
+        if (userResult.data.user) {
+           var dbResult = await supabase.from('user_data').select('data').eq('user_id', userResult.data.user.id).single();
+           if (dbResult.data && dbResult.data.data) {
+             appData = dbResult.data.data;
+           }
+        }
+      } catch (err) { console.error(err); }
+      
+      render(); // Load the UI now that user is logged in
+    }
+
+    async function saveData(data) {
+      appData = data;
+      var userResult = await supabase.auth.getUser();
+      if (userResult.data.user) {
+        await supabase.from('user_data').upsert({ user_id: userResult.data.user.id, data: data, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+      }
+    }
+
+    // --- RENDER APIARY LIST ---
+    function renderApiaryList() {
+      var appEl = document.getElementById('app');
+      var apiaries = appData.apiaries;
+      
+      var html = `<div class="app-header"><h1>🐝 AlvearCheck <small>v1.0</small></h1></div><div class="subhead">Manage your apiaries</div><div style="display:flex;justify-content:space-between;margin-bottom:1rem;"><span>${apiaries.length} apiaries</span><div><button class="primary" id="addApiaryBtn">＋ Add apiary</button></div></div>`;
+      
+      if (apiaries.length === 0) {
+        html += `<div style="text-align:center; padding:2rem;">No apiaries yet.</div>`;
+      } else {
+        html += `<div class="apiary-grid">`;
+        apiaries.forEach(function(apiary) {
+          html += `<div class="apiary-card" data-apiary-id="${apiary.id}"><div class="apiary-info"><span class="apiary-name">${apiary.name}</span><div class="apiary-meta"><span>🧭 ${apiary.orientation || '—'}</span><span>📍 ${apiary.coordinates || '—'}</span><span>🐝 ${apiary.hives.length} hives</span></div></div><div><button class="small danger delete-apiary-btn" data-apiary-id="${apiary.id}">✕ Delete</button></div></div>`;
+        });
+        html += `</div>`;
+      }
+      
+      appEl.innerHTML = html;
+      
+      // Attach listeners ONLY after the HTML is created
+      document.getElementById('addApiaryBtn').onclick = function() {
+        var name = prompt("Apiary Name:");
+        if (name) {
+          appData.apiaries.push({ id: Date.now().toString(), name: name, orientation: '', coordinates: '', hives: [] });
+          saveData(appData);
+          renderApiaryList();
         }
       };
+      
+      document.querySelectorAll('.apiary-card').forEach(function(card) {
+        card.onclick = function(e) {
+          if (e.target.closest('button')) return;
+          activeApiaryId = card.dataset.apiaryId;
+          // We will add hive rendering later, for now just show an alert
+          alert("Clicked apiary: " + activeApiaryId + ". Hive list coming next!");
+        };
+      });
 
-      document.getElementById('registerBtn').onclick = async function() {
-        var email = document.getElementById('email').value;
-        var pass = document.getElementById('password').value;
-        var msg = document.getElementById('msg');
-        msg.innerText = "Creating...";
-        
-        var result = await supabase.auth.signUp({ email: email, password: pass });
-        
-        if (result.error) {
-          msg.innerText = "Error: " + result.error.message;
-          msg.style.color = "red";
-        } else {
-          msg.innerText = "Account created! Now click Log In.";
-          msg.style.color = "green";
-        }
-      };
-
-    } catch (e) {
-      var box = document.getElementById('debugBox');
-      box.style.display = 'block';
-      box.innerHTML = "SETUP ERROR: " + e.message;
+      document.querySelectorAll('.delete-apiary-btn').forEach(function(btn) {
+        btn.onclick = function(e) {
+          e.stopPropagation();
+          if(confirm("Delete this apiary?")) {
+            appData.apiaries = appData.apiaries.filter(function(a) { return a.id !== btn.dataset.apiaryId; });
+            saveData(appData);
+            renderApiaryList();
+          }
+        };
+      });
     }
-    // --- TRADUCTIONS (Partiel pour l'exemple, ajoute les autres si besoin) ---
-let currentLang = 'fr';
-const translations = {
-  fr: { appName: 'AlvearCheck', apiaryTracker: 'suivi des ruchers', manageApiaries: 'Gérez vos ruchers et leurs ruches', addApiary: '＋ Ajouter un rucher', apiary: 'rucher', apiaries: 'ruchers', addHive: '＋ Ajouter une ruche', hive: 'ruche', hives: 'ruches', backToApiaries: '← Retour aux ruchers', backToHives: '← Retour aux ruches', edit: '✎ Modifier', delete: '✕ Supprimer', deleteApiaryConfirm: 'Supprimer ce rucher ?', deleteHiveConfirm: 'Supprimer cette ruche ?', noApiaries: 'Aucun rucher.', noHives: 'Aucune ruche.', noVisits: 'Aucune visite.', visits: 'Visites', allVisits: 'Toutes les visites', date: 'Date', maleFrames: 'Cadres mâles', honeyFrames: 'Cadres de miel', broodFrames: 'Cadres de couvain', swarmRisk: 'Essaimage', queenColor: 'Reine', varroa: 'Varroa', remarks: 'Remarques', swarmAlert: '⚠️ alerte', atRisk: '⚠️ risque', swarmAlertActive: '⚠️ Alerte essaimage', apiaryName: 'Nom du rucher *', orientation: 'Orientation', coordinates: 'Coordonnées', hiveName: 'Nom de la ruche *', queenColorYear: 'Couleur reine', varroaCount: 'Varroas', atRiskOfSwarming: 'Risque d\'essaimage', notes: 'Notes...', save: 'Enregistrer', create: 'Créer', cancel: 'Annuler', pleaseEnterApiaryName: 'Entrez un nom.', pleaseEnterHiveName: 'Entrez un nom.', useMyLocation: 'Ma position', exportCSV: '📥 CSV', noDataToExport: 'Rien à exporter.', editApiary: 'Modifier rucher', newApiary: 'Nouveau rucher', editHive: 'Modifier ruche', newHive: 'Nouvelle ruche', queenColorBlue: 'Bleu', queenColorWhite: 'Blanc', queenColorYellow: 'Jaune', queenColorRed: 'Rouge', queenColorGreen: 'Vert', ok: 'OK', yes: 'Oui', no: 'Non' }
-};
-function t(key) { return translations[currentLang][key] || key; }
-function escapeHtml(str) { if (str == null) return ''; return String(str).replace(/[&<>"]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; if (m === '"') return '&quot;'; return m; }); }
 
-let appData = { apiaries: [] };
-let currentView = 'apiary-list';
-let activeApiaryId = null;
-let activeHiveId = null;
-let editApiaryData = null;
-let editHiveData = null;
-let geoLoading = false;
-
-async function showApp() {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('voiceBtn').style.display = 'flex';
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-       const { data } = await supabase.from('user_data').select('data').eq('user_id', user.id).single();
-       if (data && data.data) appData = data.data;
+    function render() {
+      if (currentView === 'apiary-list') renderApiaryList();
     }
-  } catch (err) { console.error(err); }
-  render();
-}
-
-async function saveData(data) {
-  appData = data;
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    await supabase.from('user_data').upsert({ user_id: user.id, data: data, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-  }
-}
-
-// MODALS
-const modalEl = document.getElementById('modal'); const modalBackdrop = document.getElementById('modalBackdrop'); const modalTitleEl = document.getElementById('modalTitle'); const modalBodyEl = document.getElementById('modalBody'); const modalActionsEl = document.getElementById('modalActions'); let modalResolver = null;
-function openModal(options) { return new Promise(function(resolve) { modalTitleEl.textContent = options.title || ''; modalBodyEl.textContent = options.body || ''; modalActionsEl.innerHTML = ''; options.actions.forEach(function(action) { const btn = document.createElement('button'); btn.textContent = action.label; if (action.primary) btn.className = 'primary'; else if (action.danger) btn.className = 'danger'; else btn.className = 'outline'; btn.addEventListener('click', function() { const result = action.value; modalEl.classList.remove('visible'); modalBackdrop.classList.remove('visible'); modalActionsEl.innerHTML = ''; modalResolver = null; resolve(result); }); modalActionsEl.appendChild(btn); }); modalResolver = resolve; modalBackdrop.classList.add('visible'); modalEl.classList.add('visible'); }); }
-function nativeAlert(message, title) { return openModal({ title: title || t('alertTitle'), body: message, actions: [{ label: t('ok'), primary: true, value: true }] }); }
-function nativeDeleteConfirm(message) { return openModal({ title: t('deleteTitle'), body: message, actions: [{ label: t('no'), outline: true, value: false }, { label: t('delete'), danger: true, value: true }] }); }
-modalBackdrop.addEventListener('click', function() { if (modalResolver) { modalEl.classList.remove('visible'); modalBackdrop.classList.remove('visible'); modalActionsEl.innerHTML = ''; const r = modalResolver; modalResolver = null; r(false); } });
-
-// HELPERS
-function generateId() { return crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).substr(2, 9); }
-function findApiary(id) { return appData.apiaries.find(a => a.id === id); }
-function findHive(apiaryId, hiveId) { const apiary = findApiary(apiaryId); if (!apiary) return null; return apiary.hives.find(h => h.id === hiveId); }
-function isSwarmAlertActive(hive) { if (!hive.swarmRisk || !hive.swarmRiskSetAt) return false; return ((new Date() - new Date(hive.swarmRiskSetAt)) / (1000 * 60 * 60 * 24)) >= 14; }
-function apiaryHasSwarmAlert(apiary) { return apiary.hives.some(h => isSwarmAlertActive(h)); }
-const queenColors = [ { value: 'blue', labelKey: 'queenColorBlue' }, { value: 'white', labelKey: 'queenColorWhite' }, { value: 'yellow', labelKey: 'queenColorYellow' }, { value: 'red', labelKey: 'queenColorRed' }, { value: 'green', labelKey: 'queenColorGreen' } ];
-function renderLangSelector() { return '<div class="lang-selector">' + ['fr','en'].map(l => `<button class="lang-btn ${currentLang === l ? 'active' : ''}" data-lang="${l}">${l.toUpperCase()}</button>`).join('') + '</div>'; }
-function attachLangListeners() { document.querySelectorAll('.lang-btn').forEach(btn => { btn.addEventListener('click', () => { currentLang = btn.dataset.lang; render(); }); }); }
-
-const appEl = document.getElementById('app');
-
-// RENDER FUNCTIONS (Ajoute-les toutes ici)
-function renderApiaryList() {
-  const apiaries = appData.apiaries; const anySwarmAlert = apiaries.some(a => apiaryHasSwarmAlert(a));
-  let html = `<div class="app-header"><h1>🐝 ${t('appName')} <small>v1.0</small></h1>${renderLangSelector()}</div><div class="subhead">${t('manageApiaries')}</div><div style="display:flex;justify-content:space-between;margin-bottom:1rem;"><span>${apiaries.length} ${t('apiaries')}</span><div><button class="outline" id="exportCsvBtn">${t('exportCSV')}</button><button class="primary" id="addApiaryBtn">${t('addApiary')}</button></div></div>`;
-  if (apiaries.length === 0) html += `<div class="empty-state">${t('noApiaries')}</div>`;
-  else { html += `<div class="apiary-grid">`; apiaries.forEach(apiary => { const hiveCount = apiary.hives.length; const hasAlert = apiaryHasSwarmAlert(apiary); html += `<div class="apiary-card ${hasAlert ? 'has-swarm-risk' : ''}" data-apiary-id="${apiary.id}"><div class="apiary-info"><span class="apiary-name">${escapeHtml(apiary.name)}</span><div class="apiary-meta"><span>🧭 ${escapeHtml(apiary.orientation || '—')}</span><span>📍 ${escapeHtml(apiary.coordinates || '—')}</span><span>🐝 ${hiveCount} ${t('hives')}</span></div></div><div><button class="small outline edit-apiary-btn" data-apiary-id="${apiary.id}">${t('edit')}</button><button class="small danger delete-apiary-btn" data-apiary-id="${apiary.id}">${t('delete')}</button></div></div>`; }); html += `</div>`; }
-  appEl.innerHTML = html; attachLangListeners();
-  document.getElementById('addApiaryBtn').onclick = () => { currentView = 'add-apiary'; editApiaryData = { name: '', orientation: '', coordinates: '' }; render(); };
-  document.querySelectorAll('.apiary-card').forEach(card => { card.onclick = (e) => { if (e.target.closest('button')) return; activeApiaryId = card.dataset.apiaryId; currentView = 'hive-list'; render(); }; });
-  document.querySelectorAll('.edit-apiary-btn').forEach(btn => { btn.onclick = (e) => { e.stopPropagation(); const apiary = findApiary(btn.dataset.apiaryId); editApiaryData = { ...apiary }; activeApiaryId = apiary.id; currentView = 'edit-apiary'; render(); }; });
-  document.querySelectorAll('.delete-apiary-btn').forEach(btn => { btn.onclick = async (e) => { e.stopPropagation(); if (await nativeDeleteConfirm(t('deleteApiaryConfirm'))) { appData.apiaries = appData.apiaries.filter(a => a.id !== btn.dataset.apiaryId); saveData(appData); render(); } }; });
-  document.getElementById('exportCsvBtn').onclick = exportAllVisitsCSV;
-}
-
-// (Ajoute renderHiveList, renderHiveVisits, renderApiaryForm, renderHiveForm, export functions, AI VOICE functions ici, en copiant les blocs de mon message précédent)
-
-function render() { if (currentView === 'apiary-list') renderApiaryList(); /* ajoute les autres */ }
   </script>
 </body>
 </html>
