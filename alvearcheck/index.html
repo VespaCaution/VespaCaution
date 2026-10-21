@@ -424,6 +424,72 @@ function renderHiveVisits() {
         else renderApiaryList();
       }
     });
-  </script>
+  async function handleLogin(email, password) {
+  const errEl = document.getElementById('authError');
+  try {
+    errEl.style.display = 'none';
+    
+    // Uses standard Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({ 
+      email: email, 
+      password: password 
+    });
+    
+    if (error) throw error;
+    
+    // If successful, hide auth screen and show app
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('voiceBtn').style.display = 'flex';
+    
+    // Reload data and render
+    if (typeof showApp === 'function') {
+       await showApp();
+    } else {
+       if (typeof render === 'function') render();
+    }
+    
+  } catch (err) {
+    alert("LOGIN ERROR: " + err.message); // This will tell you exactly what is wrong
+    errEl.textContent = err.message; 
+    errEl.style.display = 'block';
+  }
+  }
+  async function handleRegister(email, password) {
+  const errEl = document.getElementById('authError');
+  try {
+    errEl.style.display = 'none';
+    
+    const { data, error } = await supabase.auth.signUp({ 
+      email: email, 
+      password: password 
+    });
+    
+    if (error) throw error;
+    
+    alert("SUCCESS! Account created. You can now log in.");
+    errEl.textContent = "Account created! Click 'Se connecter' now.";
+    errEl.style.color = "green";
+    errEl.style.display = 'block';
+    
+  } catch (err) {
+    alert("REGISTRATION ERROR: " + err.message);
+    errEl.textContent = err.message; 
+    errEl.style.display = 'block';
+  }
+  }
+  // Connect your buttons to the new functions
+document.getElementById('loginBtn').addEventListener('click', () => {
+  const email = document.getElementById('authEmail').value;
+  const password = document.getElementById('authPassword').value;
+  handleLogin(email, password);
+});
+
+document.getElementById('registerBtn').addEventListener('click', () => {
+  const email = document.getElementById('authEmail').value;
+  const password = document.getElementById('authPassword').value;
+  handleRegister(email, password);
+});
+</script>
 </body>
 </html>
