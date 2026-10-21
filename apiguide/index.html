@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#fef9e7">
+<title>ApiGuide v1.0</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #fef9e7; color: #2c2c2c; line-height: 1.5; padding: 0.75rem; min-height: 100vh; display: flex; flex-direction: column; }
+  .app-header { display: flex; align-items: baseline; justify-content: space-between; padding: 0.25rem 0.5rem 0.75rem 0.5rem; border-bottom: 2px solid #d4a373; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+  .app-title { font-size: 1.8rem; font-weight: 700; color: #7f5539; letter-spacing: -0.5px; }
+  .app-title small { font-size: 0.85rem; font-weight: 400; color: #9c6644; margin-left: 0.5rem; }
+  .editor-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+  .lang-select { background: #e6ccb2; border: 1px solid #b08968; padding: 0.4rem 0.6rem; border-radius: 30px; font-size: 0.85rem; font-weight: 600; color: #5e3a1c; cursor: pointer; }
+  .btn { background: #b08968; border: none; color: white; padding: 0.5rem 1rem; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .btn:active { transform: scale(0.97); }
+  .btn-ghost { background: transparent; border: 1px solid #b08968; color: #7f5539; }
+  .btn-success { background: #4a7c2e; }
+  .back-btn { background: #b08968; border: none; color: white; padding: 0.5rem 1rem; border-radius: 30px; font-size: 0.9rem; font-weight: 600; cursor: pointer; }
+  .back-btn:active { transform: scale(0.97); }
+  .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.75rem; margin: 0.75rem 0 1.5rem 0; }
+  .cell { position: relative; }
+  .grid-btn { width: 100%; background: #fff6e9; border: 2px solid #d4a373; border-radius: 18px; padding: 1rem 2.2rem 1rem 0.5rem; font-size: 1rem; font-weight: 600; color: #4a2e1b; cursor: pointer; box-shadow: 0 3px 0 #b08968; text-align: center; word-break: break-word; display: flex; align-items: center; justify-content: center; min-height: 80px; }
+  .grid-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #b08968; }
+  .btn-edit { position: absolute; top: 4px; right: 4px; background: #d4a373; color: #fff; border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; cursor: pointer; line-height: 1; }
+  .btn-del { position: absolute; top: 4px; left: 4px; background: #a4341c; color: #fff; border: none; width: 22px; height: 22px; border-radius: 50%; font-size: 0.85rem; cursor: pointer; line-height: 1; }
+  .textbox-container { background: #fffdf7; border-radius: 24px; padding: 1.2rem; box-shadow: 0 8px 20px rgba(127,85,57,0.1); border: 1px solid #e6ccb2; margin: 1rem 0; }
+  .textbox-container h2 { font-size: 1.1rem; color: #7f5539; margin-bottom: 0.75rem; }
+  .text-content { white-space: pre-wrap; color: #2c2c2c; font-size: 1rem; }
+  textarea { width: 100%; padding: 0.9rem; font-size: 1rem; border: 2px solid #e6ccb2; border-radius: 18px; background: #fef9e7; font-family: inherit; resize: vertical; min-height: 200px; }
+  textarea:focus { outline: none; border-color: #b08968; background: #fffdf7; }
+  .empty-note { font-style: italic; color: #9c6644; font-size: 0.9rem; }
+  .breadcrumb { font-weight: 500; color: #7f5539; flex: 1; min-width: 180px; }
+  .row { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+  footer { margin-top: auto; text-align: center; font-size: 0.75rem; color: #b08968; padding: 1.5rem 0 0.5rem 0; border-top: 1px dashed #e6ccb2; }
+  .editor-hint { background: #fff4d6; border-left: 4px solid #d4a373; padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.82rem; color: #7f5539; margin-bottom: 0.75rem; }
+  .hidden-flag { opacity: 0.4; }
+  @media (max-width: 480px) { .grid-container { grid-template-columns: repeat(2, 1fr); } .app-title { font-size: 1.3rem; } }
+</style>
+</head>
+<body>
+<div class="app-header">
+  <div class="app-title">ApiGuide <small>v1.0 · beekeeping seasons & activities</small></div>
+  <div class="editor-bar" id="editorBar"></div>
+</div>
+<main id="app"></main>
+<footer>ApiGuide v1.0</footer>
+
+<script>
+/* ================================================================
+   BUILD CONFIG
+   ================================================================ */
+const FINAL_MODE = false;
+const LANGS = ['en','fr','it','de','rm'];
+const LANG_LABELS = { en:'English', fr:'Français', it:'Italiano', de:'Deutsch', rm:'Rumantsch' };
+
+/* ================================================================
+   BLANK CONTENT  (20,000 slots generated in memory)
+   ================================================================ */
+const E10  = () => ['', '', '', '', '', '', '', '', '', ''];
+const E100 = () => Array.from({ length: 10 }, E10);
+const E1000 = () => Array.from({ length: 10 }, E100);
+
+function blankLang() {
+  return {
+    season: ['', '', '', ''],
+    level1: Array.from({ length: 4 }, E10),
+    level2: Array.from({ length: 4 }, E100),
+    level3: Array.from({ length: 4 }, E1000),
+    text:   Array.from({ length: 4 }, E1000)
+  };
+}
+
+/* ---------------------------------------------------------------
+   Load state
+   --------------------------------------------------------------- */
+const LS_KEY = 'apiguide_v1_content';
+const LS_LANG = 'apiguide_v1_lang';
+
+let CONTENT = null;
+try {
+  const raw = localStorage.getItem(LS_KEY);
+  CONTENT = raw ? JSON.parse(raw) : { en: blankLang(), fr: blankLang(), it: blankLang(), de: blankLang(), rm: blankLang() };
+} catch (e) {
+  CONTENT = { en: blankLang(), fr: blankLang(), it: blankLang(), de: blankLang(), rm: blankLang() };
+}
+// Safety: ensure every language has the expected shape (in case of old exports)
+LANGS.forEach(l => { if (!CONTENT[l]) CONTENT[l] = blankLang(); });
+
+let currentLang = localStorage.getItem(LS_LANG) || 'en';
+if (!LANGS.includes(currentLang)) currentLang = 'en';
+
+function saveContent() {
+  if (FINAL_MODE) return;
+  localStorage.setItem(LS_KEY, JSON.stringify(CONTENT));
+  localStorage.setItem(LS_LANG, currentLang);
+}
+
+/* ================================================================
+   NAVIGATION STATE
+   ================================================================ */
+let s = null, l1 = null, l2 = null, l3 = null;
+function resetNav() { s = l1 = l2 = l3 = null; }
+function back() {
+  if (l3 !== null) l3 = null;
+  else if (l2 !== null) l2 = null;
+  else if (l1 !== null) l1 = null;
+  else if (s !== null) s = null;
+  render();
+}
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+function esc(str) {
+  return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* Get the titles array for the current level (using current state) */
+function currentTitles(level) {
+  const C = CONTENT[currentLang];
+  if (level === 'season') return C.season;
+  if (level === 'level1') return C.level1[s];
+  if (level === 'level2') return C.level2[s][l1];
+  if (level === 'level3') return C.level3[s][l1][l2];
+  return [];
+}
+
+/* Ensure child branches exist when a new parent button is added */
+function ensureChildBranch(level, parentIdx) {
+  const C = CONTENT[currentLang];
+  if (level === 'season') {
+    while (C.level1.length <= parentIdx) C.level1.push(E10());
+    while (C.level2.length <= parentIdx) C.level2.push(E100());
+    while (C.level3.length <= parentIdx) C.level3.push(E1000());
+    while (C.text.length   <= parentIdx) C.text.push(E1000());
+  } else if (level === 'level1') {
+    while (C.level2[s].length <= parentIdx) C.level2[s].push(E10());
+    while (C.level3[s].length <= parentIdx) C.level3[s].push(E100());
+    while (C.text[s].length   <= parentIdx) C.text[s].push(E100());
+  } else if (level === 'level2') {
+    while (C.level3[s][l1].length <= parentIdx) C.level3[s][l1].push(E10());
+    while (C.text[s][l1].length   <= parentIdx) C.text[s][l1].push(E10());
+  }
+}
+
+/* ================================================================
+   RENDER
+   ================================================================ */
+function render() {
+  renderEditorBar();
+  const app = document.getElementById('app');
+  const isEditor = !FINAL_MODE;
+
+  /* ---------- FINAL TEXT VIEW ---------- */
+  if (s !== null && l1 !== null && l2 !== null && l3 !== null) {
+    const text = CONTENT[currentLang].text[s][l1][l2][l3];
+    app.innerHTML = `
+      <div class="row">
+        <button class="back-btn" id="backBtn">← Back</button>
+        <span class="breadcrumb">${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1}.${l2+1}.${l3+1}</span>
+      </div>
+      <div class="textbox-container">
+        <h2>📝 Notes</h2>
+        ${isEditor
+          ? `<textarea id="editText" placeholder="Type the final text…">${esc(text)}</textarea>
+             <div class="empty-note" style="margin-top:.5rem;">Saved automatically.</div>`
+          : (text && text.length
+              ? `<div class="text-content">${esc(text)}</div>`
+              : `<div class="empty-note">(no text yet)</div>`)}
+      </div>
+    `;
+    document.getElementById('backBtn').onclick = back;
+    if (isEditor) {
+      const ta = document.getElementById('editText');
+      ta.addEventListener('input', () => {
+        CONTENT[currentLang].text[s][l1][l2][l3] = ta.value;
+        saveContent();
+      });
+    }
+    return;
+  }
+
+  /* Determine which level we're at */
+  let level;
+  if (s !== null && l1 !== null && l2 !== null) level = 'level3';
+  else if (s !== null && l1 !== null) level = 'level2';
+  else if (s !== null) level = 'level1';
+  else level = 'season';
+
+  const crumbText = {
+    season: `${esc(LANG_LABELS[currentLang])} · choose a season`,
+    level1: `${esc(LANG_LABELS[currentLang])} · S${s+1} → activity`,
+    level2: `${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1} → group`,
+    level3: `${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1}.${l2+1} → item`
+  }[level];
+
+  app.innerHTML = `
+    <div class="row">
+      ${level === 'season' ? '' : '<button class="back-btn" id="backBtn">← Back</button>'}
+      <span class="breadcrumb">${crumbText}</span>
+    </div>
+    ${isEditor ? editorHint(level) : ''}
+    <div class="grid-container" id="grid" ${level==='season'?'style="grid-template-columns:repeat(2,1fr);"':''}></div>
+  `;
+  if (level !== 'season') document.getElementById('backBtn').onclick = back;
+
+  fillGrid(level);
+}
+
+function editorHint(level) {
+  return `<div class="editor-hint">✏️ Pencil to edit · × to remove (hide) · ＋ to add a new ${level} button</div>`;
+}
+
+/* ================================================================
+   GRID FILL  (uses array length, not a hardcoded count — so
+   any pushed buttons appear)
+   ================================================================ */
+function fillGrid(level) {
+  const grid = document.getElementById('grid');
+  if (!grid) return;
+  const isEditor = !FINAL_MODE;
+  const titles = currentTitles(level);
+
+  let html = '';
+  for (let i = 0; i < titles.length; i++) {
+    const title = titles[i];
+    if (!isEditor && title === null) continue;
+    const hidden = title === null;
+    html += `
+      <div class="cell ${hidden ? 'hidden-flag' : ''}" data-i="${i}">
+        <button class="grid-btn" data-open="${i}">${esc(title == null ? '' : title)}</button>
+        ${isEditor ? `
+          <button class="btn-edit" data-edit="${i}" title="Edit title">✏️</button>
+          <button class="btn-del"  data-del="${i}"  title="Hide / remove">×</button>
+        ` : ''}
+      </div>
+    `;
+  }
+  if (isEditor) {
+    html += `<div class="cell"><button class="grid-btn" id="addBtn" style="opacity:.55;">＋</button></div>`;
+  }
+  grid.innerHTML = html;
+
+  /* open buttons */
+  grid.querySelectorAll('[data-open]').forEach(btn => {
+    btn.onclick = () => {
+      const i = +btn.dataset.open;
+      if (titles[i] === null) return;
+      if (level === 'season') { s = i; l1 = l2 = l3 = null; }
+      else if (level === 'level1') { l1 = i; l2 = l3 = null; }
+      else if (level === 'level2') { l2 = i; l3 = null; }
+      else { l3 = i; }
+      render();
+    };
+  });
+
+  if (!isEditor) return;
+
+  /* edit buttons */
+  grid.querySelectorAll('[data-edit]').forEach(btn => {
+    btn.onclick = () => {
+      const i = +btn.dataset.edit;
+      const cur = titles[i];
+      const next = prompt('Enter title (empty = blank, "null" = hidden):', cur == null ? '' : cur);
+      if (next === null) return;
+      titles[i] = (next === 'null') ? null : next;
+      saveContent();
+      render();
+    };
+  });
+
+  /* delete buttons */
+  grid.querySelectorAll('[data-del]').forEach(btn => {
+    btn.onclick = () => {
+      const i = +btn.dataset.del;
+      if (!confirm('Hide this button? (set to null → not visible to readers)')) return;
+      titles[i] = null;
+      saveContent();
+      render();
+    };
+  });
+
+  /* add button */
+  const addBtn = document.getElementById('addBtn');
+  if (addBtn) {
+    addBtn.onclick = () => {
+      const name = prompt('Title for the new button:', '');
+      if (name === null) return;
+      const newIdx = titles.length;
+      titles.push(name === '' ? '' : name);
+      ensureChildBranch(level, newIdx);
+      saveContent();
+      render();
+    };
+  }
+}
+
+/* ================================================================
+   EDITOR BAR
+   ================================================================ */
+function renderEditorBar() {
+  const bar = document.getElementById('editorBar');
+  if (FINAL_MODE) {
+    // Final mode: only a language switcher
+    bar.innerHTML = `
+      <select class="lang-select" id="langSelect">
+        ${LANGS.map(l => `<option value="${l}" ${l===currentLang?'selected':''}>${esc(LANG_LABELS[l])}</option>`).join('')}
+      </select>
+    `;
+    document.getElementById('langSelect').onchange = (e) => {
+      currentLang = e.target.value;
+      resetNav();
+      render();
+    };
+    return;
+  }
+
+  bar.innerHTML = `
+    <select class="lang-select" id="langSelect">
+      ${LANGS.map(l => `<option value="${l}" ${l===currentLang?'selected':''}>${esc(LANG_LABELS[l])}</option>`).join('')}
+    </select>
+    <button class="btn btn-success" id="exportBtn">⬇ Export final site</button>
+    <button class="btn btn-ghost" id="resetBtn">Reset all</button>
+  `;
+  document.getElementById('langSelect').onchange = (e) => {
+    currentLang = e.target.value;
+    saveContent();
+    resetNav();
+    render();
+  };
+  document.getElementById('exportBtn').onclick = exportSite;
+  document.getElementById('resetBtn').onclick = () => {
+    if (!confirm('Erase ALL edits in localStorage and start over? (Export first if you want to keep them.)')) return;
+    localStorage.removeItem(LS_KEY);
+    localStorage.removeItem(LS_LANG);
+    CONTENT = { en: blankLang(), fr: blankLang(), it: blankLang(), de: blankLang(), rm: blankLang() };
+    currentLang = 'en';
+    resetNav();
+    render();
+  };
+}
+
+/* ================================================================
+   EXPORT
+   ================================================================ */
+function exportSite() {
+  const baked = JSON.stringify(CONTENT);
+  const startingLang = currentLang;
+  const html = buildFinalHtml(baked, startingLang);
+  const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'api-guide-final.html';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function buildFinalHtml(bakedContentJson, startingLang) {
+  const styleSrc = document.querySelector('style').textContent;
+
+  const finalScript = `
+/* ===== ApiGuide v1.0 — FINAL (read-only) ===== */
+const FINAL_MODE = true;
+const LANGS = ['en','fr','it','de','rm'];
+const LANG_LABELS = { en:'English', fr:'Français', it:'Italiano', de:'Deutsch', rm:'Rumantsch' };
+
+const CONTENT = ${bakedContentJson};
+let currentLang = '${startingLang}';
+
+let s = null, l1 = null, l2 = null, l3 = null;
+function resetNav(){ s=l1=l2=l3=null; }
+function back(){ if(l3!==null)l3=null; else if(l2!==null)l2=null; else if(l1!==null)l1=null; else if(s!==null)s=null; render(); }
+
+function esc(str){ return String(str==null?'':str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function currentTitles(level){
+  const C = CONTENT[currentLang];
+  if (level==='season') return C.season;
+  if (level==='level1') return C.level1[s];
+  if (level==='level2') return C.level2[s][l1];
+  if (level==='level3') return C.level3[s][l1][l2];
+  return [];
+}
+
+function render(){
+  const app = document.getElementById('app');
+
+  /* final text */
+  if (s!==null && l1!==null && l2!==null && l3!==null){
+    const t = CONTENT[currentLang].text[s][l1][l2][l3];
+    app.innerHTML = \`
+      <div class="row">
+        <button class="back-btn" id="backBtn">← Back</button>
+        <span class="breadcrumb">\${esc(LANG_LABELS[currentLang])} · S\${s+1} · \${l1+1}.\${l2+1}.\${l3+1}</span>
+      </div>
+      <div class="textbox-container">
+        <h2>📝 Notes</h2>
+        \${t && t.length ? \`<div class="text-content">\${esc(t)}</div>\` : '<div class="empty-note">(no text)</div>'}
+      </div>\`;
+    document.getElementById('backBtn').onclick = back;
+    return;
+  }
+
+  let level;
+  if (s!==null && l1!==null && l2!==null) level='level3';
+  else if (s!==null && l1!==null) level='level2';
+  else if (s!==null) level='level1';
+  else level='season';
+
+  const crumbText = {
+    season: esc(LANG_LABELS[currentLang]) + ' · choose a season',
+    level1: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' → activity',
+    level2: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' · ' + (l1+1) + ' → group',
+    level3: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' · ' + (l1+1) + '.' + (l2+1) + ' → item'
+  }[level];
+
+  const titles = currentTitles(level);
+
+  let html = '';
+  for (let i = 0; i < titles.length; i++) {
+    if (titles[i] === null) continue;
+    html += \`<div class="cell"><button class="grid-btn" data-i="\${i}">\${esc(titles[i])}</button></div>\`;
+  }
+
+  app.innerHTML = \`
+    <div class="row">
+      \${level==='season' ? '' : '<button class="back-btn" id="backBtn">← Back</button>'}
+      <span class="breadcrumb">\${crumbText}</span>
+    </div>
+    <div class="grid-container" id="grid" \${level==='season'?'style="grid-template-columns:repeat(2,1fr);"':''}>\${html}</div>
+  \`;
+  if (level!=='season') document.getElementById('backBtn').onclick = back;
+
+  document.querySelectorAll('[data-i]').forEach(b=>{
+    b.onclick = ()=>{
+      const i = +b.dataset.i;
+      if (level==='season'){ s=i; l1=l2=l3=null; }
+      else if (level==='level1'){ l1=i; l2=l3=null; }
+      else if (level==='level2'){ l2=i; l3=null; }
+      else { l3=i; }
+      render();
+    };
+  });
+}
+
+/* language switcher in final mode */
+function renderLangSwitcher(){
+  const bar = document.getElementById('editorBar');
+  bar.innerHTML = \`
+    <select class="lang-select" id="langSelect">
+      \${LANGS.map(l => \`<option value="\${l}" \${l===currentLang?'selected':''}>\${esc(LANG_LABELS[l])}</option>\`).join('')}
+    </select>
+  \`;
+  document.getElementById('langSelect').onchange = (e)=>{
+    currentLang = e.target.value;
+    resetNav();
+    render();
+  };
+}
+
+renderLangSwitcher();
+render();
+`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#fef9e7">
+<title>ApiGuide v1.0</title>
+<style>${styleSrc}</style>
+</head>
+<body>
+<div class="app-header">
+  <div class="app-title">ApiGuide <small>v1.0 · beekeeping seasons & activities</small></div>
+  <div class="editor-bar" id="editorBar"></div>
+</div>
+<main id="app"></main>
+<footer>ApiGuide v1.0</footer>
+<script>${finalScript}<\/script>
+</body>
+</html>`;
+}
+
+/* ================================================================
+   BOOT
+   ================================================================ */
+resetNav();
+render();
+</script>
+</body>
+</html>
