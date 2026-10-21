@@ -144,24 +144,38 @@ async function showApp() {
   try {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-       // For now, data is stored per user in a simple way via localStorage.
-       // If you want cross-device sync, we would need to set up a database table.
-       const localRaw = localStorage.getItem('alvearcheck_data_' + user.id);
-       if (localRaw) appData = JSON.parse(localRaw);
+       // Load from Supabase table
+       const { data, error } = await supabase
+         .from('user_data')
+         .select('data')
+         .eq('user_id', user.id)
+         .single();
+       
+       if (data && data.data) {
+         appData = data.data;
+       }
     }
   } catch (err) {
     console.error("Could not load user data", err);
   }
   render();
 }
-
-async function saveData(data) {
+  async function saveData(data) {
   appData = data;
   const { data: { user } } = await supabase.auth.getUser();
   if (user) {
-    localStorage.setItem('alvearcheck_data_' + user.id, JSON.stringify(data));
+    // Save to Supabase table (Upsert = Insert or Update)
+    const { error } = await supabase
+      .from('user_data')
+      .upsert({ 
+        user_id: user.id, 
+        data: data,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'user_id' });
+      
+    if (error) console.error("Cloud sync failed", error);
   }
-}
+  }
 
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value;
