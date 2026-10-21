@@ -3,110 +3,107 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlvearCheck v1.0 · suivi des ruchers</title>
+  <title>AlvearCheck · Login Test</title>
+  <!-- Load Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: #fbf6e8; color: #2e241b; padding: 1rem; min-height: 100vh; display: flex; justify-content: center; }
-    .app { max-width: 1000px; width: 100%; background: #fffdf7; border-radius: 2rem; box-shadow: 0 12px 30px rgba(0,0,0,0.08); padding: 1.8rem 1.8rem 2.2rem; border: 1px solid #f0e3cf; position: relative; }
-    
-    #errorBox { display: none; background: #ffcccc; color: #990000; padding: 1rem; margin-bottom: 1rem; border-radius: 10px; font-family: monospace; white-space: pre-wrap; z-index: 9999; position: relative; }
-
-    .app-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
-    h1 { display: flex; align-items: center; gap: 0.6rem; font-size: 2.2rem; font-weight: 600; letter-spacing: -0.5px; color: #c47b2e; }
-    h1 small { font-size: 0.9rem; font-weight: 400; color: #b0967a; margin-left: auto; background: #f3ebdd; padding: 0.2rem 0.8rem; border-radius: 20px; }
-    
-    .lang-selector { margin-left: auto; display: flex; gap: 0.3rem; flex-wrap: wrap; }
-    .lang-btn { background: transparent; border: 1px solid #d9c9b6; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; cursor: pointer; font-weight: 600; color: #7a6a58; text-transform: uppercase; transition: 0.1s; font-family: inherit; }
-    .lang-btn.active { background: #c47b2e; color: white; border-color: #c47b2e; }
-    .subhead { color: #7a6a58; margin-bottom: 1.8rem; font-size: 1rem; border-left: 4px solid #e3b87c; padding-left: 1rem; }
-
-    button { background: #e8d9c4; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 500; font-size: 0.9rem; color: #3d2e1f; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; border: 1px solid transparent; font-family: inherit; }
-    button.primary { background: #c47b2e; color: white; font-weight: 600; padding: 0.7rem 1.8rem; }
-    button.danger { background: #f4e2dc; color: #a14d3a; }
-    button.small { padding: 0.3rem 0.9rem; font-size: 0.8rem; }
-    button.outline { background: transparent; border: 1px solid #d9c9b6; }
-    
-    button.voice-btn { background: #f0e4d4; border-radius: 50%; width: 48px; height: 48px; padding: 0; justify-content: center; font-size: 1.4rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: fixed; bottom: 2rem; right: 2rem; z-index: 100; }
-    button.voice-btn.active { background: #c47b2e; color: white; box-shadow: 0 0 0 4px rgba(196,123,46,0.3); }
-
-    .apiary-grid { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.2rem; }
-    .apiary-card { background: #fcf8f0; border-radius: 1.5rem; padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee0cf; cursor: pointer; position: relative; }
-    .apiary-card.has-swarm-risk { border-left: 6px solid #e6a017; background: #fdf8e8; }
-    .apiary-info { display: flex; flex-direction: column; gap: 0.25rem; }
-    .apiary-name { font-weight: 600; font-size: 1.2rem; color: #2e241b; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-    .apiary-meta { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: #8b7b68; }
-
-    .hive-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 1rem 0 1.5rem; }
-    .hive-card { background: #faf4ea; border-radius: 1.2rem; padding: 1rem 1.3rem; border-left: 6px solid #e3b87c; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; cursor: pointer; position: relative; }
-    .hive-card.swarm-warning { border-left-color: #e6a017; background: #fdf8e8; }
-    .hive-name { font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
-    .queen-badge { font-size: 0.7rem; background: #f0e4d4; padding: 0.2rem 0.7rem; border-radius: 30px; font-weight: 600; }
-    .swarm-alert-badge { background: #f5d9b0; color: #8a5c00; padding: 0.2rem 0.7rem; border-radius: 30px; font-size: 0.75rem; font-weight: 600; }
-
-    .form-panel { background: #f9f3e9; border-radius: 1.5rem; padding: 1.8rem 1.8rem 2rem; margin-top: 1.8rem; border: 1px solid #e8d9c4; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem 1.2rem; margin: 1rem 0 1.5rem; }
-    .field { display: flex; flex-direction: column; gap: 0.3rem; }
-    .field label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #7f6b56; }
-    input, select, textarea { background: white; border: 1px solid #ddd0bd; border-radius: 14px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; }
-    .checkbox-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.3rem; }
-    .checkbox-row input[type="checkbox"] { width: 1.2rem; height: 1.2rem; accent-color: #c47b2e; }
-    .row-actions { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
-    .back-link { background: none; border: none; color: #7a6a58; cursor: pointer; font-weight: 500; margin-bottom: 1rem; }
-    .empty-state { text-align: center; padding: 2rem; color: #a18d77; background: #f8f1e6; border-radius: 2rem; font-style: italic; }
-    .badge { background: #e8d9c4; padding: 0.2rem 0.8rem; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
-    .geo-btn { background: #e8d9c4; border: none; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 600; cursor: pointer; }
-
-    .visit-history-wrapper { margin-top: 1.5rem; border-radius: 1.2rem; border: 1px solid #e8d9c4; overflow: hidden; }
-    .visit-history-header { background: #f0e4d4; padding: 0.8rem 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
-    .visit-table-container { overflow-x: auto; }
-    .visit-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 700px; }
-    .visit-table th { background: #f9f3e9; padding: 0.6rem; text-align: left; font-weight: 600; border-bottom: 1px solid #e8d9c4; }
-    .visit-table td { padding: 0.6rem; border-bottom: 1px solid #f0e8dc; }
-    .visit-summary { white-space: normal; max-width: 200px; }
-
-    .voice-status { position: fixed; bottom: 6rem; right: 2rem; background: #2e241b; color: #fbf6e8; padding: 0.6rem 1.2rem; border-radius: 40px; font-size: 0.85rem; z-index: 99; max-width: 280px; display: none; }
-    .voice-status.visible { display: block; }
-
-    .modal-backdrop { position: fixed; inset: 0; background: rgba(46,36,27,0.45); z-index: 200; display: none; }
-    .modal-backdrop.visible { display: block; }
-    .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fffdf7; border-radius: 1.5rem; padding: 1.6rem; z-index: 201; max-width: 440px; width: 90%; display: none; }
-    .modal.visible { display: block; }
-    .modal-title { font-size: 1.15rem; font-weight: 600; color: #c47b2e; margin-bottom: 0.8rem; }
-    .modal-body { font-size: 0.95rem; margin-bottom: 1.4rem; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 0.6rem; flex-wrap: wrap; }
-
-    #authScreen { max-width: 400px; margin: 10vh auto; padding: 2rem; background: #fffdf7; border-radius: 2rem; text-align: center; border: 1px solid #f0e3cf; }
-    #authScreen h2 { color: #c47b2e; margin-bottom: 1rem; }
-    #authScreen input { margin-bottom: 1rem; }
+    body { font-family: sans-serif; background: #fbf6e8; padding: 2rem; }
+    #authScreen { max-width: 400px; margin: 0 auto; background: white; padding: 2rem; border-radius: 10px; text-align: center; }
+    #app { display: none; max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 10px; }
+    input { display: block; width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    button { padding: 10px 20px; background: #c47b2e; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 10px; font-weight: bold; }
+    .error { color: red; margin-top: 10px; }
+    .success { color: green; margin-top: 10px; }
   </style>
 </head>
 <body>
-  <div id="errorBox"></div>
+
+  <!-- LOGIN SCREEN -->
   <div id="authScreen">
-  <h2>🐝 AlvearCheck</h2>
-  <p style="margin-bottom: 1.5rem; color: #7a6a58;">Connectez-vous pour accéder à vos ruchers.</p>
-  <input type="email" id="authEmail" placeholder="Email">
-  <input type="password" id="authPassword" placeholder="Mot de passe">
-  <button id="loginBtn" class="primary" style="width: 100%; margin-bottom: 0.5rem;">Se connecter</button>
-  <button id="registerBtn" class="outline" style="width: 100%;">Créer un compte</button>
-  <p id="authError" style="color: #a14d3a; margin-top: 1rem; display: none;"></p>
-</div>
+    <h2>🐝 AlvearCheck</h2>
+    <p>Connectez-vous pour voir vos ruchers.</p>
+    <input type="email" id="authEmail" placeholder="Email">
+    <input type="password" id="authPassword" placeholder="Mot de passe">
+    <button id="loginBtn">Se connecter</button>
+    <button id="registerBtn" style="background: transparent; color: #c47b2e; border: 1px solid #c47b2e;">Créer un compte</button>
+    <p id="authMessage" class="error"></p>
+  </div>
 
-<div class="app" id="app" style="display:none;"></div>
-<button class="voice-btn" id="voiceBtn" style="display:none;">🎤</button>
-<div class="voice-status" id="voiceStatus"></div>
+  <!-- MAIN APP (Hidden by default) -->
+  <div id="app">
+    <h2>Bienvenue dans AlvearCheck !</h2>
+    <p>Vous êtes connecté. C'est ici que l'application s'affichera.</p>
+    <button id="logoutBtn" style="background: #a14d3a;">Se déconnecter</button>
+  </div>
 
-<div class="modal-backdrop" id="modalBackdrop"></div>
-<div class="modal" id="modal">
-  <div class="modal-title" id="modalTitle">Titre</div>
-  <div class="modal-body" id="modalBody">Message</div>
-  <div class="modal-actions" id="modalActions"></div>
-</div>
+  <script>
+    // 1. Initialize Supabase
+    const SUPABASE_URL = 'https://hdhoctahsnqlvqsmwrsf.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-<script>
-  
-document.getElementById('loginBtn').addEventListener('click', () => alert("The button works!"));
-</script>
+    // 2. Get HTML elements
+    const authScreen = document.getElementById('authScreen');
+    const appScreen = document.getElementById('app');
+    const authMessage = document.getElementById('authMessage');
+
+    function showMessage(msg, isError = true) {
+      authMessage.textContent = msg;
+      authMessage.className = isError ? 'error' : 'success';
+    }
+
+    // 3. Handle Login
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+      
+      showMessage("Connecting to Supabase...", false);
+      
+      try {
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        
+        if (error) throw error;
+        
+        // --- THIS IS THE MAGIC LINE ---
+        // It hides the login screen and shows the app
+        authScreen.style.display = 'none';
+        appScreen.style.display = 'block';
+        
+      } catch (err) {
+        showMessage("Login failed: " + err.message);
+      }
+    });
+
+    // 4. Handle Register
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const email = document.getElementById('authEmail').value;
+      const password = document.getElementById('authPassword').value;
+      
+      showMessage("Creating account...", false);
+      
+      try {
+        const { data, error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        showMessage("Account created! You can now log in.", false);
+      } catch (err) {
+        showMessage("Registration failed: " + err.message);
+      }
+    });
+
+    // 5. Handle Logout
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+      await supabase.auth.signOut();
+      authScreen.style.display = 'block';
+      appScreen.style.display = 'none';
+    });
+
+    // 6. Check if already logged in when page loads
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        authScreen.style.display = 'none';
+        appScreen.style.display = 'block';
+      }
+    });
+  </script>
 </body>
 </html>
