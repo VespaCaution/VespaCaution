@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AlvearCheck v1.0 · suivi des ruchers</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #fbf6e8; color: #2e241b; padding: 1rem; min-height: 100vh; display: flex; justify-content: center; }
@@ -109,32 +110,10 @@
     if (box) { box.style.display = 'block'; box.textContent += "ERROR: " + msg + "\nLine: " + line + "\n\n"; }
   };
 
-  // YOUR CUSTOM AUTH API
-  const AuthAPI = (() => {
-    const SUPABASE_URL = 'https://wiptxvsjhvwilnonpgrc.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_kMN7nJ6QPdqe5JTIExWeRA_SxPMK0L8';
-    const FUNCTION_URL = `${SUPABASE_URL}/functions/v1/auth`;
-    let token = null;
-    let siteId = null;
-
-    function init(config) { siteId = config.siteId; token = localStorage.getItem(`auth_token_${siteId}`); }
-    async function call(payload, withAuth = false) {
-      const headers = { 'Content-Type': 'application/json', apikey: SUPABASE_ANON_KEY };
-      if (withAuth && token) headers.Authorization = `Bearer ${token}`;
-      const res = await fetch(FUNCTION_URL, { method: 'POST', headers, body: JSON.stringify({ ...payload, siteId }) });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Request failed');
-      return data;
-    }
-    async function register(email, password) { const { session } = await call({ action: 'register', email, password }); if (session) setToken(session.access_token); }
-    async function login(email, password) { const { session } = await call({ action: 'login', email, password }); if (session) setToken(session.access_token); }
-    function logout() { token = null; localStorage.removeItem(`auth_token_${siteId}`); }
-    function setToken(t) { token = t; localStorage.setItem(`auth_token_${siteId}`, t); }
-    function isLoggedIn() { return !!token; }
-    async function syncSave(data) { return call({ action: 'sync-save', data }, true); }
-    async function syncLoad() { const { data } = await call({ action: 'sync-load' }, true); return data; }
-    return { init, register, login, logout, isLoggedIn, syncSave, syncLoad, get token() { return token } };
-  })();
+  // SUPABASE INIT (Direct Client)
+  const SUPABASE_URL = 'https://hdhoctahsnqlvqsmwrsf.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
   window.addEventListener('DOMContentLoaded', () => {
     const GROQ_API_KEY = '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';
@@ -150,8 +129,6 @@ let currentLang = 'fr';
 function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key; }
 function escapeHtml(str) { if (str == null) return ''; return String(str).replace(/[&<>"]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; if (m === '"') return '&quot;'; return m; }); }
 
-AuthAPI.init({ siteId: 'alvearcheck' });
-
 let appData = { apiaries: [] };
 let currentView = 'apiary-list';
 let activeApiaryId = null;
@@ -165,37 +142,57 @@ async function showApp() {
   document.getElementById('app').style.display = 'block';
   document.getElementById('voiceBtn').style.display = 'flex';
   try {
-    const cloudData = await AuthAPI.syncLoad();
-    if (cloudData && cloudData.apiaries) appData = cloudData;
-    else { const localRaw = localStorage.getItem('alvearcheck_data_v1_0'); if (localRaw) appData = JSON.parse(localRaw); }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+       // For now, data is stored per user in a simple way via localStorage.
+       // If you want cross-device sync, we would need to set up a database table.
+       const localRaw = localStorage.getItem('alvearcheck_data_' + user.id);
+       if (localRaw) appData = JSON.parse(localRaw);
+    }
   } catch (err) {
-    console.error("Could not load cloud data", err);
-    const localRaw = localStorage.getItem('alvearcheck_data_v1_0'); if (localRaw) appData = JSON.parse(localRaw);
+    console.error("Could not load user data", err);
   }
   render();
 }
 
 async function saveData(data) {
   appData = data;
-  localStorage.setItem('alvearcheck_data_v1_0', JSON.stringify(data));
-  if (AuthAPI.isLoggedIn()) { try { await AuthAPI.syncSave(data); } catch (err) { console.error("Cloud sync failed", err); } }
+  const { data: { user } } = await supabase.auth.getUser();
+  if (user) {
+    localStorage.setItem('alvearcheck_data_' + user.id, JSON.stringify(data));
+  }
 }
 
 document.getElementById('loginBtn').addEventListener('click', async () => {
   const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value;
   const errEl = document.getElementById('authError');
-  try { errEl.style.display = 'none'; await AuthAPI.login(email, password); showApp(); } 
-  catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; }
+  try {
+    errEl.style.display = 'none';
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
+    showApp();
+  } catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; }
 });
 
 document.getElementById('registerBtn').addEventListener('click', async () => {
   const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value;
   const errEl = document.getElementById('authError');
-  try { errEl.style.display = 'none'; await AuthAPI.register(email, password); showApp(); } 
-  catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; }
+  try {
+    errEl.style.display = 'none';
+    const { error } = await supabase.auth.signUp({ email, password });
+    if (error) throw error;
+    // After signup, they may need to confirm email. We'll show a message.
+    errEl.textContent = "Account created! You can now try to log in. (Check your email if confirmation is required).";
+    errEl.style.color = "green";
+    errEl.style.display = 'block';
+  } catch (err) { errEl.textContent = err.message; errEl.style.display = 'block'; }
 });
 
-if (AuthAPI.isLoggedIn()) { showApp(); }
+// Check session on load
+supabase.auth.onAuthStateChange((event, session) => {
+  if (session) { showApp(); }
+  else { document.getElementById('authScreen').style.display = 'block'; document.getElementById('app').style.display = 'none'; }
+});
     const modalEl = document.getElementById('modal');
 const modalBackdrop = document.getElementById('modalBackdrop');
 const modalTitleEl = document.getElementById('modalTitle');
@@ -303,8 +300,8 @@ function renderHiveVisits() {
   appEl.innerHTML = html; attachLangListeners();
   document.getElementById('backToHives').addEventListener('click', () => { currentView = 'hive-list'; activeHiveId = null; render(); });
   document.getElementById('exportHiveCsvBtn')?.addEventListener('click', () => exportHiveVisitsCSV(apiary, hive));
-}
-          function renderApiaryForm() {
+  }
+      function renderApiaryForm() {
         const isEdit = currentView === 'edit-apiary'; const data = editApiaryData || { name: '', orientation: '', coordinates: '' };
         let html = `<button class="back-link" id="cancelApiaryForm">← ${t('cancel')}</button><div class="app-header"><h1 style="font-size:1.8rem;">${isEdit ? t('editApiary') : t('newApiary')} <small>v1.0</small></h1>${renderLangSelector()}</div><div class="form-panel"><div class="form-grid"><div class="field" style="grid-column:span 2;"><label>${t('apiaryName')}</label><input type="text" id="apiaryName" value="${escapeHtml(data.name)}" required></div><div class="field"><label>${t('orientation')}</label><input type="text" id="apiaryOrientation" value="${escapeHtml(data.orientation || '')}"></div><div class="field"><label>${t('coordinates')}</label><div style="display:flex;gap:0.4rem;align-items:center;"><input type="text" id="apiaryCoordinates" value="${escapeHtml(data.coordinates || '')}" style="flex:1;"><button class="geo-btn" id="geoBtn" title="${t('useMyLocation')}">📍</button></div></div></div><div class="row-actions"><button class="outline" id="cancelApiaryBtn">${t('cancel')}</button><button class="primary" id="saveApiaryBtn">${isEdit ? t('save') : t('create')}</button></div></div>`;
         appEl.innerHTML = html; attachLangListeners(); document.getElementById('apiaryName').focus();
