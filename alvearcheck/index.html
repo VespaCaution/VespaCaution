@@ -3,106 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlvearCheck · Login Test</title>
-  <!-- Load Supabase -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <title>Hardware Test</title>
   <style>
     body { font-family: sans-serif; background: #fbf6e8; padding: 2rem; }
-    #authScreen { max-width: 400px; margin: 0 auto; background: white; padding: 2rem; border-radius: 10px; text-align: center; }
-    #app { display: none; max-width: 800px; margin: 0 auto; background: white; padding: 2rem; border-radius: 10px; }
-    input { display: block; width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-    button { padding: 10px 20px; background: #c47b2e; color: white; border: none; border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 10px; font-weight: bold; }
-    .error { color: red; margin-top: 10px; }
-    .success { color: green; margin-top: 10px; }
+    #authScreen { background: white; padding: 2rem; border-radius: 10px; text-align: center; border: 2px solid red; }
+    #app { display: none; background: #e8f5e9; padding: 2rem; border-radius: 10px; text-align: center; border: 2px solid green; }
+    button { padding: 15px; font-size: 18px; background: #c47b2e; color: white; border: none; border-radius: 5px; width: 100%; cursor: pointer; }
   </style>
 </head>
 <body>
 
   <!-- LOGIN SCREEN -->
   <div id="authScreen">
-    <h2>🐝 AlvearCheck</h2>
-    <p>Connectez-vous pour voir vos ruchers.</p>
-    <input type="email" id="authEmail" placeholder="Email">
-    <input type="password" id="authPassword" placeholder="Mot de passe">
-    <button id="loginBtn">Se connecter</button>
-    <button id="registerBtn" style="background: transparent; color: #c47b2e; border: 1px solid #c47b2e;">Créer un compte</button>
-    <p id="authMessage" class="error"></p>
+    <h2 style="color: red;">THIS IS THE LOGIN SCREEN</h2>
+    <p>Click the button below. It should hide this red box and show a green box.</p>
+    <button id="loginBtn">CLICK ME TO SWITCH SCREENS</button>
   </div>
 
-  <!-- MAIN APP (Hidden by default) -->
+  <!-- MAIN APP -->
   <div id="app">
-    <h2>Bienvenue dans AlvearCheck !</h2>
-    <p>Vous êtes connecté. C'est ici que l'application s'affichera.</p>
-    <button id="logoutBtn" style="background: #a14d3a;">Se déconnecter</button>
+    <h2 style="color: green;">SUCCESS! THIS IS THE APP SCREEN.</h2>
+    <p>If you can see this, the screen switching works perfectly.</p>
   </div>
 
   <script>
-    // 1. Initialize Supabase
-    const SUPABASE_URL = 'https://hdhoctahsnqlvqsmwrsf.supabase.co';
-    const SUPABASE_KEY = 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // 2. Get HTML elements
-    const authScreen = document.getElementById('authScreen');
-    const appScreen = document.getElementById('app');
-    const authMessage = document.getElementById('authMessage');
-
-    function showMessage(msg, isError = true) {
-      authMessage.textContent = msg;
-      authMessage.className = isError ? 'error' : 'success';
-    }
-
-    // 3. Handle Login
-    document.getElementById('loginBtn').addEventListener('click', async () => {
-      const email = document.getElementById('authEmail').value;
-      const password = document.getElementById('authPassword').value;
-      
-      showMessage("Connecting to Supabase...", false);
-      
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        
-        if (error) throw error;
-        
-        // --- THIS IS THE MAGIC LINE ---
-        // It hides the login screen and shows the app
-        authScreen.style.display = 'none';
-        appScreen.style.display = 'block';
-        
-      } catch (err) {
-        showMessage("Login failed: " + err.message);
-      }
-    });
-
-    // 4. Handle Register
-    document.getElementById('registerBtn').addEventListener('click', async () => {
-      const email = document.getElementById('authEmail').value;
-      const password = document.getElementById('authPassword').value;
-      
-      showMessage("Creating account...", false);
-      
-      try {
-        const { data, error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        showMessage("Account created! You can now log in.", false);
-      } catch (err) {
-        showMessage("Registration failed: " + err.message);
-      }
-    });
-
-    // 5. Handle Logout
-    document.getElementById('logoutBtn').addEventListener('click', async () => {
-      await supabase.auth.signOut();
-      authScreen.style.display = 'block';
-      appScreen.style.display = 'none';
-    });
-
-    // 6. Check if already logged in when page loads
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        authScreen.style.display = 'none';
-        appScreen.style.display = 'block';
-      }
+    // We are ONLY testing if the button can hide one div and show another.
+    document.getElementById('loginBtn').addEventListener('click', function() {
+      document.getElementById('authScreen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
     });
   </script>
 </body>
