@@ -57,7 +57,7 @@
     button {
       background: #e8d9c4; border: none; padding: 0.6rem 1.2rem; border-radius: 40px;
       font-weight: 500; font-size: 0.9rem; color: #3d2e1f; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 6px; transition: all 0.15s;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s;
       border: 1px solid transparent; font-family: inherit;
     }
     button:hover { background: #dac9b2; transform: translateY(-1px); }
@@ -239,6 +239,15 @@
     }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.6rem; flex-wrap: wrap; }
 
+    /* Auth Screen */
+    #authScreen {
+      max-width: 400px; margin: 10vh auto; padding: 2rem; 
+      background: #fffdf7; border-radius: 2rem; text-align: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08); border: 1px solid #f0e3cf;
+    }
+    #authScreen h2 { color: #c47b2e; margin-bottom: 1rem; }
+    #authScreen input { margin-bottom: 1rem; }
+    
     @media (max-width: 550px) {
       .app { padding: 1.2rem; }
       h1 { font-size: 1.8rem; }
@@ -252,25 +261,26 @@
   </style>
 </head>
 <body>
-<div id="debugBox" style="position:fixed; top:0; left:0; right:0; background:rgba(0,0,0,0.8); color:#0f0; font-size:12px; padding:10px; z-index:9999; max-height:50vh; overflow:auto; display:none; font-family:monospace;"></div>
-<script>
-  // Afficher les logs dans la div
-  const originalLog = console.log;
-  console.log = function(...args) {
-    originalLog(...args);
-    const box = document.getElementById('debugBox');
-    box.style.display = 'block';
-    box.innerHTML += '<div>> ' + args.map(a => typeof a === 'object' ? JSON.stringify(a) : a).join(' ') + '</div>';
-  };
-  // Afficher les erreurs
-  window.addEventListener('error', function(e) {
-    const box = document.getElementById('debugBox');
-    box.style.display = 'block';
-    box.innerHTML += '<div style="color:red">ERROR: ' + e.message + '</div>';
-  });
-</script>
-<div class="app" id="app"></div>
-<button class="voice-btn" id="voiceBtn" title="Contrôle vocal">🎤</button>
+
+<!-- 1. LOGIN SCREEN (Visible by default) -->
+<div id="authScreen">
+  <h2>🐝 AlvearCheck</h2>
+  <p style="margin-bottom: 1.5rem; color: #7a6a58; font-size: 0.9rem;">Connectez-vous pour accéder à vos ruchers.</p>
+  
+  <input type="email" id="authEmail" placeholder="Email">
+  <input type="password" id="authPassword" placeholder="Mot de passe">
+  
+  <button id="loginBtn" class="primary" style="width: 100%; margin-bottom: 0.5rem;">Se connecter</button>
+  <button id="registerBtn" class="outline" style="width: 100%;">Créer un compte</button>
+  
+  <p id="authError" style="color: #a14d3a; margin-top: 1rem; font-size: 0.85rem; display: none;"></p>
+</div>
+
+<!-- 2. MAIN APP (Hidden until logged in) -->
+<div class="app" id="app" style="display:none;"></div>
+
+<!-- 3. VOICE BUTTON & STATUS (Hidden until logged in) -->
+<button class="voice-btn" id="voiceBtn" title="Commande vocale" style="display:none;">🎤</button>
 <div class="voice-status" id="voiceStatus"></div>
 
 <!-- Modales Natives -->
@@ -281,9 +291,19 @@
   <div class="modal-actions" id="modalActions"></div>
 </div>
 
+<!-- 4. AUTH API SCRIPT -->
+<script src="/shared/auth.js"></script>
+
+<!-- 5. MAIN APP SCRIPT -->
 <script>
-  const GROQ_API_KEY = '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';
-  /* ---------- TRADUCTIONS ---------- */
+  /* =========================================
+     GROQ API KEY
+     ========================================= */
+  const GROQ_API_KEY = 'gsk_YOUR_KEY_HERE'; // ⚠️ REMPLACE PAR TA CLÉ
+
+  /* =========================================
+     TRANSLATIONS
+     ========================================= */
   const translations = {
     en: {
       appName: 'AlvearCheck', apiaryTracker: 'apiary tracker', manageApiaries: 'Manage your apiaries and their hives',
@@ -325,7 +345,7 @@
       editHive: 'Modifier la ruche', newHive: 'Nouvelle ruche', name: 'Nom', queenColorBlue: 'Bleu', queenColorWhite: 'Blanc',
       queenColorYellow: 'Jaune', queenColorRed: 'Rouge', queenColorGreen: 'Vert', swarmWarningLabel: 'Risque d\'essaimage',
       confirmTitle: 'Confirmer', alertTitle: 'Avis', deleteTitle: 'Supprimer', yes: 'Oui', no: 'Non', ok: 'OK',
-      voiceNotSupported: 'Reconnaissance vocale non supportée.', listening: 'Écoute... parlez en français', voiceOff: 'Voix désactivée'
+      voiceNotSupported: 'Reconnaissance vocale non supportée.', listening: 'Écoute...', voiceOff: 'Voix désactivée'
     },
     de: {
       appName: 'AlvearCheck', apiaryTracker: 'Bienenstand-Verwaltung', manageApiaries: 'Verwalten Sie Ihre Bienenstände und Völker',
@@ -392,53 +412,10 @@
     }
   };
 
-  let currentLang = 'fr'; // Français par défaut
+  let currentLang = 'fr';
   function t(key) {
     return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key;
   }
-
-  /* ---------- STOCKAGE & STATE ---------- */
-  const STORAGE_KEY = 'alvearcheck_data_v1_0';
-  function loadData() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) return JSON.parse(raw);
-    } catch (e) {}
-    return { apiaries: [] };
-  }
-  function saveData(data) { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); }
-
-  let appData = loadData();
-  let currentView = 'apiary-list';
-  let activeApiaryId = null;
-  let activeHiveId = null;
-  let editApiaryData = null;
-  let editHiveData = null;
-  let geoLoading = false;
-
-  function generateId() {
-    return crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-  }
-  function findApiary(id) { return appData.apiaries.find(a => a.id === id); }
-  function findHive(apiaryId, hiveId) {
-    const apiary = findApiary(apiaryId);
-    if (!apiary) return null;
-    return apiary.hives.find(h => h.id === hiveId);
-  }
-  function isSwarmAlertActive(hive) {
-    if (!hive.swarmRisk || !hive.swarmRiskSetAt) return false;
-    const diffDays = (new Date() - new Date(hive.swarmRiskSetAt)) / (1000 * 60 * 60 * 24);
-    return diffDays >= 14;
-  }
-  function apiaryHasSwarmAlert(apiary) { return apiary.hives.some(h => isSwarmAlertActive(h)); }
-
-  const queenColors = [
-    { value: 'blue', labelKey: 'queenColorBlue' },
-    { value: 'white', labelKey: 'queenColorWhite' },
-    { value: 'yellow', labelKey: 'queenColorYellow' },
-    { value: 'red', labelKey: 'queenColorRed' },
-    { value: 'green', labelKey: 'queenColorGreen' }
-  ];
 
   function escapeHtml(str) {
     if (str == null) return '';
@@ -451,7 +428,88 @@
     });
   }
 
-  /* ---------- MODALES NATIVES ---------- */
+  /* =========================================
+     AUTH & CLOUD SYNC (Supabase via your API)
+     ========================================= */
+  AuthAPI.init({ siteId: 'alvearcheck' });
+
+  let appData = { apiaries: [] };
+  let currentView = 'apiary-list';
+  let activeApiaryId = null;
+  let activeHiveId = null;
+  let editApiaryData = null;
+  let editHiveData = null;
+  let geoLoading = false;
+
+  async function showApp() {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('voiceBtn').style.display = 'flex';
+
+    try {
+      const cloudData = await AuthAPI.syncLoad();
+      if (cloudData && cloudData.apiaries) {
+        appData = cloudData;
+      } else {
+        const localRaw = localStorage.getItem('alvearcheck_data_v1_0');
+        if (localRaw) appData = JSON.parse(localRaw);
+      }
+    } catch (err) {
+      console.error("Could not load cloud data", err);
+      const localRaw = localStorage.getItem('alvearcheck_data_v1_0');
+      if (localRaw) appData = JSON.parse(localRaw);
+    }
+
+    render();
+  }
+
+  async function saveData(data) {
+    appData = data;
+    localStorage.setItem('alvearcheck_data_v1_0', JSON.stringify(data));
+    if (AuthAPI.isLoggedIn()) {
+      try {
+        await AuthAPI.syncSave(data);
+      } catch (err) {
+        console.error("Cloud sync failed", err);
+      }
+    }
+  }
+
+  document.getElementById('loginBtn').addEventListener('click', async () => {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+    const errEl = document.getElementById('authError');
+    try {
+      errEl.style.display = 'none';
+      await AuthAPI.login(email, password);
+      showApp();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    }
+  });
+
+  document.getElementById('registerBtn').addEventListener('click', async () => {
+    const email = document.getElementById('authEmail').value;
+    const password = document.getElementById('authPassword').value;
+    const errEl = document.getElementById('authError');
+    try {
+      errEl.style.display = 'none';
+      await AuthAPI.register(email, password);
+      showApp();
+    } catch (err) {
+      errEl.textContent = err.message;
+      errEl.style.display = 'block';
+    }
+  });
+
+  if (AuthAPI.isLoggedIn()) {
+    showApp();
+  }
+
+  /* =========================================
+     MODALS
+     ========================================= */
   const modalEl = document.getElementById('modal');
   const modalBackdrop = document.getElementById('modalBackdrop');
   const modalTitleEl = document.getElementById('modalTitle');
@@ -507,7 +565,36 @@
     }
   });
 
-  /* ---------- RENDU : LANGUE ---------- */
+  /* =========================================
+     HELPERS
+     ========================================= */
+  function generateId() {
+    return crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  }
+  function findApiary(id) { return appData.apiaries.find(a => a.id === id); }
+  function findHive(apiaryId, hiveId) {
+    const apiary = findApiary(apiaryId);
+    if (!apiary) return null;
+    return apiary.hives.find(h => h.id === hiveId);
+  }
+  function isSwarmAlertActive(hive) {
+    if (!hive.swarmRisk || !hive.swarmRiskSetAt) return false;
+    const diffDays = (new Date() - new Date(hive.swarmRiskSetAt)) / (1000 * 60 * 60 * 24);
+    return diffDays >= 14;
+  }
+  function apiaryHasSwarmAlert(apiary) { return apiary.hives.some(h => isSwarmAlertActive(h)); }
+
+  const queenColors = [
+    { value: 'blue', labelKey: 'queenColorBlue' },
+    { value: 'white', labelKey: 'queenColorWhite' },
+    { value: 'yellow', labelKey: 'queenColorYellow' },
+    { value: 'red', labelKey: 'queenColorRed' },
+    { value: 'green', labelKey: 'queenColorGreen' }
+  ];
+
+  /* =========================================
+     RENDER: LANG
+     ========================================= */
   function renderLangSelector() {
     return '<div class="lang-selector">' +
       ['en','fr','de','it','rm'].map(l => `<button class="lang-btn ${currentLang === l ? 'active' : ''}" data-lang="${l}">${l.toUpperCase()}</button>`).join('') +
@@ -517,13 +604,14 @@
     document.querySelectorAll('.lang-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         currentLang = btn.dataset.lang;
-        saveData(appData);
         render();
       });
     });
   }
 
-  /* ---------- RENDU : LISTE DES RUCHERS ---------- */
+  /* =========================================
+     RENDER: APIARY LIST
+     ========================================= */
   const appEl = document.getElementById('app');
   function renderApiaryList() {
     const apiaries = appData.apiaries;
@@ -612,7 +700,9 @@
     });
   }
 
-  /* ---------- RENDU : LISTE DES RUCHES ---------- */
+  /* =========================================
+     RENDER: HIVE LIST
+     ========================================= */
   function renderHiveList() {
     const apiary = findApiary(activeApiaryId);
     if (!apiary) { currentView = 'apiary-list'; render(); return; }
@@ -727,7 +817,9 @@
     });
   }
 
-  /* ---------- RENDU : VISITES ---------- */
+  /* =========================================
+     RENDER: VISITS
+     ========================================= */
   function renderHiveVisits() {
     const apiary = findApiary(activeApiaryId);
     const hive = findHive(activeApiaryId, activeHiveId);
@@ -785,7 +877,9 @@
     document.getElementById('exportHiveCsvBtn')?.addEventListener('click', () => exportHiveVisitsCSV(apiary, hive));
   }
 
-  /* ---------- RENDU : FORMULAIRE RUCHER ---------- */
+  /* =========================================
+     RENDER: APIARY FORM
+     ========================================= */
   function renderApiaryForm() {
     const isEdit = currentView === 'edit-apiary';
     const data = editApiaryData || { name: '', orientation: '', coordinates: '' };
@@ -865,7 +959,9 @@
     });
   }
 
-  /* ---------- RENDU : FORMULAIRE RUCHE ---------- */
+  /* =========================================
+     RENDER: HIVE FORM
+     ========================================= */
   function renderHiveForm() {
     const isEdit = currentView === 'edit-hive';
     const data = editHiveData || { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' };
@@ -953,7 +1049,9 @@
     });
   }
 
-  /* ---------- EXPORT CSV ---------- */
+  /* =========================================
+     CSV EXPORT
+     ========================================= */
   function exportHiveVisitsCSV(apiary, hive) {
     const visits = hive.visits || [];
     if (visits.length === 0) { nativeAlert(t('noDataToExport')); return; }
@@ -987,8 +1085,10 @@
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   }
-  
-      /* ---------- HANDS-FREE AI DICTAPHONE (Screen Reader Method) ---------- */
+
+  /* =========================================
+     AI VOICE (Screen Reader + Navigation)
+     ========================================= */
   let mediaRecorder = null;
   let audioChunks = [];
   let isRecording = false;
@@ -1082,7 +1182,6 @@
       formData.append('file', audioBlob, 'audio.webm');
       formData.append('model', 'whisper-large-v3');
       
-      // Force French or the current UI language for perfect transcription
       const langCode = currentLang === 'fr' ? 'fr' : currentLang === 'de' ? 'de' : currentLang === 'it' ? 'it' : 'en';
       formData.append('language', langCode);
       
@@ -1101,9 +1200,8 @@
       }
       
       console.log("AI Heard:", transcript);
-      showVoiceStatus(`📝 "${transcript}"`, 4000); // Show the bubble
+      showVoiceStatus(`📝 "${transcript}"`, 4000);
       
-      // Wait half a second so the user sees the bubble, then send to screen reader AI
       await new Promise(r => setTimeout(r, 600));
       await screenReaderAI(transcript);
       
@@ -1116,49 +1214,38 @@
   async function screenReaderAI(transcript) {
     showVoiceStatus("🤖 Reading screen & filling...");
     
-    // 1. Gather all labels and inputs currently on the screen
     const formFields = [];
     document.querySelectorAll('.field').forEach(field => {
       const label = field.querySelector('label')?.textContent.trim();
       const input = field.querySelector('input, select, textarea');
-      if (label && input) {
-        formFields.push(`Label: "${label}" (ID: ${input.id})`);
-      }
+      if (label && input) formFields.push(`Label: "${label}" (ID: ${input.id})`);
     });
 
-    // 2. Also check if we are on a list view (Apiaries or Hives) to allow navigation
-    let context = "";
-    if (currentView === 'apiary-list') context = "User is viewing the list of apiaries.";
-    if (currentView === 'hive-list') context = "User is viewing the list of hives in an apiary.";
-    if (currentView === 'hive-visits') context = "User is viewing the visit history.";
+    let navContext = "";
+    if (currentView === 'apiary-list') {
+        navContext = "User is on the list of apiaries. Available apiaries: " + appData.apiaries.map(a => a.name).join(', ');
+    } else if (currentView === 'hive-list') {
+        const apiary = findApiary(activeApiaryId);
+        navContext = `User is viewing the hives of ${apiary.name}. Available hives: ` + apiary.hives.map(h => h.name).join(', ');
+    }
 
-    // 3. The prompt that turns the AI into a "Screen Reader"
-    const systemPrompt = `You are an AI that reads the current screen and acts as an assistant.
-${context}
-Here are the form fields currently visible on the screen:
+    const systemPrompt = `You are an AI controlling a beekeeping app.
+${navContext}
+
+Form fields visible:
 ${formFields.join('\n') || 'No form fields visible.'}
 
-The user just said: "${transcript}"
+The user said: "${transcript}"
 
-Your job:
-1. If the user is asking to navigate (e.g., "add a hive", "go back", "open apiary X"), return a navigation action.
-2. If the user is describing data (e.g., "2 male frames, red queen"), match their words to the Labels above and return the data.
+Actions you can take:
+1. Navigate to a specific hive: { "action": "navigate", "target": "hive", "apiary_name": "Name", "hive_name": "Name" }
+2. Add a new apiary: { "action": "navigate", "target": "add_apiary" }
+3. Add a new hive: { "action": "navigate", "target": "add_hive" }
+4. Go back: { "action": "navigate", "target": "go_back" }
+5. Save: { "action": "navigate", "target": "save" }
+6. Fill form fields (use IDs from above): { "action": "fill_form", "data": { "id": "value" } }
 
-Return ONLY valid raw JSON.
-Navigation format:
-{ "action": "navigate", "target": "add_apiary" | "add_hive" | "open_hives" | "go_back" | "save" }
-
-Form filling format (only use IDs that are present above):
-{ 
-  "action": "fill_form", 
-  "data": { 
-    "id_of_field_1": "value", 
-    "id_of_field_2": "value"
-  } 
-}
-
-Example: If the user says "two male frames", and the label "CADRES MÂLES" exists with ID "maleFrames", return:
-{ "action": "fill_form", "data": { "maleFrames": 2 } }`;
+Return ONLY valid raw JSON. No markdown.`;
 
     try {
       const llmResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -1168,8 +1255,8 @@ Example: If the user says "two male frames", and the label "CADRES MÂLES" exist
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'qwen/qwen3.8-27b', // Using Qwen because it's good at following rules in French
-          reasoning_effort: "none", // Forces it to output plain JSON
+          model: 'qwen/qwen3.8-27b', 
+          reasoning_effort: "none", 
           messages: [{ role: 'user', content: systemPrompt }],
           temperature: 0.1,
           response_format: { type: 'json_object' }
@@ -1181,7 +1268,6 @@ Example: If the user says "two male frames", and the label "CADRES MÂLES" exist
       const llmResult = await llmResponse.json();
       let rawContent = llmResult.choices[0].message.content;
       
-      // Clean JSON
       rawContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
       const firstBrace = rawContent.indexOf('{');
       const lastBrace = rawContent.lastIndexOf('}');
@@ -1199,48 +1285,59 @@ Example: If the user says "two male frames", and the label "CADRES MÂLES" exist
   }
 
   async function executeAIAction(data) {
-    // 1. HANDLE NAVIGATION
-    if (data.action === "navigate") {
-        if (data.target === "add_apiary") {
-            currentView = 'add-apiary'; editApiaryData = { name: '', orientation: '', coordinates: '' }; render(); showVoiceStatus("✅ Add Apiary opened"); return;
+    // 1. NAVIGATE TO SPECIFIC HIVE
+    if (data.action === "navigate" && data.target === "hive") {
+        if (data.apiary_name) {
+            const apiary = appData.apiaries.find(a => a.name.toLowerCase().includes(data.apiary_name.toLowerCase()));
+            if (apiary) {
+                activeApiaryId = apiary.id;
+                currentView = 'hive-list';
+                render();
+                await new Promise(r => setTimeout(r, 400));
+            } else {
+                showVoiceStatus("⚠️ Apiary not found"); return;
+            }
         }
-        if (data.target === "add_hive") {
-            if (!activeApiaryId) { showVoiceStatus("⚠️ Open an apiary first"); return; }
-            currentView = 'add-hive'; editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; render(); showVoiceStatus("✅ Add Hive opened"); return;
+        if (data.hive_name && activeApiaryId) {
+            const apiary = findApiary(activeApiaryId);
+            const hive = apiary.hives.find(h => h.name.toLowerCase().includes(data.hive_name.toLowerCase()));
+            if (hive) {
+                activeHiveId = hive.id;
+                editHiveData = { 
+                    name: hive.name, maleFrames: hive.maleFrames ?? '', honeyFrames: hive.honeyFrames ?? '', 
+                    broodFrames: hive.broodFrames ?? '', swarmRisk: hive.swarmRisk, queenColor: hive.queenColor, 
+                    varroaCount: hive.varroaCount ?? '', remarks: hive.remarks ?? '' 
+                };
+                currentView = 'edit-hive';
+                render();
+                showVoiceStatus("✅ Opened " + hive.name);
+            } else {
+                showVoiceStatus("⚠️ Hive not found"); return;
+            }
         }
-        if (data.target === "open_hives") {
-            if (appData.apiaries.length > 0) { activeApiaryId = appData.apiaries[0].id; currentView = 'hive-list'; render(); showVoiceStatus("✅ Hives opened"); } 
-            else { showVoiceStatus("⚠️ No apiaries found"); }
-            return;
-        }
-        if (data.target === "go_back") {
-            if (currentView === 'hive-visits') { currentView = 'hive-list'; activeHiveId = null; }
-            else { currentView = 'apiary-list'; activeApiaryId = null; }
-            render(); showVoiceStatus("✅ Went back"); return;
-        }
-        if (data.target === "save") {
-            const btn = document.getElementById('saveHiveBtn') || document.getElementById('saveApiaryBtn');
-            if (btn) { btn.click(); showVoiceStatus("✅ Saved"); } else { showVoiceStatus("⚠️ No form to save"); }
-            return;
-        }
+        return;
     }
 
-    // 2. HANDLE FORM FILLING
+    // 2. OTHER NAVIGATION
+    if (data.action === "navigate") {
+        if (data.target === "add_apiary") { currentView = 'add-apiary'; editApiaryData = { name: '', orientation: '', coordinates: '' }; render(); return; }
+        if (data.target === "add_hive") { if (!activeApiaryId) { showVoiceStatus("⚠️ Open an apiary first"); return; } currentView = 'add-hive'; editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; render(); return; }
+        if (data.target === "go_back") { if (currentView === 'hive-visits') { currentView = 'hive-list'; activeHiveId = null; } else { currentView = 'apiary-list'; activeApiaryId = null; } render(); return; }
+        if (data.target === "save") { const btn = document.getElementById('saveHiveBtn') || document.getElementById('saveApiaryBtn'); if (btn) { btn.click(); showVoiceStatus("✅ Saved"); } else { showVoiceStatus("⚠️ No form to save"); } return; }
+    }
+
+    // 3. FORM FILLING
     if (data.action === "fill_form" && data.data) {
         showVoiceStatus(`✅ Filled: ${Object.keys(data.data).length} fields`, 4000);
-        
         setTimeout(() => {
             for (const [id, val] of Object.entries(data.data)) {
                 const el = document.getElementById(id);
                 if (el && val != null && val !== '') {
-                    if (el.type === 'checkbox') {
-                        el.checked = Boolean(val);
-                    } else if (el.tagName === 'SELECT') {
-                        // Match the option by value or text (handles "rouge" -> "red" if values are english but text is french)
+                    if (el.type === 'checkbox') el.checked = Boolean(val);
+                    else if (el.tagName === 'SELECT') {
                         for (let opt of el.options) {
                             if (opt.value.toLowerCase() === String(val).toLowerCase() || opt.text.toLowerCase() === String(val).toLowerCase()) {
-                                el.value = opt.value;
-                                break;
+                                el.value = opt.value; break;
                             }
                         }
                     } else {
@@ -1258,9 +1355,11 @@ Example: If the user says "two male frames", and the label "CADRES MÂLES" exist
   if (voiceBtnEl) {
     voiceBtnEl.addEventListener('click', startHandsFreeDictation);
     voiceBtnEl.title = "AI Dictaphone (Screen Reader)";
-        }
+  }
 
-  /* ---------- APP ENTRY ---------- */
+  /* =========================================
+     APP ENTRY
+     ========================================= */
   function render() {
     if (currentView === 'apiary-list') renderApiaryList();
     else if (currentView === 'hive-list') renderHiveList();
@@ -1269,9 +1368,6 @@ Example: If the user says "two male frames", and the label "CADRES MÂLES" exist
     else if (currentView === 'hive-visits') renderHiveVisits();
     else renderApiaryList();
   }
-
-  // Initialisation
-  render();
 </script>
 </body>
 </html>
