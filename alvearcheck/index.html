@@ -3,71 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlvearCheck v1.0 · suivi des ruchers</title>
+  <title>AlvearCheck v1.0</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: system-ui, -apple-system, sans-serif; background: #fbf6e8; color: #2e241b; padding: 1rem; min-height: 100vh; display: flex; justify-content: center; }
-    .app { max-width: 1000px; width: 100%; background: #fffdf7; border-radius: 2rem; box-shadow: 0 12px 30px rgba(0,0,0,0.08); padding: 1.8rem 1.8rem 2.2rem; border: 1px solid #f0e3cf; position: relative; }
-    
-    #errorBox { display: none; background: #ffcccc; color: #990000; padding: 1rem; margin-bottom: 1rem; border-radius: 10px; font-family: monospace; white-space: pre-wrap; z-index: 9999; position: relative; }
-
+    body { font-family: system-ui, sans-serif; background: #fbf6e8; color: #2e241b; padding: 1rem; min-height: 100vh; display: flex; justify-content: center; }
+    .app { max-width: 1000px; width: 100%; background: #fffdf7; border-radius: 2rem; box-shadow: 0 12px 30px rgba(0,0,0,0.08); padding: 1.8rem; border: 1px solid #f0e3cf; position: relative; }
+    #errorBox { display: none; background: #ffcccc; color: #990000; padding: 1rem; margin-bottom: 1rem; border-radius: 10px; font-family: monospace; white-space: pre-wrap; z-index: 9999; }
     .app-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
-    h1 { display: flex; align-items: center; gap: 0.6rem; font-size: 2.2rem; font-weight: 600; letter-spacing: -0.5px; color: #c47b2e; }
+    h1 { display: flex; align-items: center; gap: 0.6rem; font-size: 2.2rem; font-weight: 600; color: #c47b2e; }
     h1 small { font-size: 0.9rem; font-weight: 400; color: #b0967a; margin-left: auto; background: #f3ebdd; padding: 0.2rem 0.8rem; border-radius: 20px; }
-    
     .lang-selector { margin-left: auto; display: flex; gap: 0.3rem; flex-wrap: wrap; }
-    .lang-btn { background: transparent; border: 1px solid #d9c9b6; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; cursor: pointer; font-weight: 600; color: #7a6a58; text-transform: uppercase; transition: 0.1s; font-family: inherit; }
+    .lang-btn { background: transparent; border: 1px solid #d9c9b6; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.7rem; cursor: pointer; font-weight: 600; color: #7a6a58; text-transform: uppercase; }
     .lang-btn.active { background: #c47b2e; color: white; border-color: #c47b2e; }
     .subhead { color: #7a6a58; margin-bottom: 1.8rem; font-size: 1rem; border-left: 4px solid #e3b87c; padding-left: 1rem; }
-
-    button { background: #e8d9c4; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 500; font-size: 0.9rem; color: #3d2e1f; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.15s; border: 1px solid transparent; font-family: inherit; }
+    button { background: #e8d9c4; border: none; padding: 0.6rem 1.2rem; border-radius: 40px; font-weight: 500; font-size: 0.9rem; color: #3d2e1f; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid transparent; }
     button.primary { background: #c47b2e; color: white; font-weight: 600; padding: 0.7rem 1.8rem; }
     button.danger { background: #f4e2dc; color: #a14d3a; }
     button.small { padding: 0.3rem 0.9rem; font-size: 0.8rem; }
     button.outline { background: transparent; border: 1px solid #d9c9b6; }
-    
-    button.voice-btn { background: #f0e4d4; border-radius: 50%; width: 48px; height: 48px; padding: 0; justify-content: center; font-size: 1.4rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); position: fixed; bottom: 2rem; right: 2rem; z-index: 100; }
+    button.voice-btn { background: #f0e4d4; border-radius: 50%; width: 48px; height: 48px; padding: 0; position: fixed; bottom: 2rem; right: 2rem; z-index: 100; font-size: 1.4rem; }
     button.voice-btn.active { background: #c47b2e; color: white; box-shadow: 0 0 0 4px rgba(196,123,46,0.3); }
-
     .apiary-grid { display: flex; flex-direction: column; gap: 1rem; margin-top: 1.2rem; }
-    .apiary-card { background: #fcf8f0; border-radius: 1.5rem; padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee0cf; cursor: pointer; position: relative; }
+    .apiary-card { background: #fcf8f0; border-radius: 1.5rem; padding: 1.2rem 1.5rem; display: flex; align-items: center; justify-content: space-between; border: 1px solid #eee0cf; cursor: pointer; }
     .apiary-card.has-swarm-risk { border-left: 6px solid #e6a017; background: #fdf8e8; }
     .apiary-info { display: flex; flex-direction: column; gap: 0.25rem; }
-    .apiary-name { font-weight: 600; font-size: 1.2rem; color: #2e241b; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+    .apiary-name { font-weight: 600; font-size: 1.2rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .apiary-meta { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: #8b7b68; }
-
     .hive-list { display: flex; flex-direction: column; gap: 0.8rem; margin: 1rem 0 1.5rem; }
-    .hive-card { background: #faf4ea; border-radius: 1.2rem; padding: 1rem 1.3rem; border-left: 6px solid #e3b87c; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; cursor: pointer; position: relative; }
+    .hive-card { background: #faf4ea; border-radius: 1.2rem; padding: 1rem 1.3rem; border-left: 6px solid #e3b87c; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; cursor: pointer; }
     .hive-card.swarm-warning { border-left-color: #e6a017; background: #fdf8e8; }
     .hive-name { font-weight: 600; font-size: 1.1rem; display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
     .queen-badge { font-size: 0.7rem; background: #f0e4d4; padding: 0.2rem 0.7rem; border-radius: 30px; font-weight: 600; }
     .swarm-alert-badge { background: #f5d9b0; color: #8a5c00; padding: 0.2rem 0.7rem; border-radius: 30px; font-size: 0.75rem; font-weight: 600; }
-
-    .form-panel { background: #f9f3e9; border-radius: 1.5rem; padding: 1.8rem 1.8rem 2rem; margin-top: 1.8rem; border: 1px solid #e8d9c4; }
-    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem 1.2rem; margin: 1rem 0 1.5rem; }
+    .form-panel { background: #f9f3e9; border-radius: 1.5rem; padding: 1.8rem; margin-top: 1.8rem; border: 1px solid #e8d9c4; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 1rem; margin: 1rem 0 1.5rem; }
     .field { display: flex; flex-direction: column; gap: 0.3rem; }
     .field label { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; color: #7f6b56; }
     input, select, textarea { background: white; border: 1px solid #ddd0bd; border-radius: 14px; padding: 0.65rem 0.9rem; font-size: 0.9rem; width: 100%; }
     .checkbox-row { display: flex; align-items: center; gap: 0.6rem; margin-top: 0.3rem; }
-    .checkbox-row input[type="checkbox"] { width: 1.2rem; height: 1.2rem; accent-color: #c47b2e; }
     .row-actions { display: flex; justify-content: space-between; gap: 1rem; margin-top: 1rem; }
     .back-link { background: none; border: none; color: #7a6a58; cursor: pointer; font-weight: 500; margin-bottom: 1rem; }
     .empty-state { text-align: center; padding: 2rem; color: #a18d77; background: #f8f1e6; border-radius: 2rem; font-style: italic; }
     .badge { background: #e8d9c4; padding: 0.2rem 0.8rem; border-radius: 30px; font-size: 0.7rem; font-weight: 600; }
     .geo-btn { background: #e8d9c4; border: none; padding: 0.4rem 0.8rem; border-radius: 20px; font-weight: 600; cursor: pointer; }
-
     .visit-history-wrapper { margin-top: 1.5rem; border-radius: 1.2rem; border: 1px solid #e8d9c4; overflow: hidden; }
     .visit-history-header { background: #f0e4d4; padding: 0.8rem 1.2rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
     .visit-table-container { overflow-x: auto; }
     .visit-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; min-width: 700px; }
     .visit-table th { background: #f9f3e9; padding: 0.6rem; text-align: left; font-weight: 600; border-bottom: 1px solid #e8d9c4; }
     .visit-table td { padding: 0.6rem; border-bottom: 1px solid #f0e8dc; }
-    .visit-summary { white-space: normal; max-width: 200px; }
-
     .voice-status { position: fixed; bottom: 6rem; right: 2rem; background: #2e241b; color: #fbf6e8; padding: 0.6rem 1.2rem; border-radius: 40px; font-size: 0.85rem; z-index: 99; max-width: 280px; display: none; }
     .voice-status.visible { display: block; }
-
     .modal-backdrop { position: fixed; inset: 0; background: rgba(46,36,27,0.45); z-index: 200; display: none; }
     .modal-backdrop.visible { display: block; }
     .modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #fffdf7; border-radius: 1.5rem; padding: 1.6rem; z-index: 201; max-width: 440px; width: 90%; display: none; }
@@ -75,7 +62,6 @@
     .modal-title { font-size: 1.15rem; font-weight: 600; color: #c47b2e; margin-bottom: 0.8rem; }
     .modal-body { font-size: 0.95rem; margin-bottom: 1.4rem; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 0.6rem; flex-wrap: wrap; }
-
     #authScreen { max-width: 400px; margin: 10vh auto; padding: 2rem; background: #fffdf7; border-radius: 2rem; text-align: center; border: 1px solid #f0e3cf; }
     #authScreen h2 { color: #c47b2e; margin-bottom: 1rem; }
     #authScreen input { margin-bottom: 1rem; }
@@ -83,191 +69,187 @@
 </head>
 <body>
   <div id="errorBox"></div>
+
   <div id="authScreen">
-  <h2>🐝 AlvearCheck</h2>
-  <p style="margin-bottom: 1.5rem; color: #7a6a58;">Connectez-vous pour accéder à vos ruchers.</p>
-  <input type="email" id="authEmail" placeholder="Email">
-  <input type="password" id="authPassword" placeholder="Mot de passe">
-  <button id="loginBtn" class="primary" style="width: 100%; margin-bottom: 0.5rem;">Se connecter</button>
-  <button id="registerBtn" class="outline" style="width: 100%;">Créer un compte</button>
-  <button id="logoutBtn" class="danger" style="width: 100%; margin-top: 1rem; display: none;">Se déconnecter</button>
-  <p id="authMessage" style="margin-top: 1rem; font-weight: bold;"></p>
-</div>
+    <h2>🐝 AlvearCheck</h2>
+    <p style="margin-bottom: 1.5rem; color: #7a6a58;">Connectez-vous pour accéder à vos ruchers.</p>
+    <input type="email" id="authEmail" placeholder="Email">
+    <input type="password" id="authPassword" placeholder="Mot de passe">
+    <button id="loginBtn" class="primary" style="width: 100%; margin-bottom: 0.5rem;">Se connecter</button>
+    <button id="registerBtn" class="outline" style="width: 100%;">Créer un compte</button>
+    <p id="authMessage" style="margin-top: 1rem; font-weight: bold;"></p>
+  </div>
 
-<div class="app" id="app" style="display:none;"></div>
-<button class="voice-btn" id="voiceBtn" style="display:none;">🎤</button>
-<div class="voice-status" id="voiceStatus"></div>
+  <div class="app" id="app" style="display:none;"></div>
+  <button class="voice-btn" id="voiceBtn" style="display:none;">🎤</button>
+  <div class="voice-status" id="voiceStatus"></div>
 
-<div class="modal-backdrop" id="modalBackdrop"></div>
-<div class="modal" id="modal">
-  <div class="modal-title" id="modalTitle">Titre</div>
-  <div class="modal-body" id="modalBody">Message</div>
-  <div class="modal-actions" id="modalActions"></div>
-</div>
+  <div class="modal-backdrop" id="modalBackdrop"></div>
+  <div class="modal" id="modal">
+    <div class="modal-title" id="modalTitle">Titre</div>
+    <div class="modal-body" id="modalBody">Message</div>
+    <div class="modal-actions" id="modalActions"></div>
+  </div>
 
-<script>
-  window.onerror = function(msg, url, line, col, error) {
-    const box = document.getElementById('errorBox');
-    if (box) { box.style.display = 'block'; box.textContent += "ERROR: " + msg + "\nLine: " + line + "\n\n"; }
-  };
+  <script>
+    window.onerror = function(msg, url, line) {
+      const box = document.getElementById('errorBox');
+      if (box) { box.style.display = 'block'; box.textContent += "ERROR: " + msg + " (Line " + line + ")\n"; }
+    };
 
-  const SUPABASE_URL = 'https://hdhoctahsnqlvqsmwrsf.supabase.co';
-  const SUPABASE_KEY = 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const SUPABASE_URL = 'https://hdhoctahsnqlvqsmwrsf.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D';
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  window.addEventListener('DOMContentLoaded', () => {
-    const GROQ_API_KEY = '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';
-    const translations = {
-  en: { appName: 'AlvearCheck', apiaryTracker: 'apiary tracker', manageApiaries: 'Manage your apiaries and their hives', addApiary: '＋ Add apiary', apiary: 'apiary', apiaries: 'apiaries', addHive: '＋ Add hive', hive: 'hive', hives: 'hives', backToApiaries: '← Back to apiaries', backToHives: '← Back to hives', edit: '✎ Edit', delete: '✕ Delete', deleteApiaryConfirm: 'Delete this apiary and all its hives?', deleteHiveConfirm: 'Delete this hive?', noApiaries: 'No apiaries yet.', noHives: 'No hives in this apiary.', noVisits: 'No visits recorded yet.', visits: 'Visits', visitHistory: 'visit history', allVisits: '📋 All visits', date: 'Date', maleFrames: 'Male frames', honeyFrames: 'Honey frames', broodFrames: 'Brood frames', swarmRisk: 'Swarm risk', queenColor: 'Queen color', varroa: 'Varroa', remarks: 'Remarks', swarmAlert: '⚠️ swarm alert', atRisk: '⚠️ at risk', swarmAlertActive: '⚠️ Swarm alert active', apiaryName: 'Apiary name *', orientation: 'Orientation', coordinates: 'Coordinates', hiveName: 'Hive name *', queenColorYear: 'Queen color (year)', varroaCount: 'Varroa count', atRiskOfSwarming: 'At risk of swarming', notes: 'Any notes...', save: 'Save changes', create: 'Create', cancel: 'Cancel', pleaseEnterApiaryName: 'Please enter an apiary name.', pleaseEnterHiveName: 'Please enter a hive name.', apiaryNotFound: 'Apiary not found.', hiveNotFound: 'Hive not found.', useMyLocation: 'Use my location', geolocationNotSupported: 'Geolocation not supported.', geolocationError: 'Could not get location: ', exportCSV: '📥 Export CSV', noDataToExport: 'No visits to export.', editApiary: 'Edit apiary', newApiary: 'New apiary', editHive: 'Edit hive', newHive: 'New hive', name: 'Name', queenColorBlue: 'Blue', queenColorWhite: 'White', queenColorYellow: 'Yellow', queenColorRed: 'Red', queenColorGreen: 'Green', swarmWarningLabel: 'Swarm risk', confirmTitle: 'Confirm', alertTitle: 'Notice', deleteTitle: 'Delete', yes: 'Yes', no: 'No', ok: 'OK', voiceNotSupported: 'Speech recognition not supported.', listening: 'Listening...', voiceOff: 'Voice off' },
-  fr: { appName: 'AlvearCheck', apiaryTracker: 'suivi des ruchers', manageApiaries: 'Gérez vos ruchers et leurs ruches', addApiary: '＋ Ajouter un rucher', apiary: 'rucher', apiaries: 'ruchers', addHive: '＋ Ajouter une ruche', hive: 'ruche', hives: 'ruches', backToApiaries: '← Retour aux ruchers', backToHives: '← Retour aux ruches', edit: '✎ Modifier', delete: '✕ Supprimer', deleteApiaryConfirm: 'Supprimer ce rucher et toutes ses ruches ?', deleteHiveConfirm: 'Supprimer cette ruche ?', noApiaries: 'Aucun rucher.', noHives: 'Aucune ruche dans ce rucher.', noVisits: 'Aucune visite enregistrée.', visits: 'Visites', visitHistory: 'historique des visites', allVisits: '📋 Toutes les visites', date: 'Date', maleFrames: 'Cadres mâles', honeyFrames: 'Cadres de miel', broodFrames: 'Cadres de couvain', swarmRisk: 'Risque d\'essaimage', queenColor: 'Couleur de la reine', varroa: 'Varroa', remarks: 'Remarques', swarmAlert: '⚠️ alerte essaimage', atRisk: '⚠️ à risque', swarmAlertActive: '⚠️ Alerte essaimage active', apiaryName: 'Nom du rucher *', orientation: 'Orientation', coordinates: 'Coordonnées', hiveName: 'Nom de la ruche *', queenColorYear: 'Couleur de la reine (année)', varroaCount: 'Nombre de varroas', atRiskOfSwarming: 'Risque d\'essaimage', notes: 'Notes...', save: 'Enregistrer', create: 'Créer', cancel: 'Annuler', pleaseEnterApiaryName: 'Veuillez entrer un nom de rucher.', pleaseEnterHiveName: 'Veuillez entrer un nom de ruche.', apiaryNotFound: 'Rucher non trouvé.', hiveNotFound: 'Ruche non trouvée.', useMyLocation: 'Utiliser ma position', geolocationNotSupported: 'Géolocalisation non supportée.', geolocationError: 'Impossible d\'obtenir la position : ', exportCSV: '📥 Exporter CSV', noDataToExport: 'Aucune visite à exporter.', editApiary: 'Modifier le rucher', newApiary: 'Nouveau rucher', editHive: 'Modifier la ruche', newHive: 'Nouvelle ruche', name: 'Nom', queenColorBlue: 'Bleu', queenColorWhite: 'Blanc', queenColorYellow: 'Jaune', queenColorRed: 'Rouge', queenColorGreen: 'Vert', swarmWarningLabel: 'Risque d\'essaimage', confirmTitle: 'Confirmer', alertTitle: 'Avis', deleteTitle: 'Supprimer', yes: 'Oui', no: 'Non', ok: 'OK', voiceNotSupported: 'Reconnaissance vocale non supportée.', listening: 'Écoute...', voiceOff: 'Voix désactivée' },
-  de: { appName: 'AlvearCheck', apiaryTracker: 'Bienenstand-Verwaltung', manageApiaries: 'Verwalten Sie Ihre Bienenstände und Völker', addApiary: '＋ Bienenstand hinzufügen', apiary: 'Bienenstand', apiaries: 'Bienenstände', addHive: '＋ Volk hinzufügen', hive: 'Volk', hives: 'Völker', backToApiaries: '← Zurück zu den Bienenständen', backToHives: '← Zurück zu den Völkern', edit: '✎ Bearbeiten', delete: '✕ Löschen', deleteApiaryConfirm: 'Diesen Bienenstand und alle Völker löschen?', deleteHiveConfirm: 'Dieses Volk löschen?', noApiaries: 'Noch keine Bienenstände.', noHives: 'Keine Völker in diesem Bienenstand.', noVisits: 'Noch keine Besuche aufgezeichnet.', visits: 'Besuche', visitHistory: 'Besuchsverlauf', allVisits: '📋 Alle Besuche', date: 'Datum', maleFrames: 'Drohnenrahmen', honeyFrames: 'Honigrahmen', broodFrames: 'Brutrahmen', swarmRisk: 'Schwarmrisiko', queenColor: 'Königinnenfarbe', varroa: 'Varroa', remarks: 'Bemerkungen', swarmAlert: '⚠️ Schwarmalarm', atRisk: '⚠️ gefährdet', swarmAlertActive: '⚠️ Schwarmalarm aktiv', apiaryName: 'Name des Bienenstands *', orientation: 'Ausrichtung', coordinates: 'Koordinaten', hiveName: 'Name des Volkes *', queenColorYear: 'Königinnenfarbe (Jahr)', varroaCount: 'Varroa-Anzahl', atRiskOfSwarming: 'Schwarmrisiko', notes: 'Notizen...', save: 'Speichern', create: 'Erstellen', cancel: 'Abbrechen', pleaseEnterApiaryName: 'Bitte Namen eingeben.', pleaseEnterHiveName: 'Bitte Namen eingeben.', apiaryNotFound: 'Bienenstand nicht gefunden.', hiveNotFound: 'Volk nicht gefunden.', useMyLocation: 'Meinen Standort verwenden', geolocationNotSupported: 'Geolokalisierung nicht unterstützt.', geolocationError: 'Standort nicht ermittelbar: ', exportCSV: '📥 CSV exportieren', noDataToExport: 'Keine Besuche zum Exportieren.', editApiary: 'Bienenstand bearbeiten', newApiary: 'Neuer Bienenstand', editHive: 'Volk bearbeiten', newHive: 'Neues Volk', name: 'Name', queenColorBlue: 'Blau', queenColorWhite: 'Weiß', queenColorYellow: 'Gelb', queenColorRed: 'Rot', queenColorGreen: 'Grün', swarmWarningLabel: 'Schwarmrisiko', confirmTitle: 'Bestätigen', alertTitle: 'Hinweis', deleteTitle: 'Löschen', yes: 'Ja', no: 'Nein', ok: 'OK', voiceNotSupported: 'Spracherkennung nicht unterstützt.', listening: 'Höre zu...', voiceOff: 'Sprache aus' },
-  it: { appName: 'AlvearCheck', apiaryTracker: 'gestione apiari', manageApiaries: 'Gestisci i tuoi apiari e le loro arnie', addApiary: '＋ Aggiungi apiario', apiary: 'apiario', apiaries: 'apiari', addHive: '＋ Aggiungi arnia', hive: 'arnia', hives: 'arnie', backToApiaries: '← Torna agli apiari', backToHives: '← Torna alle arnie', edit: '✎ Modifica', delete: '✕ Elimina', deleteApiaryConfirm: 'Eliminare questo apiario e tutte le sue arnie?', deleteHiveConfirm: 'Eliminare questa arnia?', noApiaries: 'Nessun apiario.', noHives: 'Nessuna arnia in questo apiario.', noVisits: 'Nessuna visita registrata.', visits: 'Visite', visitHistory: 'cronologia visite', allVisits: '📋 Tutte le visite', date: 'Data', maleFrames: 'Telai da fuchi', honeyFrames: 'Telai di miele', broodFrames: 'Telai di covata', swarmRisk: 'Rischio sciamatura', queenColor: 'Colore della regina', varroa: 'Varroa', remarks: 'Note', swarmAlert: '⚠️ allarme sciamatura', atRisk: '⚠️ a rischio', swarmAlertActive: '⚠️ Allarme sciamatura attivo', apiaryName: 'Nome dell\'apiario *', orientation: 'Orientamento', coordinates: 'Coordinate', hiveName: 'Nome dell\'arnia *', queenColorYear: 'Colore della regina (anno)', varroaCount: 'Numero di varroe', atRiskOfSwarming: 'Rischio di sciamatura', notes: 'Note...', save: 'Salva', create: 'Crea', cancel: 'Annulla', pleaseEnterApiaryName: 'Inserisci un nome per l\'apiario.', pleaseEnterHiveName: 'Inserisci un nome per l\'arnia.', apiaryNotFound: 'Apiario non trovato.', hiveNotFound: 'Arnia non trovata.', useMyLocation: 'Usa la mia posizione', geolocationNotSupported: 'Geolocalizzazione non supportata.', geolocationError: 'Impossibile ottenere la posizione: ', exportCSV: '📥 Esporta CSV', noDataToExport: 'Nessuna visita da esportare.', editApiary: 'Modifica apiario', newApiary: 'Nuovo apiario', editHive: 'Modifica arnia', newHive: 'Nuova arnia', name: 'Nome', queenColorBlue: 'Blu', queenColorWhite: 'Bianco', queenColorYellow: 'Giallo', queenColorRed: 'Rosso', queenColorGreen: 'Verde', swarmWarningLabel: 'Rischio sciamatura', confirmTitle: 'Conferma', alertTitle: 'Avviso', deleteTitle: 'Elimina', yes: 'Sì', no: 'No', ok: 'OK', voiceNotSupported: 'Riconoscimento vocale non supportato.', listening: 'In ascolto...', voiceOff: 'Voce disattivata' },
-  rm: { appName: 'AlvearCheck', apiaryTracker: 'administraziun dals apiars', manageApiaries: 'Administrescha tes apiars e lur avieuls', addApiary: '＋ Agiuntar in apiari', apiary: 'apiari', apiaries: 'apiars', addHive: '＋ Agiuntar in avieul', hive: 'avieul', hives: 'avieuls', backToApiaries: '← Enavos als apiars', backToHives: '← Enavos als avieuls', edit: '✎ Modifitgar', delete: '✕ Stizzar', deleteApiaryConfirm: 'Stizzar quest apiari e tut ses avieuls?', deleteHiveConfirm: 'Stizzar quest avieul?', noApiaries: 'Nagins apiars.', noHives: 'Nagins avieuls en quest apiari.', noVisits: 'Naginas visitas registradas.', visits: 'Visitas', visitHistory: 'cronologia da las visitas', allVisits: '📋 Tut las visitas', date: 'Data', maleFrames: 'Framas da drones', honeyFrames: 'Framas da mel', broodFrames: 'Framas da cova', swarmRisk: 'Ristga da sciamar', queenColor: 'Colur da la regina', varroa: 'Varroa', remarks: 'Remarcas', swarmAlert: '⚠️ alarm da sciamar', atRisk: '⚠️ en ristga', swarmAlertActive: '⚠️ Alarm da sciamar activ', apiaryName: 'Num da l\'apiari *', orientation: 'Orientaziun', coordinates: 'Coordinatas', hiveName: 'Num da l\'avieul *', queenColorYear: 'Colur da la regina (onn)', varroaCount: 'Dumber da varroas', atRiskOfSwarming: 'Ristga da sciamar', notes: 'Notas...', save: 'Salvar', create: 'Crear', cancel: 'Annullar', pleaseEnterApiaryName: 'Endatescha in num per l\'apiari.', pleaseEnterHiveName: 'Endatescha in num per l\'avieul.', apiaryNotFound: 'Apiari betg chattà.', hiveNotFound: 'Avieul betg chattà.', useMyLocation: 'Duvrar mia posiziun', geolocationNotSupported: 'Geolocalisaziun betg sustegnida.', geolocationError: 'Betg pussaivel da survegnir la posiziun: ', exportCSV: '📥 Exportar CSV', noDataToExport: 'Naginas visitas da exportar.', editApiary: 'Modifitgar l\'apiari', newApiary: 'Nov apiari', editHive: 'Modifitgar l\'avieul', newHive: 'Nov avieul', name: 'Num', queenColorBlue: 'Blau', queenColorWhite: 'Alv', queenColorYellow: 'Mellen', queenColorRed: 'Cotschna', queenColorGreen: 'Verd', swarmWarningLabel: 'Ristga da sciamar', confirmTitle: 'Confirmar', alertTitle: 'Avvis', deleteTitle: 'Stizzar', yes: 'Gea', no: 'Na', ok: 'OK', voiceNotSupported: 'Reconuschientscha vocala betg sustegnida.', listening: 'Ta schuntond...', voiceOff: 'Vusch deactivada' }
-};
+    window.addEventListener('DOMContentLoaded', () => {
+      const GROQ_API_KEY = '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';
 
-let currentLang = 'fr';
-function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key; }
-function escapeHtml(str) { if (str == null) return ''; return String(str).replace(/[&<>"]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; if (m === '"') return '&quot;'; return m; }); }
+      const translations = {
+        en: { appName: 'AlvearCheck', apiaryTracker: 'apiary tracker', manageApiaries: 'Manage your apiaries and their hives', addApiary: '＋ Add apiary', apiary: 'apiary', apiaries: 'apiaries', addHive: '＋ Add hive', hive: 'hive', hives: 'hives', backToApiaries: '← Back to apiaries', backToHives: '← Back to hives', edit: '✎ Edit', delete: '✕ Delete', deleteApiaryConfirm: 'Delete this apiary and all its hives?', deleteHiveConfirm: 'Delete this hive?', noApiaries: 'No apiaries yet.', noHives: 'No hives in this apiary.', noVisits: 'No visits recorded yet.', visits: 'Visits', visitHistory: 'visit history', allVisits: '📋 All visits', date: 'Date', maleFrames: 'Male frames', honeyFrames: 'Honey frames', broodFrames: 'Brood frames', swarmRisk: 'Swarm risk', queenColor: 'Queen color', varroa: 'Varroa', remarks: 'Remarks', swarmAlert: '⚠️ swarm alert', atRisk: '⚠️ at risk', swarmAlertActive: '⚠️ Swarm alert active', apiaryName: 'Apiary name *', orientation: 'Orientation', coordinates: 'Coordinates', hiveName: 'Hive name *', queenColorYear: 'Queen color (year)', varroaCount: 'Varroa count', atRiskOfSwarming: 'At risk of swarming', notes: 'Any notes...', save: 'Save changes', create: 'Create', cancel: 'Cancel', pleaseEnterApiaryName: 'Please enter an apiary name.', pleaseEnterHiveName: 'Please enter a hive name.', apiaryNotFound: 'Apiary not found.', hiveNotFound: 'Hive not found.', useMyLocation: 'Use my location', geolocationNotSupported: 'Geolocation not supported.', geolocationError: 'Could not get location: ', exportCSV: '📥 Export CSV', noDataToExport: 'No visits to export.', editApiary: 'Edit apiary', newApiary: 'New apiary', editHive: 'Edit hive', newHive: 'New hive', name: 'Name', queenColorBlue: 'Blue', queenColorWhite: 'White', queenColorYellow: 'Yellow', queenColorRed: 'Red', queenColorGreen: 'Green', swarmWarningLabel: 'Swarm risk', confirmTitle: 'Confirm', alertTitle: 'Notice', deleteTitle: 'Delete', yes: 'Yes', no: 'No', ok: 'OK', voiceNotSupported: 'Speech recognition not supported.', listening: 'Listening...', voiceOff: 'Voice off' },
+        fr: { appName: 'AlvearCheck', apiaryTracker: 'suivi des ruchers', manageApiaries: 'Gérez vos ruchers et leurs ruches', addApiary: '＋ Ajouter un rucher', apiary: 'rucher', apiaries: 'ruchers', addHive: '＋ Ajouter une ruche', hive: 'ruche', hives: 'ruches', backToApiaries: '← Retour aux ruchers', backToHives: '← Retour aux ruches', edit: '✎ Modifier', delete: '✕ Supprimer', deleteApiaryConfirm: 'Supprimer ce rucher et toutes ses ruches ?', deleteHiveConfirm: 'Supprimer cette ruche ?', noApiaries: 'Aucun rucher.', noHives: 'Aucune ruche dans ce rucher.', noVisits: 'Aucune visite enregistrée.', visits: 'Visites', visitHistory: 'historique des visites', allVisits: '📋 Toutes les visites', date: 'Date', maleFrames: 'Cadres mâles', honeyFrames: 'Cadres de miel', broodFrames: 'Cadres de couvain', swarmRisk: 'Risque d\'essaimage', queenColor: 'Couleur de la reine', varroa: 'Varroa', remarks: 'Remarques', swarmAlert: '⚠️ alerte essaimage', atRisk: '⚠️ à risque', swarmAlertActive: '⚠️ Alerte essaimage active', apiaryName: 'Nom du rucher *', orientation: 'Orientation', coordinates: 'Coordonnées', hiveName: 'Nom de la ruche *', queenColorYear: 'Couleur de la reine (année)', varroaCount: 'Nombre de varroas', atRiskOfSwarming: 'Risque d\'essaimage', notes: 'Notes...', save: 'Enregistrer', create: 'Créer', cancel: 'Annuler', pleaseEnterApiaryName: 'Veuillez entrer un nom de rucher.', pleaseEnterHiveName: 'Veuillez entrer un nom de ruche.', apiaryNotFound: 'Rucher non trouvé.', hiveNotFound: 'Ruche non trouvée.', useMyLocation: 'Utiliser ma position', geolocationNotSupported: 'Géolocalisation non supportée.', geolocationError: 'Impossible d\'obtenir la position : ', exportCSV: '📥 Exporter CSV', noDataToExport: 'Aucune visite à exporter.', editApiary: 'Modifier le rucher', newApiary: 'Nouveau rucher', editHive: 'Modifier la ruche', newHive: 'Nouvelle ruche', name: 'Nom', queenColorBlue: 'Bleu', queenColorWhite: 'Blanc', queenColorYellow: 'Jaune', queenColorRed: 'Rouge', queenColorGreen: 'Vert', swarmWarningLabel: 'Risque d\'essaimage', confirmTitle: 'Confirmer', alertTitle: 'Avis', deleteTitle: 'Supprimer', yes: 'Oui', no: 'Non', ok: 'OK', voiceNotSupported: 'Reconnaissance vocale non supportée.', listening: 'Écoute...', voiceOff: 'Voix désactivée' },
+        de: { appName: 'AlvearCheck', apiaryTracker: 'Bienenstand-Verwaltung', manageApiaries: 'Verwalten Sie Ihre Bienenstände und Völker', addApiary: '＋ Bienenstand hinzufügen', apiary: 'Bienenstand', apiaries: 'Bienenstände', addHive: '＋ Volk hinzufügen', hive: 'Volk', hives: 'Völker', backToApiaries: '← Zurück zu den Bienenständen', backToHives: '← Zurück zu den Völkern', edit: '✎ Bearbeiten', delete: '✕ Löschen', deleteApiaryConfirm: 'Diesen Bienenstand und alle Völker löschen?', deleteHiveConfirm: 'Dieses Volk löschen?', noApiaries: 'Noch keine Bienenstände.', noHives: 'Keine Völker in diesem Bienenstand.', noVisits: 'Noch keine Besuche aufgezeichnet.', visits: 'Besuche', visitHistory: 'Besuchsverlauf', allVisits: '📋 Alle Besuche', date: 'Datum', maleFrames: 'Drohnenrahmen', honeyFrames: 'Honigrahmen', broodFrames: 'Brutrahmen', swarmRisk: 'Schwarmrisiko', queenColor: 'Königinnenfarbe', varroa: 'Varroa', remarks: 'Bemerkungen', swarmAlert: '⚠️ Schwarmalarm', atRisk: '⚠️ gefährdet', swarmAlertActive: '⚠️ Schwarmalarm aktiv', apiaryName: 'Name des Bienenstands *', orientation: 'Ausrichtung', coordinates: 'Koordinaten', hiveName: 'Name des Volkes *', queenColorYear: 'Königinnenfarbe (Jahr)', varroaCount: 'Varroa-Anzahl', atRiskOfSwarming: 'Schwarmrisiko', notes: 'Notizen...', save: 'Speichern', create: 'Erstellen', cancel: 'Abbrechen', pleaseEnterApiaryName: 'Bitte Namen eingeben.', pleaseEnterHiveName: 'Bitte Namen eingeben.', apiaryNotFound: 'Bienenstand nicht gefunden.', hiveNotFound: 'Volk nicht gefunden.', useMyLocation: 'Meinen Standort verwenden', geolocationNotSupported: 'Geolokalisierung nicht unterstützt.', geolocationError: 'Standort nicht ermittelbar: ', exportCSV: '📥 CSV exportieren', noDataToExport: 'Keine Besuche zum Exportieren.', editApiary: 'Bienenstand bearbeiten', newApiary: 'Neuer Bienenstand', editHive: 'Volk bearbeiten', newHive: 'Neues Volk', name: 'Name', queenColorBlue: 'Blau', queenColorWhite: 'Weiß', queenColorYellow: 'Gelb', queenColorRed: 'Rot', queenColorGreen: 'Grün', swarmWarningLabel: 'Schwarmrisiko', confirmTitle: 'Bestätigen', alertTitle: 'Hinweis', deleteTitle: 'Löschen', yes: 'Ja', no: 'Nein', ok: 'OK', voiceNotSupported: 'Spracherkennung nicht unterstützt.', listening: 'Höre zu...', voiceOff: 'Sprache aus' },
+        it: { appName: 'AlvearCheck', apiaryTracker: 'gestione apiari', manageApiaries: 'Gestisci i tuoi apiari e le loro arnie', addApiary: '＋ Aggiungi apiario', apiary: 'apiario', apiaries: 'apiari', addHive: '＋ Aggiungi arnia', hive: 'arnia', hives: 'arnie', backToApiaries: '← Torna agli apiari', backToHives: '← Torna alle arnie', edit: '✎ Modifica', delete: '✕ Elimina', deleteApiaryConfirm: 'Eliminare questo apiario e tutte le sue arnie?', deleteHiveConfirm: 'Eliminare questa arnia?', noApiaries: 'Nessun apiario.', noHives: 'Nessuna arnia in questo apiario.', noVisits: 'Nessuna visita registrata.', visits: 'Visite', visitHistory: 'cronologia visite', allVisits: '📋 Tutte le visite', date: 'Data', maleFrames: 'Telai da fuchi', honeyFrames: 'Telai di miele', broodFrames: 'Telai di covata', swarmRisk: 'Rischio sciamatura', queenColor: 'Colore della regina', varroa: 'Varroa', remarks: 'Note', swarmAlert: '⚠️ allarme sciamatura', atRisk: '⚠️ a rischio', swarmAlertActive: '⚠️ Allarme sciamatura attivo', apiaryName: 'Nome dell\'apiario *', orientation: 'Orientamento', coordinates: 'Coordinate', hiveName: 'Nome dell\'arnia *', queenColorYear: 'Colore della regina (anno)', varroaCount: 'Numero di varroe', atRiskOfSwarming: 'Rischio di sciamatura', notes: 'Note...', save: 'Salva', create: 'Crea', cancel: 'Annulla', pleaseEnterApiaryName: 'Inserisci un nome per l\'apiario.', pleaseEnterHiveName: 'Inserisci un nome per l\'arnia.', apiaryNotFound: 'Apiario non trovato.', hiveNotFound: 'Arnia non trovata.', useMyLocation: 'Usa la mia posizione', geolocationNotSupported: 'Geolocalizzazione non supportata.', geolocationError: 'Impossibile ottenere la posizione: ', exportCSV: '📥 Esporta CSV', noDataToExport: 'Nessuna visita da esportare.', editApiary: 'Modifica apiario', newApiary: 'Nuovo apiario', editHive: 'Modifica arnia', newHive: 'Nuova arnia', name: 'Nome', queenColorBlue: 'Blu', queenColorWhite: 'Bianco', queenColorYellow: 'Giallo', queenColorRed: 'Rosso', queenColorGreen: 'Verde', swarmWarningLabel: 'Rischio sciamatura', confirmTitle: 'Conferma', alertTitle: 'Avviso', deleteTitle: 'Elimina', yes: 'Sì', no: 'No', ok: 'OK', voiceNotSupported: 'Riconoscimento vocale non supportato.', listening: 'In ascolto...', voiceOff: 'Voce disattivata' },
+        rm: { appName: 'AlvearCheck', apiaryTracker: 'administraziun dals apiars', manageApiaries: 'Administrescha tes apiars e lur avieuls', addApiary: '＋ Agiuntar in apiari', apiary: 'apiari', apiaries: 'apiars', addHive: '＋ Agiuntar in avieul', hive: 'avieul', hives: 'avieuls', backToApiaries: '← Enavos als apiars', backToHives: '← Enavos als avieuls', edit: '✎ Modifitgar', delete: '✕ Stizzar', deleteApiaryConfirm: 'Stizzar quest apiari e tut ses avieuls?', deleteHiveConfirm: 'Stizzar quest avieul?', noApiaries: 'Nagins apiars.', noHives: 'Nagins avieuls en quest apiari.', noVisits: 'Naginas visitas registradas.', visits: 'Visitas', visitHistory: 'cronologia da las visitas', allVisits: '📋 Tut las visitas', date: 'Data', maleFrames: 'Framas da drones', honeyFrames: 'Framas da mel', broodFrames: 'Framas da cova', swarmRisk: 'Ristga da sciamar', queenColor: 'Colur da la regina', varroa: 'Varroa', remarks: 'Remarcas', swarmAlert: '⚠️ alarm da sciamar', atRisk: '⚠️ en ristga', swarmAlertActive: '⚠️ Alarm da sciamar activ', apiaryName: 'Num da l\'apiari *', orientation: 'Orientaziun', coordinates: 'Coordinatas', hiveName: 'Num da l\'avieul *', queenColorYear: 'Colur da la regina (onn)', varroaCount: 'Dumber da varroas', atRiskOfSwarming: 'Ristga da sciamar', notes: 'Notas...', save: 'Salvar', create: 'Crear', cancel: 'Annullar', pleaseEnterApiaryName: 'Endatescha in num per l\'apiari.', pleaseEnterHiveName: 'Endatescha in num per l\'avieul.', apiaryNotFound: 'Apiari betg chattà.', hiveNotFound: 'Avieul betg chattà.', useMyLocation: 'Duvrar mia posiziun', geolocationNotSupported: 'Geolocalisaziun betg sustegnida.', geolocationError: 'Betg pussaivel da survegnir la posiziun: ', exportCSV: '📥 Exportar CSV', noDataToExport: 'Naginas visitas da exportar.', editApiary: 'Modifitgar l\'apiari', newApiary: 'Nov apiari', editHive: 'Modifitgar l\'avieul', newHive: 'Nov avieul', name: 'Num', queenColorBlue: 'Blau', queenColorWhite: 'Alv', queenColorYellow: 'Mellen', queenColorRed: 'Cotschna', queenColorGreen: 'Verd', swarmWarningLabel: 'Ristga da sciamar', confirmTitle: 'Confirmar', alertTitle: 'Avvis', deleteTitle: 'Stizzar', yes: 'Gea', no: 'Na', ok: 'OK', voiceNotSupported: 'Reconuschientscha vocala betg sustegnida.', listening: 'Ta schuntond...', voiceOff: 'Vusch deactivada' }
+      };
 
-let appData = { apiaries: [] };
-let currentView = 'apiary-list';
-let activeApiaryId = null;
-let activeHiveId = null;
-let editApiaryData = null;
-let editHiveData = null;
-let geoLoading = false;
+      let currentLang = 'fr';
+      function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key; }
+      function escapeHtml(str) { if (str == null) return ''; return String(str).replace(/[&<>"]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; if (m === '"') return '&quot;'; return m; }); }
 
-async function showApp() {
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('voiceBtn').style.display = 'flex';
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-       const { data, error } = await supabase.from('user_data').select('data').eq('user_id', user.id).single();
-       if (data && data.data) appData = data.data;
-    }
-  } catch (err) { console.error("Could not load cloud data", err); }
-  render();
-}
+      let appData = { apiaries: [] };
+      let currentView = 'apiary-list';
+      let activeApiaryId = null;
+      let activeHiveId = null;
+      let editApiaryData = null;
+      let editHiveData = null;
+      let geoLoading = false;
 
-async function saveData(data) {
-  appData = data;
-  const { data: { user } } = await supabase.auth.getUser();
-  if (user) {
-    const { error } = await supabase.from('user_data').upsert({ user_id: user.id, data: data, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
-    if (error) console.error("Cloud sync failed", error);
-  }
-}
+      async function showApp() {
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('voiceBtn').style.display = 'flex';
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (user) {
+             const { data, error } = await supabase.from('user_data').select('data').eq('user_id', user.id).single();
+             if (data && data.data) appData = data.data;
+          }
+        } catch (err) { console.error("Could not load cloud data", err); }
+        render();
+      }
 
-document.getElementById('loginBtn').addEventListener('click', async () => {
-  const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value;
-  const msgEl = document.getElementById('authMessage');
-  msgEl.style.color = '#c47b2e'; msgEl.textContent = "Connecting...";
-  try {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-    showApp();
-  } catch (err) { msgEl.style.color = 'red'; msgEl.textContent = err.message; }
-});
+      async function saveData(data) {
+        appData = data;
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { error } = await supabase.from('user_data').upsert({ user_id: user.id, data: data, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+          if (error) console.error("Cloud sync failed", error);
+        }
+      }
 
-document.getElementById('registerBtn').addEventListener('click', async () => {
-  const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value;
-  const msgEl = document.getElementById('authMessage');
-  msgEl.style.color = '#c47b2e'; msgEl.textContent = "Creating account...";
-  try {
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) throw error;
-    msgEl.style.color = 'green'; msgEl.textContent = "Account created! You can now log in.";
-  } catch (err) { msgEl.style.color = 'red'; msgEl.textContent = err.message; }
-});
+      document.getElementById('loginBtn').addEventListener('click', async () => {
+        const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value;
+        const msgEl = document.getElementById('authMessage');
+        msgEl.style.color = '#c47b2e'; msgEl.textContent = "Connecting...";
+        try {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          showApp();
+        } catch (err) { msgEl.style.color = 'red'; msgEl.textContent = err.message; }
+      });
 
-document.getElementById('logoutBtn').addEventListener('click', async () => {
-  await supabase.auth.signOut();
-  document.getElementById('authScreen').style.display = 'block';
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('voiceBtn').style.display = 'none';
-});
+      document.getElementById('registerBtn').addEventListener('click', async () => {
+        const email = document.getElementById('authEmail').value; const password = document.getElementById('authPassword').value;
+        const msgEl = document.getElementById('authMessage');
+        msgEl.style.color = '#c47b2e'; msgEl.textContent = "Creating account...";
+        try {
+          const { error } = await supabase.auth.signUp({ email, password });
+          if (error) throw error;
+          msgEl.style.color = 'green'; msgEl.textContent = "Account created! You can now log in.";
+        } catch (err) { msgEl.style.color = 'red'; msgEl.textContent = err.message; }
+      });
 
-supabase.auth.onAuthStateChange((event, session) => {
-  if (session) { showApp(); }
-  else { document.getElementById('authScreen').style.display = 'block'; document.getElementById('app').style.display = 'none'; }
-});
-    const modalEl = document.getElementById('modal');
-const modalBackdrop = document.getElementById('modalBackdrop');
-const modalTitleEl = document.getElementById('modalTitle');
-const modalBodyEl = document.getElementById('modalBody');
-const modalActionsEl = document.getElementById('modalActions');
-let modalResolver = null;
+      supabase.auth.onAuthStateChange((event, session) => {
+        if (session) { showApp(); }
+        else { document.getElementById('authScreen').style.display = 'block'; document.getElementById('app').style.display = 'none'; document.getElementById('voiceBtn').style.display = 'none'; }
+      });
 
-function openModal(options) {
-  return new Promise(function(resolve) {
-    modalTitleEl.textContent = options.title || ''; modalBodyEl.textContent = options.body || ''; modalActionsEl.innerHTML = '';
-    options.actions.forEach(function(action) {
-      const btn = document.createElement('button'); btn.textContent = action.label;
-      if (action.primary) btn.className = 'primary'; else if (action.danger) btn.className = 'danger'; else btn.className = 'outline';
-      btn.addEventListener('click', function() { const result = action.value; modalEl.classList.remove('visible'); modalBackdrop.classList.remove('visible'); modalActionsEl.innerHTML = ''; modalResolver = null; resolve(result); });
-      modalActionsEl.appendChild(btn);
-    });
-    modalResolver = resolve; modalBackdrop.classList.add('visible'); modalEl.classList.add('visible');
-  });
-}
+      const modalEl = document.getElementById('modal');
+      const modalBackdrop = document.getElementById('modalBackdrop');
+      const modalTitleEl = document.getElementById('modalTitle');
+      const modalBodyEl = document.getElementById('modalBody');
+      const modalActionsEl = document.getElementById('modalActions');
+      let modalResolver = null;
 
-function nativeAlert(message, title) { return openModal({ title: title || t('alertTitle'), body: message, actions: [{ label: t('ok'), primary: true, value: true }] }); }
-function nativeDeleteConfirm(message) { return openModal({ title: t('deleteTitle'), body: message, actions: [{ label: t('no'), outline: true, value: false }, { label: t('delete'), danger: true, value: true }] }); }
-modalBackdrop.addEventListener('click', function() { if (modalResolver) { modalEl.classList.remove('visible'); modalBackdrop.classList.remove('visible'); modalActionsEl.innerHTML = ''; const r = modalResolver; modalResolver = null; r(false); } });
+      function openModal(options) {
+        return new Promise(function(resolve) {
+          modalTitleEl.textContent = options.title || ''; modalBodyEl.textContent = options.body || ''; modalActionsEl.innerHTML = '';
+          options.actions.forEach(function(action) {
+            const btn = document.createElement('button'); btn.textContent = action.label;
+            if (action.primary) btn.className = 'primary'; else if (action.danger) btn.className = 'danger'; else btn.className = 'outline';
+            btn.addEventListener('click', function() { const result = action.value; modalEl.classList.remove('visible'); modalBackdrop.classList.remove('visible'); modalActionsEl.innerHTML = ''; modalResolver = null; resolve(result); });
+            modalActionsEl.appendChild(btn);
+          });
+          modalResolver = resolve; modalBackdrop.classList.add('visible'); modalEl.classList.add('visible');
+        });
+      }
 
-function generateId() { return crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).substr(2, 9); }
-function findApiary(id) { return appData.apiaries.find(a => a.id === id); }
-function findHive(apiaryId, hiveId) { const apiary = findApiary(apiaryId); if (!apiary) return null; return apiary.hives.find(h => h.id === hiveId); }
-function isSwarmAlertActive(hive) { if (!hive.swarmRisk || !hive.swarmRiskSetAt) return false; return ((new Date() - new Date(hive.swarmRiskSetAt)) / (1000 * 60 * 60 * 24)) >= 14; }
-function apiaryHasSwarmAlert(apiary) { return apiary.hives.some(h => isSwarmAlertActive(h)); }
-const queenColors = [ { value: 'blue', labelKey: 'queenColorBlue' }, { value: 'white', labelKey: 'queenColorWhite' }, { value: 'yellow', labelKey: 'queenColorYellow' }, { value: 'red', labelKey: 'queenColorRed' }, { value: 'green', labelKey: 'queenColorGreen' } ];
+      function nativeAlert(message, title) { return openModal({ title: title || t('alertTitle'), body: message, actions: [{ label: t('ok'), primary: true, value: true }] }); }
+      function nativeDeleteConfirm(message) { return openModal({ title: t('deleteTitle'), body: message, actions: [{ label: t('no'), outline: true, value: false }, { label: t('delete'), danger: true, value: true }] }); }
+      modalBackdrop.addEventListener('click', function() { if (modalResolver) { modalEl.classList.remove('visible'); modalBackdrop.classList.remove('visible'); modalActionsEl.innerHTML = ''; const r = modalResolver; modalResolver = null; r(false); } });
 
-function renderLangSelector() { return '<div class="lang-selector">' + ['en','fr','de','it','rm'].map(l => `<button class="lang-btn ${currentLang === l ? 'active' : ''}" data-lang="${l}">${l.toUpperCase()}</button>`).join('') + '</div>'; }
-function attachLangListeners() { document.querySelectorAll('.lang-btn').forEach(btn => { btn.addEventListener('click', () => { currentLang = btn.dataset.lang; render(); }); }); }
+      function generateId() { return crypto.randomUUID ? crypto.randomUUID() : Date.now() + '-' + Math.random().toString(36).substr(2, 9); }
+      function findApiary(id) { return appData.apiaries.find(a => a.id === id); }
+      function findHive(apiaryId, hiveId) { const apiary = findApiary(apiaryId); if (!apiary) return null; return apiary.hives.find(h => h.id === hiveId); }
+      function isSwarmAlertActive(hive) { if (!hive.swarmRisk || !hive.swarmRiskSetAt) return false; return ((new Date() - new Date(hive.swarmRiskSetAt)) / (1000 * 60 * 60 * 24)) >= 14; }
+      function apiaryHasSwarmAlert(apiary) { return apiary.hives.some(h => isSwarmAlertActive(h)); }
+      const queenColors = [ { value: 'blue', labelKey: 'queenColorBlue' }, { value: 'white', labelKey: 'queenColorWhite' }, { value: 'yellow', labelKey: 'queenColorYellow' }, { value: 'red', labelKey: 'queenColorRed' }, { value: 'green', labelKey: 'queenColorGreen' } ];
 
-const appEl = document.getElementById('app');
+      function renderLangSelector() { return '<div class="lang-selector">' + ['en','fr','de','it','rm'].map(l => `<button class="lang-btn ${currentLang === l ? 'active' : ''}" data-lang="${l}">${l.toUpperCase()}</button>`).join('') + '</div>'; }
+      function attachLangListeners() { document.querySelectorAll('.lang-btn').forEach(btn => { btn.addEventListener('click', () => { currentLang = btn.dataset.lang; render(); }); }); }
 
-function renderApiaryList() {
-  const apiaries = appData.apiaries; const anySwarmAlert = apiaries.some(a => apiaryHasSwarmAlert(a));
-  let html = `<div class="app-header"><h1>🐝 ${t('appName')} <small>v1.0 · ${t('apiaryTracker')}</small></h1>${renderLangSelector()}</div>${anySwarmAlert ? `<div style="background:#f5d9b0;color:#8a5c00;padding:0.6rem 1rem;border-radius:1rem;margin-bottom:1rem;font-weight:500;display:flex;align-items:center;gap:0.5rem;">${t('swarmAlertActive')}</div>` : ''}<div class="subhead">${t('manageApiaries')}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;"><span style="font-weight:500;color:#7a6a58;">${apiaries.length} ${apiaries.length !== 1 ? t('apiaries') : t('apiary')}</span><div style="display:flex;gap:0.5rem;flex-wrap:wrap;"><button class="outline" id="exportCsvBtn">${t('exportCSV')}</button><button class="primary" id="addApiaryBtn">${t('addApiary')}</button></div></div>`;
-  if (apiaries.length === 0) { html += `<div class="empty-state">${t('noApiaries')}</div>`; } 
-  else { html += `<div class="apiary-grid">`; apiaries.forEach(apiary => { const hiveCount = apiary.hives.length; const hasAlert = apiaryHasSwarmAlert(apiary); html += `<div class="apiary-card ${hasAlert ? 'has-swarm-risk' : ''}" data-apiary-id="${apiary.id}"><div class="apiary-info"><span class="apiary-name">${escapeHtml(apiary.name)} ${hasAlert ? `<span class="swarm-alert-badge">${t('swarmAlert')}</span>` : ''}</span><div class="apiary-meta"><span>🧭 ${escapeHtml(apiary.orientation || '—')}</span><span>📍 ${escapeHtml(apiary.coordinates || '—')}</span><span>🐝 ${hiveCount} ${hiveCount !== 1 ? t('hives') : t('hive')}</span></div></div><div style="display:flex;gap:0.5rem;"><button class="small outline edit-apiary-btn" data-apiary-id="${apiary.id}">${t('edit')}</button><button class="small danger delete-apiary-btn" data-apiary-id="${apiary.id}">${t('delete')}</button></div></div>`; }); html += `</div>`; }
-  appEl.innerHTML = html; attachLangListeners();
-  document.getElementById('addApiaryBtn')?.addEventListener('click', () => { currentView = 'add-apiary'; editApiaryData = { name: '', orientation: '', coordinates: '' }; render(); });
-  document.getElementById('exportCsvBtn')?.addEventListener('click', exportAllVisitsCSV);
-  document.querySelectorAll('.apiary-card').forEach(card => { card.addEventListener('click', (e) => { if (e.target.closest('button')) return; activeApiaryId = card.dataset.apiaryId; currentView = 'hive-list'; render(); }); });
-  document.querySelectorAll('.edit-apiary-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const apiary = findApiary(btn.dataset.apiaryId); if (!apiary) return; editApiaryData = { ...apiary, id: apiary.id }; activeApiaryId = apiary.id; currentView = 'edit-apiary'; render(); }); });
-  document.querySelectorAll('.delete-apiary-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.dataset.apiaryId; if (await nativeDeleteConfirm(t('deleteApiaryConfirm'))) { appData.apiaries = appData.apiaries.filter(a => a.id !== id); saveData(appData); if (activeApiaryId === id) { activeApiaryId = null; currentView = 'apiary-list'; } render(); } }); });
-}
+      const appEl = document.getElementById('app');
 
-function renderHiveList() {
-  const apiary = findApiary(activeApiaryId); if (!apiary) { currentView = 'apiary-list'; render(); return; }
-  const hives = apiary.hives;
-  let html = `<button class="back-link" id="backToApiaries">${t('backToApiaries')}</button><div class="app-header"><h1 style="font-size:1.8rem;">${escapeHtml(apiary.name)} <small>v1.0 · 🐝 ${hives.length} ${hives.length !== 1 ? t('hives') : t('hive')}</small></h1>${renderLangSelector()}</div><div style="display:flex;gap:1rem;align-items:center;margin:0.5rem 0 1rem;flex-wrap:wrap;"><span class="badge">🧭 ${escapeHtml(apiary.orientation || '—')}</span><span class="badge">📍 ${escapeHtml(apiary.coordinates || '—')}</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;"><span style="font-weight:500;color:#7a6a58;">${t('hives')}</span><button class="primary" id="addHiveBtn">${t('addHive')}</button></div>`;
-  if (hives.length === 0) { html += `<div class="empty-state">${t('noHives')}</div>`; } 
-  else { html += `<div class="hive-list">`; hives.forEach(hive => { const queenColor = hive.queenColor || '—'; const swarmAlert = isSwarmAlertActive(hive); const swarmRiskBadge = hive.swarmRisk ? (swarmAlert ? t('swarmAlert') : t('atRisk')) : ''; const varroa = hive.varroaCount != null ? `🔬 ${hive.varroaCount} ${t('varroa').toLowerCase()}` : ''; const visitCount = (hive.visits || []).length; let colorBg = '#f0e4d4'; if (queenColor === 'blue') colorBg = '#c9e1f2'; else if (queenColor === 'white') colorBg = '#f0f0f0'; else if (queenColor === 'yellow') colorBg = '#f9eeb0'; else if (queenColor === 'red') colorBg = '#f5cfcf'; else if (queenColor === 'green') colorBg = '#cfe8cf'; html += `<div class="hive-card ${swarmAlert ? 'swarm-warning' : ''}" data-hive-id="${hive.id}"><div><div class="hive-name">${escapeHtml(hive.name)} <span class="queen-badge" style="background:${colorBg};color:#2e241b;">♀ ${queenColor}</span>${swarmRiskBadge ? `<span class="swarm-alert-badge">${swarmRiskBadge}</span>` : ''}</div><div style="font-size:0.8rem;color:#8b7b68;margin-top:0.3rem;">${varroa} ${visitCount > 0 ? `· 📋 ${visitCount} ${t('visits').toLowerCase()}` : ''} ${hive.remarks ? `· ${escapeHtml(hive.remarks.substring(0, 40))}` : ''}</div></div><div style="display:flex;gap:0.5rem;flex-wrap:wrap;"><button class="small outline edit-hive-btn" data-hive-id="${hive.id}">${t('edit')}</button><button class="small outline visit-history-btn" data-hive-id="${hive.id}">📋 ${t('visits')}</button><button class="small danger delete-hive-btn" data-hive-id="${hive.id}">✕</button></div></div>`; }); html += `</div>`; }
-  appEl.innerHTML = html; attachLangListeners();
-  document.getElementById('backToApiaries').addEventListener('click', () => { currentView = 'apiary-list'; activeApiaryId = null; render(); });
-  document.getElementById('addHiveBtn').addEventListener('click', () => { currentView = 'add-hive'; editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; render(); });
-  document.querySelectorAll('.hive-card').forEach(card => { card.addEventListener('click', (e) => { if (e.target.closest('button')) return; const hive = findHive(activeApiaryId, card.dataset.hiveId); if (!hive) return; editHiveData = { ...hive, maleFrames: hive.maleFrames ?? '', honeyFrames: hive.honeyFrames ?? '', broodFrames: hive.broodFrames ?? '', varroaCount: hive.varroaCount ?? '', remarks: hive.remarks ?? '' }; activeHiveId = hive.id; currentView = 'edit-hive'; render(); }); });
-  document.querySelectorAll('.edit-hive-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const hive = findHive(activeApiaryId, btn.dataset.hiveId); if (!hive) return; editHiveData = { ...hive, maleFrames: hive.maleFrames ?? '', honeyFrames: hive.honeyFrames ?? '', broodFrames: hive.broodFrames ?? '', varroaCount: hive.varroaCount ?? '', remarks: hive.remarks ?? '' }; activeHiveId = hive.id; currentView = 'edit-hive'; render(); }); });
-  document.querySelectorAll('.visit-history-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); activeHiveId = btn.dataset.hiveId; currentView = 'hive-visits'; render(); }); });
-  document.querySelectorAll('.delete-hive-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); if (await nativeDeleteConfirm(t('deleteHiveConfirm'))) { const apiary = findApiary(activeApiaryId); if (apiary) { apiary.hives = apiary.hives.filter(h => h.id !== btn.dataset.hiveId); saveData(appData); render(); } } }); });
-}
+      function renderApiaryList() {
+        const apiaries = appData.apiaries; const anySwarmAlert = apiaries.some(a => apiaryHasSwarmAlert(a));
+        let html = `<div class="app-header"><h1>🐝 ${t('appName')} <small>v1.0 · ${t('apiaryTracker')}</small></h1>${renderLangSelector()}</div>${anySwarmAlert ? `<div style="background:#f5d9b0;color:#8a5c00;padding:0.6rem 1rem;border-radius:1rem;margin-bottom:1rem;font-weight:500;display:flex;align-items:center;gap:0.5rem;">${t('swarmAlertActive')}</div>` : ''}<div class="subhead">${t('manageApiaries')}</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;"><span style="font-weight:500;color:#7a6a58;">${apiaries.length} ${apiaries.length !== 1 ? t('apiaries') : t('apiary')}</span><div style="display:flex;gap:0.5rem;flex-wrap:wrap;"><button class="outline" id="exportCsvBtn">${t('exportCSV')}</button><button class="primary" id="addApiaryBtn">${t('addApiary')}</button></div></div>`;
+        if (apiaries.length === 0) { html += `<div class="empty-state">${t('noApiaries')}</div>`; } 
+        else { html += `<div class="apiary-grid">`; apiaries.forEach(apiary => { const hiveCount = apiary.hives.length; const hasAlert = apiaryHasSwarmAlert(apiary); html += `<div class="apiary-card ${hasAlert ? 'has-swarm-risk' : ''}" data-apiary-id="${apiary.id}"><div class="apiary-info"><span class="apiary-name">${escapeHtml(apiary.name)} ${hasAlert ? `<span class="swarm-alert-badge">${t('swarmAlert')}</span>` : ''}</span><div class="apiary-meta"><span>🧭 ${escapeHtml(apiary.orientation || '—')}</span><span>📍 ${escapeHtml(apiary.coordinates || '—')}</span><span>🐝 ${hiveCount} ${hiveCount !== 1 ? t('hives') : t('hive')}</span></div></div><div style="display:flex;gap:0.5rem;"><button class="small outline edit-apiary-btn" data-apiary-id="${apiary.id}">${t('edit')}</button><button class="small danger delete-apiary-btn" data-apiary-id="${apiary.id}">${t('delete')}</button></div></div>`; }); html += `</div>`; }
+        appEl.innerHTML = html; attachLangListeners();
+        document.getElementById('addApiaryBtn')?.addEventListener('click', () => { currentView = 'add-apiary'; editApiaryData = { name: '', orientation: '', coordinates: '' }; render(); });
+        document.getElementById('exportCsvBtn')?.addEventListener('click', exportAllVisitsCSV);
+        document.querySelectorAll('.apiary-card').forEach(card => { card.addEventListener('click', (e) => { if (e.target.closest('button')) return; activeApiaryId = card.dataset.apiaryId; currentView = 'hive-list'; render(); }); });
+        document.querySelectorAll('.edit-apiary-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const apiary = findApiary(btn.dataset.apiaryId); if (!apiary) return; editApiaryData = { ...apiary, id: apiary.id }; activeApiaryId = apiary.id; currentView = 'edit-apiary'; render(); }); });
+        document.querySelectorAll('.delete-apiary-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); const id = btn.dataset.apiaryId; if (await nativeDeleteConfirm(t('deleteApiaryConfirm'))) { appData.apiaries = appData.apiaries.filter(a => a.id !== id); saveData(appData); if (activeApiaryId === id) { activeApiaryId = null; currentView = 'apiary-list'; } render(); } }); });
+      }
 
-function renderHiveVisits() {
-  const apiary = findApiary(activeApiaryId); const hive = findHive(activeApiaryId, activeHiveId); if (!apiary || !hive) { currentView = 'hive-list'; render(); return; }
-  const visits = hive.visits || [];
-  let html = `<button class="back-link" id="backToHives">${t('backToHives')}</button><div class="app-header"><h1 style="font-size:1.8rem;">${escapeHtml(hive.name)} <small>v1.0 · ${t('visitHistory')}</small></h1>${renderLangSelector()}</div><div style="display:flex;gap:1rem;align-items:center;margin:0.5rem 0 1rem;flex-wrap:wrap;"><span class="badge">📍 ${escapeHtml(apiary.name)}</span><span class="badge">🐝 ${escapeHtml(hive.name)}</span></div>`;
-  if (visits.length === 0) { html += `<div class="empty-state">${t('noVisits')}</div>`; } 
-  else { html += `<div class="visit-history-wrapper"><div class="visit-history-header"><span>${t('allVisits')} (${visits.length})</span><button class="small outline" id="exportHiveCsvBtn">${t('exportCSV')}</button></div><div class="visit-table-container"><table class="visit-table"><thead><tr><th>${t('date')}</th><th>${t('maleFrames')}</th><th>${t('honeyFrames')}</th><th>${t('broodFrames')}</th><th>${t('swarmRisk')}</th><th>${t('queenColor')}</th><th>${t('varroa')}</th><th>${t('remarks')}</th></tr></thead><tbody>`; visits.slice().reverse().forEach(v => { const d = new Date(v.date); const dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); const swarmRisk = v.swarmRisk ? '⚠️ ' + t('yes') : t('no'); html += `<tr><td class="visit-date">${dateStr}</td><td>${v.maleFrames ?? '—'}</td><td>${v.honeyFrames ?? '—'}</td><td>${v.broodFrames ?? '—'}</td><td>${swarmRisk}</td><td>${v.queenColor ?? '—'}</td><td>${v.varroaCount ?? '—'}</td><td class="visit-summary">${escapeHtml(v.remarks || '—')}</td></tr>`; }); html += `</tbody></table></div></div>`; }
-  appEl.innerHTML = html; attachLangListeners();
-  document.getElementById('backToHives').addEventListener('click', () => { currentView = 'hive-list'; activeHiveId = null; render(); });
-  document.getElementById('exportHiveCsvBtn')?.addEventListener('click', () => exportHiveVisitsCSV(apiary, hive));
-}
-        function renderApiaryForm() {
+      function renderHiveList() {
+        const apiary = findApiary(activeApiaryId); if (!apiary) { currentView = 'apiary-list'; render(); return; }
+        const hives = apiary.hives;
+        let html = `<button class="back-link" id="backToApiaries">${t('backToApiaries')}</button><div class="app-header"><h1 style="font-size:1.8rem;">${escapeHtml(apiary.name)} <small>v1.0 · 🐝 ${hives.length} ${hives.length !== 1 ? t('hives') : t('hive')}</small></h1>${renderLangSelector()}</div><div style="display:flex;gap:1rem;align-items:center;margin:0.5rem 0 1rem;flex-wrap:wrap;"><span class="badge">🧭 ${escapeHtml(apiary.orientation || '—')}</span><span class="badge">📍 ${escapeHtml(apiary.coordinates || '—')}</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;"><span style="font-weight:500;color:#7a6a58;">${t('hives')}</span><button class="primary" id="addHiveBtn">${t('addHive')}</button></div>`;
+        if (hives.length === 0) { html += `<div class="empty-state">${t('noHives')}</div>`; } 
+        else { html += `<div class="hive-list">`; hives.forEach(hive => { const queenColor = hive.queenColor || '—'; const swarmAlert = isSwarmAlertActive(hive); const swarmRiskBadge = hive.swarmRisk ? (swarmAlert ? t('swarmAlert') : t('atRisk')) : ''; const varroa = hive.varroaCount != null ? `🔬 ${hive.varroaCount} ${t('varroa').toLowerCase()}` : ''; const visitCount = (hive.visits || []).length; let colorBg = '#f0e4d4'; if (queenColor === 'blue') colorBg = '#c9e1f2'; else if (queenColor === 'white') colorBg = '#f0f0f0'; else if (queenColor === 'yellow') colorBg = '#f9eeb0'; else if (queenColor === 'red') colorBg = '#f5cfcf'; else if (queenColor === 'green') colorBg = '#cfe8cf'; html += `<div class="hive-card ${swarmAlert ? 'swarm-warning' : ''}" data-hive-id="${hive.id}"><div><div class="hive-name">${escapeHtml(hive.name)} <span class="queen-badge" style="background:${colorBg};color:#2e241b;">♀ ${queenColor}</span>${swarmRiskBadge ? `<span class="swarm-alert-badge">${swarmRiskBadge}</span>` : ''}</div><div style="font-size:0.8rem;color:#8b7b68;margin-top:0.3rem;">${varroa} ${visitCount > 0 ? `· 📋 ${visitCount} ${t('visits').toLowerCase()}` : ''} ${hive.remarks ? `· ${escapeHtml(hive.remarks.substring(0, 40))}` : ''}</div></div><div style="display:flex;gap:0.5rem;flex-wrap:wrap;"><button class="small outline edit-hive-btn" data-hive-id="${hive.id}">${t('edit')}</button><button class="small outline visit-history-btn" data-hive-id="${hive.id}">📋 ${t('visits')}</button><button class="small danger delete-hive-btn" data-hive-id="${hive.id}">✕</button></div></div>`; }); html += `</div>`; }
+        appEl.innerHTML = html; attachLangListeners();
+        document.getElementById('backToApiaries').addEventListener('click', () => { currentView = 'apiary-list'; activeApiaryId = null; render(); });
+        document.getElementById('addHiveBtn').addEventListener('click', () => { currentView = 'add-hive'; editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; render(); });
+        document.querySelectorAll('.hive-card').forEach(card => { card.addEventListener('click', (e) => { if (e.target.closest('button')) return; const hive = findHive(activeApiaryId, card.dataset.hiveId); if (!hive) return; editHiveData = { ...hive, maleFrames: hive.maleFrames ?? '', honeyFrames: hive.honeyFrames ?? '', broodFrames: hive.broodFrames ?? '', varroaCount: hive.varroaCount ?? '', remarks: hive.remarks ?? '' }; activeHiveId = hive.id; currentView = 'edit-hive'; render(); }); });
+        document.querySelectorAll('.edit-hive-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); const hive = findHive(activeApiaryId, btn.dataset.hiveId); if (!hive) return; editHiveData = { ...hive, maleFrames: hive.maleFrames ?? '', honeyFrames: hive.honeyFrames ?? '', broodFrames: hive.broodFrames ?? '', varroaCount: hive.varroaCount ?? '', remarks: hive.remarks ?? '' }; activeHiveId = hive.id; currentView = 'edit-hive'; render(); }); });
+        document.querySelectorAll('.visit-history-btn').forEach(btn => { btn.addEventListener('click', (e) => { e.stopPropagation(); activeHiveId = btn.dataset.hiveId; currentView = 'hive-visits'; render(); }); });
+        document.querySelectorAll('.delete-hive-btn').forEach(btn => { btn.addEventListener('click', async (e) => { e.stopPropagation(); if (await nativeDeleteConfirm(t('deleteHiveConfirm'))) { const apiary = findApiary(activeApiaryId); if (apiary) { apiary.hives = apiary.hives.filter(h => h.id !== btn.dataset.hiveId); saveData(appData); render(); } } }); });
+      }
+
+      function renderHiveVisits() {
+        const apiary = findApiary(activeApiaryId); const hive = findHive(activeApiaryId, activeHiveId); if (!apiary || !hive) { currentView = 'hive-list'; render(); return; }
+        const visits = hive.visits || [];
+        let html = `<button class="back-link" id="backToHives">${t('backToHives')}</button><div class="app-header"><h1 style="font-size:1.8rem;">${escapeHtml(hive.name)} <small>v1.0 · ${t('visitHistory')}</small></h1>${renderLangSelector()}</div><div style="display:flex;gap:1rem;align-items:center;margin:0.5rem 0 1rem;flex-wrap:wrap;"><span class="badge">📍 ${escapeHtml(apiary.name)}</span><span class="badge">🐝 ${escapeHtml(hive.name)}</span></div>`;
+        if (visits.length === 0) { html += `<div class="empty-state">${t('noVisits')}</div>`; } 
+        else { html += `<div class="visit-history-wrapper"><div class="visit-history-header"><span>${t('allVisits')} (${visits.length})</span><button class="small outline" id="exportHiveCsvBtn">${t('exportCSV')}</button></div><div class="visit-table-container"><table class="visit-table"><thead><tr><th>${t('date')}</th><th>${t('maleFrames')}</th><th>${t('honeyFrames')}</th><th>${t('broodFrames')}</th><th>${t('swarmRisk')}</th><th>${t('queenColor')}</th><th>${t('varroa')}</th><th>${t('remarks')}</th></tr></thead><tbody>`; visits.slice().reverse().forEach(v => { const d = new Date(v.date); const dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); const swarmRisk = v.swarmRisk ? '⚠️ ' + t('yes') : t('no'); html += `<tr><td class="visit-date">${dateStr}</td><td>${v.maleFrames ?? '—'}</td><td>${v.honeyFrames ?? '—'}</td><td>${v.broodFrames ?? '—'}</td><td>${swarmRisk}</td><td>${v.queenColor ?? '—'}</td><td>${v.varroaCount ?? '—'}</td><td class="visit-summary">${escapeHtml(v.remarks || '—')}</td></tr>`; }); html += `</tbody></table></div></div>`; }
+        appEl.innerHTML = html; attachLangListeners();
+        document.getElementById('backToHives').addEventListener('click', () => { currentView = 'hive-list'; activeHiveId = null; render(); });
+        document.getElementById('exportHiveCsvBtn')?.addEventListener('click', () => exportHiveVisitsCSV(apiary, hive));
+      }
+
+      function renderApiaryForm() {
         const isEdit = currentView === 'edit-apiary'; const data = editApiaryData || { name: '', orientation: '', coordinates: '' };
         let html = `<button class="back-link" id="cancelApiaryForm">← ${t('cancel')}</button><div class="app-header"><h1 style="font-size:1.8rem;">${isEdit ? t('editApiary') : t('newApiary')} <small>v1.0</small></h1>${renderLangSelector()}</div><div class="form-panel"><div class="form-grid"><div class="field" style="grid-column:span 2;"><label>${t('apiaryName')}</label><input type="text" id="apiaryName" value="${escapeHtml(data.name)}" required></div><div class="field"><label>${t('orientation')}</label><input type="text" id="apiaryOrientation" value="${escapeHtml(data.orientation || '')}"></div><div class="field"><label>${t('coordinates')}</label><div style="display:flex;gap:0.4rem;align-items:center;"><input type="text" id="apiaryCoordinates" value="${escapeHtml(data.coordinates || '')}" style="flex:1;"><button class="geo-btn" id="geoBtn" title="${t('useMyLocation')}">📍</button></div></div></div><div class="row-actions"><button class="outline" id="cancelApiaryBtn">${t('cancel')}</button><button class="primary" id="saveApiaryBtn">${isEdit ? t('save') : t('create')}</button></div></div>`;
         appEl.innerHTML = html; attachLangListeners(); document.getElementById('apiaryName').focus();
@@ -378,4 +360,4 @@ function renderHiveVisits() {
     });
   </script>
 </body>
-</html>  
+</html>
