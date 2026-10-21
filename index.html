@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -39,7 +39,7 @@
 
         .header-left { display: flex; align-items: center; gap: 15px; }
         
-        /* LOCAL LOGO STYLES */
+        /* LOGO PLUS GRAND */
         .logo-container {
             display: flex;
             align-items: center;
@@ -47,9 +47,9 @@
         }
 
         .logo-container img {
-            height: 40px;
+            height: 50px; /* Agrandi de 40px à 50px */
             width: auto;
-            max-width: 250px;
+            max-width: 280px;
             object-fit: contain;
             mix-blend-mode: multiply; 
         }
@@ -80,8 +80,9 @@
         nav a { text-decoration: none; color: var(--text-main); font-weight: 600; transition: color 0.2s; }
         nav a:hover { color: var(--primary); }
         
-        .social-icons { display: flex; gap: 8px; margin-left: 10px; align-items: center; }
-        .social-icons img { height: 22px; cursor: pointer; transition: transform 0.2s; }
+        /* ICÔNES SOCIALES DE MÊME TAILLE */
+        .social-icons { display: flex; gap: 10px; margin-left: 10px; align-items: center; }
+        .social-icons img { height: 24px; width: 24px; cursor: pointer; transition: transform 0.2s; object-fit: contain; }
         .social-icons img:hover { transform: scale(1.1); }
 
         /* Main Content */
@@ -193,15 +194,13 @@
 </head>
 <body>
 
-    <!-- COMPACT HEADER -->
     <header>
         <div class="header-left">
-            <!-- FETCHES LOCAL LOGO.PNG -->
+            <!-- LOGO GOOGLE DRIVE AGRANDI -->
             <a href="#" class="logo-container">
-                <img src="logo.png" alt="VespaCaution Logo" onerror="this.src='https://via.placeholder.com/150x40/f4ebd9/d35400?text=VespaCaution'">
+                <img src="https://drive.google.com/uc?export=download&id=1_3Qc1Qbh36B4NTPlqPXumKHQg05Rq3NX" alt="VespaCaution Logo" onerror="this.src='logo.png'">
             </a>
             
-            <!-- LANGUAGE SELECTOR -->
             <div class="lang-selector">
                 <button class="lang-btn" onclick="setLanguage('en')">EN</button>
                 <button class="lang-btn active" onclick="setLanguage('fr')">FR</button>
@@ -215,6 +214,7 @@
             <a href="#" data-i18n="nav_home">Accueil</a>
             <a href="#apps" data-i18n="nav_apps">Apps</a>
             <a href="#resources" data-i18n="nav_resources">Ressources</a>
+            <a href="#support" data-i18n="nav_support">Soutenir</a>
             <a href="#contact" data-i18n="nav_contact">Contact</a>
             
             <div class="social-icons">
@@ -242,6 +242,7 @@
                     <li><a href="#" data-i18n="nav_home">Accueil</a></li>
                     <li><a href="#apps" data-i18n="nav_apps">Apps</a></li>
                     <li><a href="#resources" data-i18n="nav_resources">Ressources</a></li>
+                    <li><a href="#support" data-i18n="nav_support">Soutenir</a></li>
                     <li><a href="#contact" data-i18n="nav_contact">Contact</a></li>
                 </ul>
             </div>
@@ -259,11 +260,11 @@
         document.getElementById('year').textContent = new Date().getFullYear();
 
         // ==========================================
-        // 1. TRANSLATIONS (i18n)
+        // 1. TRANSLATIONS (i18n) - COMPLET
         // ==========================================
         const translations = {
             en: {
-                nav_home: "Home", nav_apps: "Apps", nav_resources: "Resources", nav_contact: "Contact", nav_privacy: "Privacy Policy",
+                nav_home: "Home", nav_apps: "Apps", nav_resources: "Resources", nav_contact: "Contact", nav_privacy: "Privacy Policy", nav_support: "Support",
                 footer_desc: "Tools for beekeepers and hornet hunters.", footer_legal: "Legal", footer_credit: "Created by Ben Hupka.", nav_menu: "Menu",
                 btn_open: "🚀 Open", btn_view: "View Details",
                 home_title: "Welcome to VespaCaution",
@@ -276,6 +277,13 @@
                 contact_msg: "Message", contact_send: "Send Message", contact_sending: "Sending...", contact_success: "Message sent successfully! We will get back to you soon.", contact_error: "Something went wrong. Please try again.",
                 res_title: "Resources & Useful Links", res_desc: "Here are some trusted resources for beekeepers and hornet hunters in Switzerland.",
                 res_swiss: "🇨🇭 Swiss Resources", res_credits: "🏆 Credits", res_creator: "Creator:", res_video: "Videos:", res_code: "Coding Assistant:", res_base: "ApiGuide based on:",
+                link_frelon: "Official information and coordination for the Asian hornet in Switzerland.",
+                link_stop: "Resources and reporting tools for hornet hunters.",
+                link_abeilles: "The Swiss Beekeepers Association (APISUISSE).",
+                link_melizoe: "Swiss platform for the sale of honey.",
+                credit_sar: "SAR (Société d'Apiculture Romande)",
+                support_title: "Support VespaCaution",
+                support_desc: "You like my applications and would like to support them? You can do so by making a donation with Twint at the number below. Thank you very much! 🙂",
                 privacy_title: "Privacy Policy", privacy_date: "Last updated:", privacy_p1: "At VespaCaution, your privacy is a top priority. This policy explains how our applications handle your data.",
                 privacy_h1: "1. Local-First Data Storage", privacy_t1: "Applications like ApiGuide and AlvearCheck store your data locally on your device using your browser's localStorage. We do not collect, transmit, or have access to this data.",
                 privacy_h2: "2. Optional Cloud Accounts (VespaTimer)", privacy_t2: "VespaTimer works entirely offline by default. If you choose to create an optional account, your data is securely stored using Supabase. You can request account deletion at any time via our contact form.",
@@ -284,7 +292,7 @@
                 privacy_h5: "5. Contact", privacy_t5: "If you have any questions about this Privacy Policy, please use the contact page."
             },
             fr: {
-                nav_home: "Accueil", nav_apps: "Apps", nav_resources: "Ressources", nav_contact: "Contact", nav_privacy: "Confidentialité",
+                nav_home: "Accueil", nav_apps: "Apps", nav_resources: "Ressources", nav_contact: "Contact", nav_privacy: "Confidentialité", nav_support: "Soutenir",
                 footer_desc: "Outils pour apiculteurs et chasseurs de frelons.", footer_legal: "Légal", footer_credit: "Créé par Ben Hupka.", nav_menu: "Menu",
                 btn_open: "🚀 Ouvrir", btn_view: "Voir les détails",
                 home_title: "Bienvenue sur VespaCaution",
@@ -297,6 +305,13 @@
                 contact_msg: "Message", contact_send: "Envoyer le message", contact_sending: "Envoi en cours...", contact_success: "Message envoyé avec succès ! Nous vous répondrons bientôt.", contact_error: "Une erreur est survenue. Veuillez réessayer.",
                 res_title: "Ressources & Liens Utiles", res_desc: "Voici des ressources de confiance pour les apiculteurs et chasseurs de frelons en Suisse.",
                 res_swiss: "🇨🇭 Ressources Suisses", res_credits: "🏆 Crédits", res_creator: "Créateur :", res_video: "Vidéos :", res_code: "Assistant de code :", res_base: "ApiGuide basé sur :",
+                link_frelon: "Informations officielles et coordination pour le frelon asiatique en Suisse.",
+                link_stop: "Ressources et outils de signalement pour les chasseurs de frelons.",
+                link_abeilles: "La Fédération Suisse des Apiculteurs (APISUISSE).",
+                link_melizoe: "Plateforme suisse de vente de miel.",
+                credit_sar: "SAR (Société d'Apiculture Romande)",
+                support_title: "Soutenir VespaCaution",
+                support_desc: "Vous aimez mes applications et vous voudriez les soutenir ? Vous le pouvez en faisant un don avec Twint au numéro ci-dessous. Merci beaucoup ! 🙂",
                 privacy_title: "Politique de confidentialité", privacy_date: "Dernière mise à jour :", privacy_p1: "Chez VespaCaution, votre vie privée est une priorité. Cette politique explique comment nos applications gèrent vos données.",
                 privacy_h1: "1. Stockage local", privacy_t1: "Les applications comme ApiGuide et AlvearCheck stockent vos données localement sur votre appareil. Nous ne collectons ni ne transmettons ces données.",
                 privacy_h2: "2. Comptes Cloud (VespaTimer)", privacy_t2: "VespaTimer fonctionne hors ligne par défaut. Si vous créez un compte, vos données sont sécurisées via Supabase. Vous pouvez demander la suppression à tout moment.",
@@ -305,7 +320,7 @@
                 privacy_h5: "5. Contact", privacy_t5: "Pour toute question, veuillez utiliser la page de contact."
             },
             de: {
-                nav_home: "Startseite", nav_apps: "Apps", nav_resources: "Ressourcen", nav_contact: "Kontakt", nav_privacy: "Datenschutz",
+                nav_home: "Startseite", nav_apps: "Apps", nav_resources: "Ressourcen", nav_contact: "Kontakt", nav_privacy: "Datenschutz", nav_support: "Unterstützen",
                 footer_desc: "Werkzeuge für Imker und Hornissenjäger.", footer_legal: "Rechtliches", footer_credit: "Erstellt von Ben Hupka.", nav_menu: "Menü",
                 btn_open: "🚀 Öffnen", btn_view: "Details ansehen",
                 home_title: "Willkommen bei VespaCaution",
@@ -318,6 +333,13 @@
                 contact_msg: "Nachricht", contact_send: "Nachricht senden", contact_sending: "Wird gesendet...", contact_success: "Nachricht erfolgreich gesendet!", contact_error: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
                 res_title: "Ressourcen & Nützliche Links", res_desc: "Vertrauenswürdige Ressourcen für Imker und Hornissenjäger in der Schweiz.",
                 res_swiss: "🇨🇭 Schweizer Ressourcen", res_credits: "🏆 Credits", res_creator: "Ersteller:", res_video: "Videos:", res_code: "Code-Assistent:", res_base: "ApiGuide basiert auf:",
+                link_frelon: "Offizielle Informationen und Koordination zur Asiatischen Hornisse in der Schweiz.",
+                link_stop: "Ressourcen und Meldewerkzeuge für Hornissenjäger.",
+                link_abeilles: "Der Schweizerische Imkerverband (APISUISSE).",
+                link_melizoe: "Schweizer Plattform für den Honigverkauf.",
+                credit_sar: "SAR (Société d'Apiculture Romande)",
+                support_title: "VespaCaution unterstützen",
+                support_desc: "Sie mögen meine Anwendungen und möchten sie unterstützen? Das können Sie tun, indem Sie mit Twint an die unten stehende Nummer spenden. Vielen Dank! 🙂",
                 privacy_title: "Datenschutzerklärung", privacy_date: "Zuletzt aktualisiert:", privacy_p1: "Datenschutz hat Priorität. Diese Richtlinie erklärt, wie wir mit Ihren Daten umgehen.",
                 privacy_h1: "1. Lokale Speicherung", privacy_t1: "Apps wie ApiGuide und AlvearCheck speichern Daten lokal in Ihrem Browser. Wir haben keinen Zugriff darauf.",
                 privacy_h2: "2. Cloud-Konten (VespaTimer)", privacy_t2: "VespaTimer funktioniert offline. Bei Erstellung eines Kontos werden Daten über Supabase sicher gespeichert. Löschung jederzeit möglich.",
@@ -326,7 +348,7 @@
                 privacy_h5: "5. Kontakt", privacy_t5: "Bei Fragen nutzen Sie bitte die Kontaktseite."
             },
             it: {
-                nav_home: "Home", nav_apps: "App", nav_resources: "Risorse", nav_contact: "Contatto", nav_privacy: "Privacy",
+                nav_home: "Home", nav_apps: "App", nav_resources: "Risorse", nav_contact: "Contatto", nav_privacy: "Privacy", nav_support: "Sostieni",
                 footer_desc: "Strumenti per apicoltori e cacciatori di calabroni.", footer_legal: "Legale", footer_credit: "Creato da Ben Hupka.", nav_menu: "Menu",
                 btn_open: "🚀 Apri", btn_view: "Dettagli",
                 home_title: "Benvenuti su VespaCaution",
@@ -339,6 +361,13 @@
                 contact_msg: "Messaggio", contact_send: "Invia Messaggio", contact_sending: "Invio in corso...", contact_success: "Messaggio inviato con successo!", contact_error: "Si è verificato un errore. Riprova.",
                 res_title: "Risorse & Link Utili", res_desc: "Risorse affidabili per apicoltori in Svizzera.",
                 res_swiss: "🇨🇭 Risorse Svizzere", res_credits: "🏆 Crediti", res_creator: "Creatore:", res_video: "Video:", res_code: "Assistente codice:", res_base: "ApiGuide basato su:",
+                link_frelon: "Informazioni ufficiali e coordinamento per il calabrone asiatico in Svizzera.",
+                link_stop: "Risorse e strumenti di segnalazione per i cacciatori di calabroni.",
+                link_abeilles: "L'Associazione Svizzera degli Apicoltori (APISUISSE).",
+                link_melizoe: "Piattaforma svizzera per la vendita di miele.",
+                credit_sar: "SAR (Société d'Apiculture Romande)",
+                support_title: "Sostieni VespaCaution",
+                support_desc: "Ti piacciono le mie applicazioni e vorresti sostenerle? Puoi farlo facendo una donazione con Twint al numero qui sotto. Grazie mille! 🙂",
                 privacy_title: "Informativa sulla Privacy", privacy_date: "Ultimo aggiornamento:", privacy_p1: "La tua privacy è importante. Questa politica spiega come gestiamo i dati.",
                 privacy_h1: "1. Archiviazione locale", privacy_t1: "App come ApiGuide e AlvearCheck salvano i dati localmente. Non abbiamo accesso a questi dati.",
                 privacy_h2: "2. Account Cloud (VespaTimer)", privacy_t2: "VespaTimer funziona offline. Se crei un account, i dati sono salvati tramite Supabase. Puoi chiedere la cancellazione in qualsiasi momento.",
@@ -347,7 +376,7 @@
                 privacy_h5: "5. Contatto", privacy_t5: "Per domande, usa la pagina di contatto."
             },
             rm: {
-                nav_home: "Chasa", nav_apps: "Apps", nav_resources: "Resursas", nav_contact: "Contact", nav_privacy: "Protecziun da datas",
+                nav_home: "Chasa", nav_apps: "Apps", nav_resources: "Resursas", nav_contact: "Contact", nav_privacy: "Protecziun da datas", nav_support: "Sustegn",
                 footer_desc: "Instruments per apiculturs e chatschaders da vespras.", footer_legal: "Legal", footer_credit: "Creà da Ben Hupka.", nav_menu: "Menu",
                 btn_open: "🚀 Avrir", btn_view: "Detagls",
                 home_title: "Bainvegni tar VespaCaution",
@@ -360,6 +389,13 @@
                 contact_msg: "Messadi", contact_send: "Trametter messadi", contact_sending: "Trametta...", contact_success: "Messadi tramess cun success!", contact_error: "Ina errur è succedida. Prova puspè.",
                 res_title: "Resursas & Colliaziuns", res_desc: "Resursas fidablas per apiculturs en Svizra.",
                 res_swiss: "🇨🇭 Resursas svizras", res_credits: "🏆 Credits", res_creator: "Creatur:", res_video: "Videos:", res_code: "Assistent da code:", res_base: "ApiGuide basa sin:",
+                link_frelon: "Infurmaziuns officialas e coordinaziun per la vespra asiatica en Svizra.",
+                link_stop: "Resursas ed instruments da rapport per chatschaders da vespras.",
+                link_abeilles: "L'associaziun svizra d'apiculturs (APISUISSE).",
+                link_melizoe: "Plattafurma svizra per la vendita da mel.",
+                credit_sar: "SAR (Société d'Apiculture Romande)",
+                support_title: "Sustegn VespaCaution",
+                support_desc: "Ti plaschan mes apps e vuls sustegnair ellas? Ti pos far ina donaziun cun Twint al numer sutvart. Grazia fich! 🙂",
                 privacy_title: "Protecziun da datas", privacy_date: "Ultima actualisaziun:", privacy_p1: "La tia sfera privata è impurtanta. Questa politica explitgescha co nus tractain las datas.",
                 privacy_h1: "1. Archivaziun locala", privacy_t1: "Apps sco ApiGuide ed AlvearCheck memoriseschan datas localmain. Nus n'avain betg access a quellas datas.",
                 privacy_h2: "2. Contos Cloud (VespaTimer)", privacy_t2: "VespaTimer lavura offline. Sche ti creesch in conto, las datas vegnan memorisadas tras Supabase. Ti pos dumandar la stizzaziun da tut temps.",
@@ -396,7 +432,6 @@
         // ==========================================
         // 2. CONFIGURATION: APP DETAILS
         // ==========================================
-        // We use functions to build the HTML so we don't break template literals
         const appsConfig = {
             'vespatimer': {
                 title: 'VespaTimer',
@@ -448,7 +483,6 @@
                     en: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>A standalone web app replacing the paper notebook. Your data is saved locally via localStorage (100% private).</p><ul><li><strong>Apiaries:</strong> GPS coordinates and orientation.</li><li><strong>Hives:</strong> Track frames, queen color, varroa.</li><li><strong>Swarm Alerts:</strong> Visual warning after 14 days of risk.</li><li><strong>History & CSV:</strong> Export your visits.</li><li><strong>AI Dictaphone:</strong> Hands-free voice input.</li><li><strong>Multilingual:</strong> EN, FR, DE, IT, RM.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
                     fr: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Une application web autonome remplaçant le carnet papier. Vos données sont stockées localement (100% privé).</p><ul><li><strong>Ruchers :</strong> Coordonnées GPS et orientation.</li><li><strong>Ruches :</strong> Cadres, couleur de la reine, varroas.</li><li><strong>Alertes d'essaimage :</strong> Alerte visuelle après 14 jours.</li><li><strong>Historique & CSV :</strong> Exportez vos visites.</li><li><strong>Dictaphone IA :</strong> Saisie vocale mains libres.</li><li><strong>Multilingue :</strong> EN, FR, DE, IT, RM.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
                     de: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Eine Web-App, die das Papier-Notizbuch ersetzt. Daten werden lokal gespeichert.</p><ul><li>Bienenstände: GPS und Ausrichtung.</li><li>Völker: Rahmen, Königinfarbe, Varroa.</li><li>Schwarmalarm: Warnung nach 14 Tagen.</li><li>Verlauf & CSV-Export.</li><li>KI-Diktiergerät: Freisprech-Eingabe.</li><li>Mehrsprachig.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
-                    it: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Un'app web che sostituisce il quaderno cartaceo. Dati salvati localmente.</p><ul><li>Apiari: GPS e orientamento.</li><li>Arnie: Telai, colore regina, varroa.</li><li>Avvisi sciamatura: dopo 14 giorni.</li><li>Cronologia ed esportazione CSV.</li><li>Dettatura AI: input vocale.</li><li>Multilingue.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
                     rm: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Ina web-app che remplazza il cudesch da palpiri. Datas localas.</p><ul><li>Apiaris: GPS ed orientaziun.</li><li>Avieuls: Caders, colur da la regina, varroa.</li><li>Avvis da schigientar: suenter 14 dis.</li><li>Istorgia ed export CSV.</li><li>Dictafon AI: entrada vocala.</li><li>Multilingua.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; }
                 }
             }
@@ -484,22 +518,22 @@
                 
                 <a href="https://frelonasiatique.ch" target="_blank" class="resource-link">
                     <strong>frelonasiatique.ch</strong>
-                    <span>Official information and coordination for the Asian hornet in Switzerland.</span>
+                    <span>${t('link_frelon')}</span>
                 </a>
 
                 <a href="https://stopfrelons.ch" target="_blank" class="resource-link">
                     <strong>stopfrelons.ch</strong>
-                    <span>Resources and reporting tools for hornet hunters.</span>
+                    <span>${t('link_stop')}</span>
                 </a>
 
                 <a href="https://abeilles.ch" target="_blank" class="resource-link">
                     <strong>abeilles.ch</strong>
-                    <span>The Swiss Beekeepers Association (APISUISSE).</span>
+                    <span>${t('link_abeilles')}</span>
                 </a>
 
                 <a href="https://melizoe.ch" target="_blank" class="resource-link">
                     <strong>melizoe.ch</strong>
-                    <span>Swiss platform for beekeeping products and honey.</span>
+                    <span>${t('link_melizoe')}</span>
                 </a>
             </div>
 
@@ -509,8 +543,18 @@
                     <li><strong>${t('res_creator')}</strong> Ben Hupka</li>
                     <li><strong>${t('res_video')}</strong> Grégoire Hupka</li>
                     <li><strong>${t('res_code')}</strong> DeepSeek AI</li>
-                    <li><strong>${t('res_base')}</strong> SAR (Société d'Apiculture Romande)</li>
+                    <li><strong>${t('res_base')}</strong> ${t('credit_sar')}</li>
                 </ul>
+            </div>
+        `;
+
+        const getSupportHtml = () => `
+            <h1 id="support">${t('support_title')}</h1>
+            <div class="app-details" style="margin-top: 20px; text-align: center;">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">${t('support_desc')}</p>
+                <div style="font-size: 2rem; font-weight: bold; color: var(--primary); letter-spacing: 2px;">
+                    📱 079 938 41 98
+                </div>
             </div>
         `;
 
@@ -520,7 +564,7 @@
             
             <div class="app-details" style="margin-top: 20px;">
                 <form id="contactForm">
-                    <!-- REPLACE WITH YOUR WEB3FORMS KEY -->
+                    <!-- CLÉ WEB3FORMS -->
                     <input type="hidden" name="access_key" value="c62ff1e0-99f0-4191-8264-6b540925caf3">
                     
                     <div class="form-group">
@@ -593,6 +637,8 @@
                 if(el) el.scrollIntoView();
             } else if (hash === 'resources') {
                 mainContent.innerHTML = getResourcesHtml();
+            } else if (hash === 'support') {
+                mainContent.innerHTML = getSupportHtml();
             } else if (hash === 'contact') {
                 mainContent.innerHTML = getContactHtml();
                 setupContactForm();
