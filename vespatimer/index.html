@@ -847,15 +847,26 @@ function initSupabase() {
         }).catch(function(){});
       }
       sbClient.auth.getSession().then(function(res) {
-        if (res && res.data && res.data.session && res.data.session.user) {
-          currentUser = res.data.session.user;
-          renderAccountState();
-        }
-      }).catch(function(){});
-      sbClient.auth.onAuthStateChange(function(event, session) {
-        if (session && session.user) { currentUser = session.user; }
-        else if (event === 'SIGNED_OUT') { currentUser = null; }
-      });
+  if (res && res.data && res.data.session && res.data.session.user) {
+    currentUser = res.data.session.user;
+    renderAccountState();
+    // Optional: Safely pull the cloud data on load if logged in
+    sbPull().then(function(cloud) {
+      if (cloud && cloud.current_pot) {
+        applyCloudToLocal(cloud);
+      }
+    }).catch(function(e) { console.log('Background sync failed:', e); });
+  }
+}).catch(function(e){ console.log('Session check failed:', e); });
+    sbClient.auth.onAuthStateChange(function(event, session) {
+  if (session && session.user) { 
+    currentUser = session.user; 
+  } else if (event === 'SIGNED_OUT') { 
+    currentUser = null; 
+    // If signed out in another tab, update UI without hard reloading the page
+    if (typeof renderAll === 'function') renderAll();
+  }
+});
     }
   } catch(e) { console.error('Supabase init failed:', e); }
 }
