@@ -3,8 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#fef9e7">
+<meta name="theme-color" content="#7f5539">
 <title>ApiGuide v1.0</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ApiGuide">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #fef9e7; color: #2c2c2c; line-height: 1.5; padding: 0.75rem; min-height: 100vh; display: flex; flex-direction: column; }
@@ -13,7 +19,7 @@
   .app-title small { font-size: 0.85rem; font-weight: 400; color: #9c6644; margin-left: 0.5rem; }
   .editor-bar { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
   .lang-select { background: #e6ccb2; border: 1px solid #b08968; padding: 0.4rem 0.6rem; border-radius: 30px; font-size: 0.85rem; font-weight: 600; color: #5e3a1c; cursor: pointer; }
-  .btn { background: #b08968; border: none; color: white; padding: 0.5rem 1rem; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .btn { background: #b08968; border: none; color: white; padding: 0.5rem 1rem; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-decoration: none; display: inline-block; }
   .btn:active { transform: scale(0.97); }
   .btn-ghost { background: transparent; border: 1px solid #b08968; color: #7f5539; }
   .btn-success { background: #4a7c2e; }
@@ -36,6 +42,19 @@
   footer { margin-top: auto; text-align: center; font-size: 0.75rem; color: #b08968; padding: 1.5rem 0 0.5rem 0; border-top: 1px dashed #e6ccb2; }
   .editor-hint { background: #fff4d6; border-left: 4px solid #d4a373; padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.82rem; color: #7f5539; margin-bottom: 0.75rem; }
   .hidden-flag { opacity: 0.4; }
+  .apipedia-wrap { text-align: center; padding: 1rem 0 0.5rem 0; display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
+  .apipedia-btn { background: #7f5539; color: white; border: none; padding: 0.8rem 1.6rem; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 3px 0 #5e3a1c; letter-spacing: 0.5px; }
+  .apipedia-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #5e3a1c; }
+  .install-btn { background: #4a7c2e; box-shadow: 0 3px 0 #2f5419; }
+  .install-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #2f5419; }
+  .apipedia-panel { background: #fffdf7; border: 2px solid #d4a373; border-radius: 24px; padding: 1.5rem; margin-top: 1rem; position: relative; }
+  .apipedia-contact-corner { position: absolute; top: 0.75rem; right: 0.75rem; }
+  .apipedia-contact-corner .btn { font-size: 0.78rem; padding: 0.4rem 0.8rem; }
+  .apipedia-panel h2 { color: #7f5539; font-size: 1.3rem; margin-bottom: 0.75rem; }
+  .apipedia-panel p { margin-bottom: 1rem; color: #4a2e1b; }
+  .contact-card { background: #fffdf7; border: 2px solid #d4a373; border-radius: 24px; padding: 1.5rem; margin-top: 1rem; }
+  .contact-card h2 { color: #7f5539; margin-bottom: 1rem; }
+  .contact-card p { margin-bottom: 1rem; }
   @media (max-width: 480px) { .grid-container { grid-template-columns: repeat(2, 1fr); } .app-title { font-size: 1.3rem; } }
 </style>
 </head>
@@ -45,8 +64,34 @@
   <div class="editor-bar" id="editorBar"></div>
 </div>
 <main id="app"></main>
+
+<div class="apipedia-wrap" id="apipediaWrap">
+  <button class="apipedia-btn" id="apipediaBtn">📖 Apipedia</button>
+  <button class="apipedia-btn install-btn" id="installBtn">⬇ Installer l'application</button>
+</div>
+
 <footer>ApiGuide v1.0</footer>
 
+<!-- iOS install instructions modal -->
+<div id="iosModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
+  <div style="background:#fffdf7; border-radius:24px; padding:1.4rem; max-width:420px; width:100%; border:2px solid #d4a373;">
+    <h2 style="color:#7f5539; margin-bottom:.75rem; font-size:1.1rem;">📲 Installer ApiGuide sur iPhone / iPad</h2>
+    <ol style="padding-left:1.2rem; color:#4a2e1b; line-height:1.6; font-size:0.95rem;">
+      <li>Ouvrez ApiGuide dans <strong>Safari</strong> (obligatoire pour l'installation sur iOS).</li>
+      <li>Appuyez sur le bouton <strong>Partager</strong> (carré avec une flèche vers le haut) en bas de l'écran.</li>
+      <li>Faites défiler et choisissez <strong>« Sur l'écran d'accueil »</strong>.</li>
+      <li>Appuyez sur <strong>« Ajouter »</strong> en haut à droite.</li>
+    </ol>
+    <p style="color:#7f5539; margin-top:.9rem; font-size:0.9rem;">L'icône ApiGuide apparaîtra sur votre écran d'accueil et l'application fonctionnera hors ligne.</p>
+    <button class="btn" id="iosClose" style="margin-top:1rem; width:100%;">Fermer</button>
+  </div>
+</div>
+<!-- Lien vers VespaCaution en bas de page -->
+<div style="text-align: center; margin-top: 3rem; margin-bottom: 2rem; padding-bottom: 2rem;">
+  <a href="https://vespacaution.github.io/VespaCaution/" target="_blank" rel="noopener noreferrer">
+    <img src="logo.png" alt="VespaCaution" style="max-width: 120px; opacity: 0.7; transition: opacity 0.2s; cursor: pointer;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.7'">
+  </a>
+</div>
 <script>
 /* ================================================================
    BUILD CONFIG
@@ -54,9 +99,10 @@
 const FINAL_MODE = false;
 const LANGS = ['en','fr','it','de','rm'];
 const LANG_LABELS = { en:'English', fr:'Français', it:'Italiano', de:'Deutsch', rm:'Rumantsch' };
+const VESPA_CONTACT_URL = 'https://vespacaution.github.io/VespaCaution/#contact';
 
 /* ================================================================
-   BLANK CONTENT  (20,000 slots generated in memory)
+   CONTENT
    ================================================================ */
 const E10  = () => ['', '', '', '', '', '', '', '', '', ''];
 const E100 = () => Array.from({ length: 10 }, E10);
@@ -72,9 +118,6 @@ function blankLang() {
   };
 }
 
-/* ---------------------------------------------------------------
-   Load state
-   --------------------------------------------------------------- */
 const LS_KEY = 'apiguide_v1_content';
 const LS_LANG = 'apiguide_v1_lang';
 
@@ -85,7 +128,6 @@ try {
 } catch (e) {
   CONTENT = { en: blankLang(), fr: blankLang(), it: blankLang(), de: blankLang(), rm: blankLang() };
 }
-// Safety: ensure every language has the expected shape (in case of old exports)
 LANGS.forEach(l => { if (!CONTENT[l]) CONTENT[l] = blankLang(); });
 
 let currentLang = localStorage.getItem(LS_LANG) || 'en';
@@ -101,8 +143,13 @@ function saveContent() {
    NAVIGATION STATE
    ================================================================ */
 let s = null, l1 = null, l2 = null, l3 = null;
-function resetNav() { s = l1 = l2 = l3 = null; }
+let showApipedia = false;
+let showContact = false;
+
+function resetNav() { s = l1 = l2 = l3 = null; showApipedia = false; showContact = false; }
 function back() {
+  if (showContact) { showContact = false; render(); return; }
+  if (showApipedia) { showApipedia = false; render(); return; }
   if (l3 !== null) l3 = null;
   else if (l2 !== null) l2 = null;
   else if (l1 !== null) l1 = null;
@@ -117,7 +164,6 @@ function esc(str) {
   return String(str == null ? '' : str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-/* Get the titles array for the current level (using current state) */
 function currentTitles(level) {
   const C = CONTENT[currentLang];
   if (level === 'season') return C.season;
@@ -127,7 +173,6 @@ function currentTitles(level) {
   return [];
 }
 
-/* Ensure child branches exist when a new parent button is added */
 function ensureChildBranch(level, parentIdx) {
   const C = CONTENT[currentLang];
   if (level === 'season') {
@@ -152,6 +197,44 @@ function render() {
   renderEditorBar();
   const app = document.getElementById('app');
   const isEditor = !FINAL_MODE;
+
+  /* Apipedia panel */
+  if (showApipedia && !showContact) {
+    document.getElementById('apipediaWrap').style.display = 'none';
+    app.innerHTML = `
+      <div class="row">
+        <button class="back-btn" id="backBtn">← Back</button>
+      </div>
+      <div class="apipedia-panel">
+        <a class="btn apipedia-contact-corner" href="${VESPA_CONTACT_URL}" target="_blank" rel="noopener">📬 Contact</a>
+        <h2>📖 Apipedia</h2>
+        <p>Apipedia is the community encyclopedia of beekeeping knowledge.</p>
+        <p><strong>Want to add a page here?</strong> Please contact <strong>VespaCaution</strong> and send the text of your page for review.</p>
+      </div>
+    `;
+    document.getElementById('backBtn').onclick = back;
+    return;
+  }
+
+  /* Contact page */
+  if (showContact) {
+    document.getElementById('apipediaWrap').style.display = 'none';
+    app.innerHTML = `
+      <div class="row">
+        <button class="back-btn" id="backBtn">← Back</button>
+      </div>
+      <div class="contact-card">
+        <h2>📬 Contact VespaCaution</h2>
+        <p>For Apipedia submissions, corrections, or general questions, please use the contact form:</p>
+        <p><a class="btn btn-success" href="${VESPA_CONTACT_URL}" target="_blank" rel="noopener">Open contact form</a></p>
+        <p class="empty-note">${VESPA_CONTACT_URL}</p>
+      </div>
+    `;
+    document.getElementById('backBtn').onclick = back;
+    return;
+  }
+
+  document.getElementById('apipediaWrap').style.display = '';
 
   /* ---------- FINAL TEXT VIEW ---------- */
   if (s !== null && l1 !== null && l2 !== null && l3 !== null) {
@@ -182,7 +265,7 @@ function render() {
     return;
   }
 
-  /* Determine which level we're at */
+  /* Determine level */
   let level;
   if (s !== null && l1 !== null && l2 !== null) level = 'level3';
   else if (s !== null && l1 !== null) level = 'level2';
@@ -210,12 +293,11 @@ function render() {
 }
 
 function editorHint(level) {
-  return `<div class="editor-hint">✏️ Pencil to edit · × to remove (hide) · ＋ to add a new ${level} button</div>`;
+  return `<div class="editor-hint">✏️ Pencil to edit · × to hide · ＋ to add (adds a button with its own text page)</div>`;
 }
 
 /* ================================================================
-   GRID FILL  (uses array length, not a hardcoded count — so
-   any pushed buttons appear)
+   GRID FILL
    ================================================================ */
 function fillGrid(level) {
   const grid = document.getElementById('grid');
@@ -243,7 +325,6 @@ function fillGrid(level) {
   }
   grid.innerHTML = html;
 
-  /* open buttons */
   grid.querySelectorAll('[data-open]').forEach(btn => {
     btn.onclick = () => {
       const i = +btn.dataset.open;
@@ -258,7 +339,6 @@ function fillGrid(level) {
 
   if (!isEditor) return;
 
-  /* edit buttons */
   grid.querySelectorAll('[data-edit]').forEach(btn => {
     btn.onclick = () => {
       const i = +btn.dataset.edit;
@@ -271,7 +351,6 @@ function fillGrid(level) {
     };
   });
 
-  /* delete buttons */
   grid.querySelectorAll('[data-del]').forEach(btn => {
     btn.onclick = () => {
       const i = +btn.dataset.del;
@@ -282,7 +361,6 @@ function fillGrid(level) {
     };
   });
 
-  /* add button */
   const addBtn = document.getElementById('addBtn');
   if (addBtn) {
     addBtn.onclick = () => {
@@ -303,7 +381,6 @@ function fillGrid(level) {
 function renderEditorBar() {
   const bar = document.getElementById('editorBar');
   if (FINAL_MODE) {
-    // Final mode: only a language switcher
     bar.innerHTML = `
       <select class="lang-select" id="langSelect">
         ${LANGS.map(l => `<option value="${l}" ${l===currentLang?'selected':''}>${esc(LANG_LABELS[l])}</option>`).join('')}
@@ -368,13 +445,21 @@ function buildFinalHtml(bakedContentJson, startingLang) {
 const FINAL_MODE = true;
 const LANGS = ['en','fr','it','de','rm'];
 const LANG_LABELS = { en:'English', fr:'Français', it:'Italiano', de:'Deutsch', rm:'Rumantsch' };
+const VESPA_CONTACT_URL = '${VESPA_CONTACT_URL}';
 
 const CONTENT = ${bakedContentJson};
 let currentLang = '${startingLang}';
 
 let s = null, l1 = null, l2 = null, l3 = null;
-function resetNav(){ s=l1=l2=l3=null; }
-function back(){ if(l3!==null)l3=null; else if(l2!==null)l2=null; else if(l1!==null)l1=null; else if(s!==null)s=null; render(); }
+let showApipedia = false;
+let showContact = false;
+
+function resetNav(){ s=l1=l2=l3=null; showApipedia=false; showContact=false; }
+function back(){
+  if (showContact){ showContact=false; render(); return; }
+  if (showApipedia){ showApipedia=false; render(); return; }
+  if(l3!==null)l3=null; else if(l2!==null)l2=null; else if(l1!==null)l1=null; else if(s!==null)s=null; render();
+}
 
 function esc(str){ return String(str==null?'':str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -390,7 +475,40 @@ function currentTitles(level){
 function render(){
   const app = document.getElementById('app');
 
-  /* final text */
+  if (showApipedia && !showContact){
+    document.getElementById('apipediaWrap').style.display = 'none';
+    app.innerHTML = \`
+      <div class="row">
+        <button class="back-btn" id="backBtn">← Back</button>
+      </div>
+      <div class="apipedia-panel">
+        <a class="btn apipedia-contact-corner" href="\${VESPA_CONTACT_URL}" target="_blank" rel="noopener">📬 Contact</a>
+        <h2>📖 Apipedia</h2>
+        <p>Apipedia is the community encyclopedia of beekeeping knowledge.</p>
+        <p><strong>Want to add a page here?</strong> Please contact <strong>VespaCaution</strong> and send the text of your page for review.</p>
+      </div>\`;
+    document.getElementById('backBtn').onclick = back;
+    return;
+  }
+
+  if (showContact){
+    document.getElementById('apipediaWrap').style.display = 'none';
+    app.innerHTML = \`
+      <div class="row">
+        <button class="back-btn" id="backBtn">← Back</button>
+      </div>
+      <div class="contact-card">
+        <h2>📬 Contact VespaCaution</h2>
+        <p>For Apipedia submissions, corrections, or general questions, please use the contact form:</p>
+        <p><a class="btn btn-success" href="\${VESPA_CONTACT_URL}" target="_blank" rel="noopener">Open contact form</a></p>
+        <p class="empty-note">\${VESPA_CONTACT_URL}</p>
+      </div>\`;
+    document.getElementById('backBtn').onclick = back;
+    return;
+  }
+
+  document.getElementById('apipediaWrap').style.display = '';
+
   if (s!==null && l1!==null && l2!==null && l3!==null){
     const t = CONTENT[currentLang].text[s][l1][l2][l3];
     app.innerHTML = \`
@@ -448,7 +566,6 @@ function render(){
   });
 }
 
-/* language switcher in final mode */
 function renderLangSwitcher(){
   const bar = document.getElementById('editorBar');
   bar.innerHTML = \`
@@ -463,6 +580,41 @@ function renderLangSwitcher(){
   };
 }
 
+document.getElementById('apipediaBtn').onclick = ()=>{
+  showApipedia = true;
+  showContact = false;
+  render();
+};
+
+/* ---------- service worker + install ---------- */
+let deferredInstallPrompt = null;
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => { navigator.serviceWorker.register('sw.js').catch(()=>{}); });
+}
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstallPrompt = e; });
+function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream; }
+function isStandalone(){ return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true; }
+const installBtn = document.getElementById('installBtn');
+const iosModal = document.getElementById('iosModal');
+const iosClose = document.getElementById('iosClose');
+if (installBtn) {
+  if (isStandalone()) installBtn.style.display = 'none';
+  installBtn.addEventListener('click', async () => {
+    if (isStandalone()) return;
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      if (choice.outcome !== 'accepted') console.log('Install dismissed');
+      return;
+    }
+    if (isIOS()) { iosModal.style.display = 'flex'; return; }
+    alert("Pour installer l'application : ouvrez le menu de votre navigateur (⋮) puis choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil ».");
+  });
+}
+if (iosClose) iosClose.addEventListener('click', () => { iosModal.style.display = 'none'; });
+if (iosModal) iosModal.addEventListener('click', (e) => { if (e.target === iosModal) iosModal.style.display = 'none'; });
+
 renderLangSwitcher();
 render();
 `;
@@ -472,8 +624,14 @@ render();
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#fef9e7">
+<meta name="theme-color" content="#7f5539">
 <title>ApiGuide v1.0</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="ApiGuide">
 <style>${styleSrc}</style>
 </head>
 <body>
@@ -482,10 +640,102 @@ render();
   <div class="editor-bar" id="editorBar"></div>
 </div>
 <main id="app"></main>
+
+<div class="apipedia-wrap" id="apipediaWrap">
+  <button class="apipedia-btn" id="apipediaBtn">📖 Apipedia</button>
+  <button class="apipedia-btn install-btn" id="installBtn">⬇ Installer l'application</button>
+</div>
+
 <footer>ApiGuide v1.0</footer>
+
+<div id="iosModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
+  <div style="background:#fffdf7; border-radius:24px; padding:1.4rem; max-width:420px; width:100%; border:2px solid #d4a373;">
+    <h2 style="color:#7f5539; margin-bottom:.75rem; font-size:1.1rem;">📲 Installer ApiGuide sur iPhone / iPad</h2>
+    <ol style="padding-left:1.2rem; color:#4a2e1b; line-height:1.6; font-size:0.95rem;">
+      <li>Ouvrez ApiGuide dans <strong>Safari</strong> (obligatoire pour l'installation sur iOS).</li>
+      <li>Appuyez sur le bouton <strong>Partager</strong> (carré avec une flèche vers le haut) en bas de l'écran.</li>
+      <li>Faites défiler et choisissez <strong>« Sur l'écran d'accueil »</strong>.</li>
+      <li>Appuyez sur <strong>« Ajouter »</strong> en haut à droite.</li>
+    </ol>
+    <p style="color:#7f5539; margin-top:.9rem; font-size:0.9rem;">L'icône ApiGuide apparaîtra sur votre écran d'accueil et l'application fonctionnera hors ligne.</p>
+    <button class="btn" id="iosClose" style="margin-top:1rem; width:100%;">Fermer</button>
+  </div>
+</div>
+
 <script>${finalScript}<\/script>
 </body>
 </html>`;
+}
+
+/* ================================================================
+   APIPEDIA BUTTON (editor)
+   ================================================================ */
+document.getElementById('apipediaBtn').onclick = () => {
+  showApipedia = true;
+  showContact = false;
+  render();
+};
+
+/* ================================================================
+   SERVICE WORKER + INSTALL BUTTON (editor)
+   ================================================================ */
+let deferredInstallPrompt = null;
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch((err) => {
+      console.warn('Service worker registration failed:', err);
+    });
+  });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+});
+
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true;
+}
+
+const installBtn = document.getElementById('installBtn');
+const iosModal = document.getElementById('iosModal');
+const iosClose = document.getElementById('iosClose');
+
+if (installBtn) {
+  if (isStandalone()) {
+    installBtn.style.display = 'none';
+  }
+  installBtn.addEventListener('click', async () => {
+    if (isStandalone()) return;
+
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      if (choice.outcome !== 'accepted') console.log('Install dismissed');
+      return;
+    }
+
+    if (isIOS()) {
+      iosModal.style.display = 'flex';
+      return;
+    }
+
+    alert("Pour installer l'application : ouvrez le menu de votre navigateur (⋮) puis choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil ».");
+  });
+}
+
+if (iosClose) {
+  iosClose.addEventListener('click', () => { iosModal.style.display = 'none'; });
+}
+if (iosModal) {
+  iosModal.addEventListener('click', (e) => { if (e.target === iosModal) iosModal.style.display = 'none'; });
 }
 
 /* ================================================================
