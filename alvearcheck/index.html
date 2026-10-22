@@ -76,7 +76,7 @@
     <input type="email" id="authEmail" placeholder="Email">
     <input type="password" id="authPassword" placeholder="Mot de passe">
     <button id="loginBtn" class="primary" style="width: 100%; margin-bottom: 0.5rem;">Se connecter</button>
-    <button id="passkeyLoginBtn" class="outline" style="width: 100%; margin-bottom: 0.5rem; display: none;">🔐 Se connecter avec biométrie</button>
+    <button id="passkeyLoginBtn" class="outline" style="width: 100%; margin-bottom: 0.5rem;">🔐 Se connecter avec biométrie</button>
     <button id="registerBtn" class="outline" style="width: 100%; margin-bottom: 0.5rem;">Créer un compte</button>
     <button id="forgotBtn" style="background: none; color: #7a6a58; font-size: 0.8rem; padding: 0; text-decoration: underline;">Mot de passe oublié ?</button>
     <p id="authMessage" style="margin-top: 1rem; font-weight: bold;"></p>
@@ -143,8 +143,7 @@
       if (result.error) {
         msg.innerText = "Error: " + result.error.message; msg.style.color = "red";
       } else {
-        document.getElementById('passkeyLoginBtn').style.display = 'block';
-        showApp();
+                showApp();
       }
     };
 
@@ -199,15 +198,13 @@
         document.getElementById('authScreen').style.display = 'none';
         document.getElementById('resetScreen').style.display = 'block';
       } else if (session) {
-        document.getElementById('passkeyLoginBtn').style.display = 'block';
-        showApp();
+                showApp();
       }
     });
 
     supabase.auth.getSession().then(function(result) {
       if (result.data.session) { 
-        document.getElementById('passkeyLoginBtn').style.display = 'block';
-        showApp(); 
+                showApp(); 
       }
     });
 
