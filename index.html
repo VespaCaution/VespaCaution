@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VespaCaution</title>
+    
+    <!-- UMAMI ANALYTICS (Remplace YOUR-WEBSITE-ID) -->
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="94107104-0725-41e7-a07b-45c73b417fe8"></script>
+    
     <style>
         :root {
             --bg-color: #fcf9f2;
@@ -47,7 +51,7 @@
         }
 
         .logo-container img {
-            height: 50px; /* Agrandi de 40px à 50px */
+            height: 50px;
             width: auto;
             max-width: 280px;
             object-fit: contain;
@@ -260,7 +264,7 @@
         document.getElementById('year').textContent = new Date().getFullYear();
 
         // ==========================================
-        // 1. TRANSLATIONS (i18n) - COMPLET
+        // 1. TRANSLATIONS (i18n)
         // ==========================================
         const translations = {
             en: {
@@ -289,7 +293,9 @@
                 privacy_h2: "2. Optional Cloud Accounts (VespaTimer)", privacy_t2: "VespaTimer works entirely offline by default. If you choose to create an optional account, your data is securely stored using Supabase. You can request account deletion at any time via our contact form.",
                 privacy_h3: "3. AI Dictation (AlvearCheck)", privacy_t3: "When using the voice dictation feature, audio is processed securely via third-party AI providers (Groq/Whisper). The audio is used solely to extract data and is not stored by us.",
                 privacy_h4: "4. Contact Forms", privacy_t4: "We use Web3Forms to deliver your message to our email. We collect your name, email, and message solely to respond to your inquiry.",
-                privacy_h5: "5. Contact", privacy_t5: "If you have any questions about this Privacy Policy, please use the contact page."
+                privacy_h5: "5. Contact", privacy_t5: "If you have any questions about this Privacy Policy, please use the contact page.",
+                privacy_h6: "6. Analytics", privacy_t6: "We use Umami Analytics to measure site traffic. Umami is privacy-friendly, does not use cookies, and does not track personal data.",
+                privacy_h7: "7. Mandatory Accounts (AlvearCheck)", privacy_t7: "AlvearCheck now requires an account to securely save and sync your apiary data to the cloud, ensuring you don't lose your data if you lose your device."
             },
             fr: {
                 nav_home: "Accueil", nav_apps: "Apps", nav_resources: "Ressources", nav_contact: "Contact", nav_privacy: "Confidentialité", nav_support: "Soutenir",
@@ -317,7 +323,9 @@
                 privacy_h2: "2. Comptes Cloud (VespaTimer)", privacy_t2: "VespaTimer fonctionne hors ligne par défaut. Si vous créez un compte, vos données sont sécurisées via Supabase. Vous pouvez demander la suppression à tout moment.",
                 privacy_h3: "3. Dictée IA (AlvearCheck)", privacy_t3: "Lors de l'utilisation de la dictée vocale, l'audio est traité via des fournisseurs d'IA tiers (Groq/Whisper). L'audio sert uniquement à extraire les données.",
                 privacy_h4: "4. Formulaires de contact", privacy_t4: "Nous utilisons Web3Forms pour recevoir vos messages. Nous collectons uniquement votre nom, email et message pour vous répondre.",
-                privacy_h5: "5. Contact", privacy_t5: "Pour toute question, veuillez utiliser la page de contact."
+                privacy_h5: "5. Contact", privacy_t5: "Pour toute question, veuillez utiliser la page de contact.",
+                privacy_h6: "6. Analytique", privacy_t6: "Nous utilisons Umami Analytics pour mesurer le trafic du site. Umami respecte la vie privée, n'utilise pas de cookies et ne suit aucune donnée personnelle.",
+                privacy_h7: "7. Comptes obligatoires (AlvearCheck)", privacy_t7: "AlvearCheck nécessite désormais un compte pour sauvegarder et synchroniser en toute sécurité vos données d'apiary dans le cloud, garantissant que vous ne perdrez pas vos données en cas de perte de votre appareil."
             },
             de: {
                 nav_home: "Startseite", nav_apps: "Apps", nav_resources: "Ressourcen", nav_contact: "Kontakt", nav_privacy: "Datenschutz", nav_support: "Unterstützen",
@@ -345,7 +353,9 @@
                 privacy_h2: "2. Cloud-Konten (VespaTimer)", privacy_t2: "VespaTimer funktioniert offline. Bei Erstellung eines Kontos werden Daten über Supabase sicher gespeichert. Löschung jederzeit möglich.",
                 privacy_h3: "3. KI-Diktat (AlvearCheck)", privacy_t3: "Bei der Sprachdiktat-Funktion wird Audio über Drittanbieter (Groq/Whisper) verarbeitet. Audio wird nur zur Datenextraktion genutzt.",
                 privacy_h4: "4. Kontaktformulare", privacy_t4: "Wir nutzen Web3Forms. Name, E-Mail und Nachricht werden nur zur Beantwortung genutzt.",
-                privacy_h5: "5. Kontakt", privacy_t5: "Bei Fragen nutzen Sie bitte die Kontaktseite."
+                privacy_h5: "5. Kontakt", privacy_t5: "Bei Fragen nutzen Sie bitte die Kontaktseite.",
+                privacy_h6: "6. Analytik", privacy_t6: "Wir verwenden Umami Analytics, um den Website-Traffic zu messen. Umami ist datenschutzfreundlich, verwendet keine Cookies und verfolgt keine persönlichen Daten.",
+                privacy_h7: "7. Pflichtkonten (AlvearCheck)", privacy_t7: "AlvearCheck erfordert jetzt ein Konto, um Ihre Bienenstandsdaten sicher in der Cloud zu speichern und zu synchronisieren, damit Sie Ihre Daten nicht verlieren, wenn Sie Ihr Gerät verlieren."
             },
             it: {
                 nav_home: "Home", nav_apps: "App", nav_resources: "Risorse", nav_contact: "Contatto", nav_privacy: "Privacy", nav_support: "Sostieni",
@@ -373,7 +383,9 @@
                 privacy_h2: "2. Account Cloud (VespaTimer)", privacy_t2: "VespaTimer funziona offline. Se crei un account, i dati sono salvati tramite Supabase. Puoi chiedere la cancellazione in qualsiasi momento.",
                 privacy_h3: "3. Dettatura AI (AlvearCheck)", privacy_t3: "L'audio viene elaborato tramite provider AI (Groq/Whisper) solo per estrarre i dati.",
                 privacy_h4: "4. Moduli di contatto", privacy_t4: "Usiamo Web3Forms per ricevere messaggi. Raccogliamo solo nome, email e messaggio.",
-                privacy_h5: "5. Contatto", privacy_t5: "Per domande, usa la pagina di contatto."
+                privacy_h5: "5. Contatto", privacy_t5: "Per domande, usa la pagina di contatto.",
+                privacy_h6: "6. Analisi", privacy_t6: "Utilizziamo Umami Analytics per misurare il traffico del sito. Umami rispetta la privacy, non utilizza cookie e non traccia dati personali.",
+                privacy_h7: "7. Account obbligatori (AlvearCheck)", privacy_t7: "AlvearCheck ora richiede un account per salvare e sincronizzare in modo sicuro i dati del tuo apiario nel cloud, assicurando che tu non perda i dati se perdi il tuo dispositivo."
             },
             rm: {
                 nav_home: "Chasa", nav_apps: "Apps", nav_resources: "Resursas", nav_contact: "Contact", nav_privacy: "Protecziun da datas", nav_support: "Sustegn",
@@ -401,11 +413,13 @@
                 privacy_h2: "2. Contos Cloud (VespaTimer)", privacy_t2: "VespaTimer lavura offline. Sche ti creesch in conto, las datas vegnan memorisadas tras Supabase. Ti pos dumandar la stizzaziun da tut temps.",
                 privacy_h3: "3. Dictat AI (AlvearCheck)", privacy_t3: "L'audio vegn elavurà tras providers AI (Groq/Whisper) mo per extrair las datas.",
                 privacy_h4: "4. Formulars da contact", privacy_t4: "Nus duvrain Web3Forms. Nus rimnain mo num, e-mail e messadi.",
-                privacy_h5: "5. Contact", privacy_t5: "Per dumondas, duvra la pagina da contact."
+                privacy_h5: "5. Contact", privacy_t5: "Per dumondas, duvra la pagina da contact.",
+                privacy_h6: "6. Analitica", privacy_t6: "Nus duvrain Umami Analytics per mesirar il traffic dal sit. Umami respecta la sfera privata, n'utilisescha betg cookies e na fastizar betg datas persunalas.",
+                privacy_h7: "7. Contos obligatorics (AlvearCheck)", privacy_t7: "AlvearCheck dovra ussa in conto per memorisar e sincronisar las datas da tes apiari en il cloud, uschia che ti na perdias betg tes datas sche ti perdias tes telefon."
             }
         };
 
-        let currentLang = 'fr'; // Default language
+        let currentLang = 'fr';
 
         function setLanguage(lang) {
             currentLang = lang;
@@ -413,7 +427,6 @@
             const activeBtn = document.querySelector(`.lang-btn[onclick="setLanguage('${lang}')"]`);
             if(activeBtn) activeBtn.classList.add('active');
             
-            // Translate all static elements
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translations[lang] && translations[lang][key]) {
@@ -421,7 +434,6 @@
                 }
             });
 
-            // Re-render dynamic page content
             render();
         }
 
@@ -430,7 +442,7 @@
         }
 
         // ==========================================
-        // 2. CONFIGURATION: APP DETAILS
+        // 2. CONFIGURATION: APP DETAILS (UPDATED)
         // ==========================================
         const appsConfig = {
             'vespatimer': {
@@ -462,11 +474,11 @@
                     rm: "Cudesch da las stagiuns e activitats da las avieuls"
                 },
                 html: {
-                    en: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide is a PWA designed to accompany beekeepers throughout the year.</p><ul><li><strong>Seasons:</strong> Spring, Summer, Autumn, Winter.</li><li><strong>Activities:</strong> 10 main activities per season.</li><li><strong>Sub-activities:</strong> Detailed breakdown.</li><li><strong>Sheets:</strong> Read-only text sheets with advice.</li></ul><p>Available in 5 languages and works 100% offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
-                    fr: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide est une PWA conçue pour accompagner les apiculteurs tout au long de l'année.</p><ul><li><strong>Saisons :</strong> Printemps, Été, Automne, Hiver.</li><li><strong>Activités :</strong> 10 activités principales par saison.</li><li><strong>Sous-activités :</strong> Affinage des sujets.</li><li><strong>Fiches :</strong> Textes de conseils en lecture seule.</li></ul><p>Disponible en 5 langues et fonctionne 100% hors ligne.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
-                    de: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide ist eine PWA für Imker über das ganze Jahr.</p><ul><li>Jahreszeiten: Frühling, Sommer, Herbst, Winter.</li><li>10 Hauptaktivitäten pro Jahreszeit.</li><li>Unteraktivitäten für mehr Details.</li><li>Textblätter mit Ratschlägen.</li></ul><p>In 5 Sprachen verfügbar und 100% offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
-                    it: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è una PWA per accompagnare gli apicoltori tutto l'anno.</p><ul><li>Stagioni: Primavera, Estate, Autunno, Inverno.</li><li>10 attività principali per stagione.</li><li>Sotto-attività dettagliate.</li><li>Schede di testo con consigli.</li></ul><p>Disponibile in 5 lingue e funziona offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
-                    rm: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è ina PWA per apiculturs durant tut l'on.</p><ul><li>Stagiuns: Primavaira, Stad, Atun, Enviern.</li><li>10 activitats principalas per stagiun.</li><li>Sut-activitats detagliadas.</li><li>Fichas da text cun cussegls.</li></ul><p>En 5 linguas e 100% offline.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; }
+                    en: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide is a PWA designed to accompany beekeepers throughout the year.</p><ul><li><strong>Seasons:</strong> Spring, Summer, Autumn, Winter.</li><li><strong>Activities:</strong> 10 main activities per season.</li><li><strong>Sheets:</strong> Read-only text sheets with advice.</li></ul><h3>📖 Apipedia</h3><p>A new community wiki for beekeeping! Found at the bottom of the page, it allows beekeepers to share their knowledge. You can propose new pages by sending the text to VespaCaution for review.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
+                    fr: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide est une PWA conçue pour accompagner les apiculteurs tout au long de l'année.</p><ul><li><strong>Saisons :</strong> Printemps, Été, Automne, Hiver.</li><li><strong>Activités :</strong> 10 activités principales par saison.</li><li><strong>Fiches :</strong> Textes de conseils en lecture seule.</li></ul><h3>📖 Apipedia</h3><p>Un tout nouveau wiki communautaire pour l'apiculture ! Situé en bas de page, il permet aux apiculteurs de partager leurs connaissances. Vous pouvez proposer de nouvelles pages en envoyant le texte à VespaCaution pour relecture.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
+                    de: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide ist eine PWA für Imker über das ganze Jahr.</p><ul><li>Jahreszeiten: Frühling, Sommer, Herbst, Winter.</li><li>10 Hauptaktivitäten pro Jahreszeit.</li><li>Textblätter mit Ratschlägen.</li></ul><h3>📖 Apipedia</h3><p>Ein neues Community-Wiki für die Imkerei! Es befindet sich am Ende der Seite und ermöglicht Imkern, ihr Wissen zu teilen. Sie können neue Seiten vorschlagen, indem Sie den Text zur Überprüfung an VespaCaution senden.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
+                    it: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è una PWA per accompagnare gli apicoltori tutto l'anno.</p><ul><li>Stagioni: Primavera, Estate, Autunno, Inverno.</li><li>10 attività principali per stagione.</li><li>Schede di testo con consigli.</li></ul><h3>📖 Apipedia</h3><p>Un nuovo wiki comunitario per l'apicoltura! Situato in fondo alla pagina, permette agli apicoltori di condividere le proprie conoscenze. Puoi proporre nuove pagine inviando il testo a VespaCaution per la revisione.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
+                    rm: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è ina PWA per apiculturs durant tut l'on.</p><ul><li>Stagiuns: Primavaira, Stad, Atun, Enviern.</li><li>10 activitats principalas per stagiun.</li><li>Fichas da text cun cussegls.</li></ul><h3>📖 Apipedia</h3><p>In nov wiki da la communitad per l'apicultura! Situà en il fund da la pagina, permetta als apiculturs da cundivider lur savair. Ti pos proponer novas paginas tramettend il text a VespaCaution per la revisiun.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; }
                 }
             },
             'alvearcheck': {
@@ -480,10 +492,11 @@
                     rm: "Il cudesch digital da l'apiari"
                 },
                 html: {
-                    en: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>A standalone web app replacing the paper notebook. Your data is saved locally via localStorage (100% private).</p><ul><li><strong>Apiaries:</strong> GPS coordinates and orientation.</li><li><strong>Hives:</strong> Track frames, queen color, varroa.</li><li><strong>Swarm Alerts:</strong> Visual warning after 14 days of risk.</li><li><strong>History & CSV:</strong> Export your visits.</li><li><strong>AI Dictaphone:</strong> Hands-free voice input.</li><li><strong>Multilingual:</strong> EN, FR, DE, IT, RM.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
-                    fr: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Une application web autonome remplaçant le carnet papier. Vos données sont stockées localement (100% privé).</p><ul><li><strong>Ruchers :</strong> Coordonnées GPS et orientation.</li><li><strong>Ruches :</strong> Cadres, couleur de la reine, varroas.</li><li><strong>Alertes d'essaimage :</strong> Alerte visuelle après 14 jours.</li><li><strong>Historique & CSV :</strong> Exportez vos visites.</li><li><strong>Dictaphone IA :</strong> Saisie vocale mains libres.</li><li><strong>Multilingue :</strong> EN, FR, DE, IT, RM.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
-                    de: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Eine Web-App, die das Papier-Notizbuch ersetzt. Daten werden lokal gespeichert.</p><ul><li>Bienenstände: GPS und Ausrichtung.</li><li>Völker: Rahmen, Königinfarbe, Varroa.</li><li>Schwarmalarm: Warnung nach 14 Tagen.</li><li>Verlauf & CSV-Export.</li><li>KI-Diktiergerät: Freisprech-Eingabe.</li><li>Mehrsprachig.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
-                    rm: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Ina web-app che remplazza il cudesch da palpiri. Datas localas.</p><ul><li>Apiaris: GPS ed orientaziun.</li><li>Avieuls: Caders, colur da la regina, varroa.</li><li>Avvis da schigientar: suenter 14 dis.</li><li>Istorgia ed export CSV.</li><li>Dictafon AI: entrada vocala.</li><li>Multilingua.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; }
+                    en: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>A standalone web app replacing the paper notebook. <strong>An account is now mandatory</strong> to save your data securely and sync it to the cloud.</p><ul><li><strong>Apiaries:</strong> GPS coordinates and orientation.</li><li><strong>Hives:</strong> Track frames, queen color, varroa.</li><li><strong>Swarm Alerts:</strong> Visual warning after 14 days of risk.</li><li><strong>History & CSV:</strong> Export your visits.</li><li><strong>AI Dictaphone:</strong> Hands-free voice input.</li><li><strong>Cloud Sync:</strong> Mandatory account prevents data loss.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
+                    fr: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Une application web autonome remplaçant le carnet papier. <strong>Un compte est désormais obligatoire</strong> pour sauvegarder vos données en toute sécurité et les synchroniser dans le cloud.</p><ul><li><strong>Ruchers :</strong> Coordonnées GPS et orientation.</li><li><strong>Ruches :</strong> Cadres, couleur de la reine, varroas.</li><li><strong>Alertes d'essaimage :</strong> Alerte visuelle après 14 jours.</li><li><strong>Historique & CSV :</strong> Exportez vos visites.</li><li><strong>Dictaphone IA :</strong> Saisie vocale mains libres.</li><li><strong>Sauvegarde Cloud :</strong> Le compte obligatoire évite la perte de données.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
+                    de: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Eine Web-App, die das Papier-Notizbuch ersetzt. <strong>Ein Konto ist jetzt obligatorisch</strong>, um Ihre Daten sicher zu speichern und in der Cloud zu synchronisieren.</p><ul><li>Bienenstände: GPS und Ausrichtung.</li><li>Völker: Rahmen, Königinfarbe, Varroa.</li><li>Schwarmalarm: Warnung nach 14 Tagen.</li><li>Verlauf & CSV-Export.</li><li>KI-Diktiergerät: Freisprech-Eingabe.</li><li>Cloud-Sync: Pflichtkonto verhindert Datenverlust.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
+                    it: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Un'app web che sostituisce il quaderno cartaceo. <strong>Un account è ora obbligatorio</strong> per salvare i tuoi dati in modo sicuro e sincronizzarli nel cloud.</p><ul><li>Apiari: GPS e orientamento.</li><li>Arnie: Telai, colore regina, varroa.</li><li>Avvisi sciamatura: dopo 14 giorni.</li><li>Cronologia ed esportazione CSV.</li><li>Dettatura AI: input vocale.</li><li>Sincronizzazione Cloud: l'account obbligatorio evita la perdita di dati.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
+                    rm: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Ina web-app che remplazza il cudesch da palpiri. <strong>In conto è ussa obligatoric</strong> per memorisar tes datas en tutta segirezza e sincronisar ellas en il cloud.</p><ul><li>Apiaris: GPS ed orientaziun.</li><li>Avieuls: Caders, colur da la regina, varroa.</li><li>Avvis da schigientar: suenter 14 dis.</li><li>Istorgia ed export CSV.</li><li>Dictafon AI: entrada vocala.</li><li>Sincronisaziun Cloud: il conto obligatoric evitescha la perdita da datas.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; }
                 }
             }
         };
@@ -564,7 +577,6 @@
             
             <div class="app-details" style="margin-top: 20px;">
                 <form id="contactForm">
-                    <!-- CLÉ WEB3FORMS -->
                     <input type="hidden" name="access_key" value="c62ff1e0-99f0-4191-8264-6b540925caf3">
                     
                     <div class="form-group">
@@ -615,6 +627,8 @@
                 <h3>${t('privacy_h2')}</h3><p>${t('privacy_t2')}</p>
                 <h3>${t('privacy_h3')}</h3><p>${t('privacy_t3')}</p>
                 <h3>${t('privacy_h4')}</h3><p>${t('privacy_t4')}</p>
+                <h3>${t('privacy_h6')}</h3><p>${t('privacy_t6')}</p>
+                <h3>${t('privacy_h7')}</h3><p>${t('privacy_t7')}</p>
                 <h3>${t('privacy_h5')}</h3><p>${t('privacy_t5')}</p>
             </div>
         `;
