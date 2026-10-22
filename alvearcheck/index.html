@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AlvearCheck v1.3</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#c47b2e">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -100,7 +102,9 @@
     <div class="modal-body" id="modalBody">Message</div>
     <div class="modal-actions" id="modalActions"></div>
   </div>
-
+   <button id="installPwaBtn" style="position: fixed; bottom: 6rem; left: 1rem; background: #c47b2e; color: white; border: none; padding: 0.6rem 1rem; border-radius: 40px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.2); z-index: 1000; display: none;">
+  📲 Installer l'app
+   </button>
   <script>
   window.addEventListener('error', function(e) {
   alert("CRASH: " + e.message + "\nLine: " + e.lineno);
@@ -455,6 +459,53 @@ var supabase = sbClient;
     async function executeAIAction(data) { if (data.action === "navigate" && data.target === "hive") { if (data.apiary_name) { var apiary = appData.apiaries.find(function(a) { return a.name.toLowerCase().includes(data.apiary_name.toLowerCase()); }); if (apiary) { activeApiaryId = apiary.id; currentView = 'hive-list'; render(); await new Promise(function(r) { return setTimeout(r, 400); }); } else { showVoiceStatus("⚠️ Apiary not found"); return; } } if (data.hive_name && activeApiaryId) { var apiary = findApiary(activeApiaryId); var hive = apiary.hives.find(function(h) { return h.name.toLowerCase().includes(data.hive_name.toLowerCase()); }); if (hive) { activeHiveId = hive.id; editHiveData = { name: hive.name, maleFrames: hive.maleFrames || '', honeyFrames: hive.honeyFrames || '', broodFrames: hive.broodFrames || '', swarmRisk: hive.swarmRisk, queenColor: hive.queenColor, varroaCount: hive.varroaCount || '', remarks: hive.remarks || '' }; currentView = 'edit-hive'; render(); showVoiceStatus("✅ Opened " + hive.name); } else { showVoiceStatus("⚠️ Hive not found"); return; } } return; } if (data.action === "navigate") { if (data.target === "add_apiary") { currentView = 'add-apiary'; editApiaryData = { name: '', orientation: '', coordinates: '' }; render(); return; } if (data.target === "add_hive") { if (!activeApiaryId) { showVoiceStatus("⚠️ Open an apiary first"); return; } currentView = 'add-hive'; editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; render(); return; } if (data.target === "go_back") { if (currentView === 'hive-visits') { currentView = 'hive-list'; activeHiveId = null; } else { currentView = 'apiary-list'; activeApiaryId = null; } render(); return; } if (data.target === "save") { var btn = document.getElementById('saveHiveBtn') || document.getElementById('saveApiaryBtn'); if (btn) { btn.click(); showVoiceStatus("✅ Saved"); } else { showVoiceStatus("⚠️ No form to save"); } return; } } if (data.action === "fill_form" && data.data) { showVoiceStatus('✅ Filled: ' + Object.keys(data.data).length + ' fields', 4000); setTimeout(function() { var _loop_1 = function(id, val) { var el = document.getElementById(id); if (el && val != null && val !== '') { if (el.type === 'checkbox') el.checked = Boolean(val); else if (el.tagName === 'SELECT') { for (var _i = 0, _a = el.options; _i < _a.length; _i++) { var opt = _a[_i]; if (opt.value.toLowerCase() === String(val).toLowerCase() || opt.text.toLowerCase() === String(val).toLowerCase()) { el.value = opt.value; break; } } } else { el.value = val; } el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); } }; for (var _i = 0, _a = Object.entries(data.data); _i < _a.length; _i++) { var _b = _a[_i], id = _b[0], val = _b[1]; _loop_1(id, val); } }, 100); } }
     var voiceBtnEl = document.getElementById('voiceBtn'); if (voiceBtnEl) { voiceBtnEl.onclick = startHandsFreeDictation; voiceBtnEl.title = "AI Dictaphone"; }
 
+    // --- PWA (INSTALLATION & SERVICE WORKER) ---
+
+// 1. Enregistrer le Service Worker (uniquement sur HTTPS / localhost)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(err => console.log('SW registration failed', err));
+  });
+}
+
+// 2. Logique du bouton d'installation
+let deferredPrompt;
+const installBtn = document.getElementById('installPwaBtn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (installBtn) installBtn.style.display = 'block';
+});
+
+if (installBtn) {
+  installBtn.onclick = async () => {
+    // Si on est sur iOS, on affiche les instructions
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      nativeAlert("Pour installer l'application sur iPhone :\n\n1. Appuyez sur l'icône 'Partager' en bas de Safari.\n2. Faites défiler et sélectionnez 'Sur l'écran d'accueil'.\n3. Appuyez sur 'Ajouter'.", "Installer sur iOS");
+      return;
+    }
+
+    // Si on est sur Android/Chrome et que le prompt est disponible
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBtn.style.display = 'none';
+      }
+      deferredPrompt = null;
+    } else {
+      nativeAlert("Pour installer l'application sur Android :\n\n1. Appuyez sur les 3 points en haut à droite de Chrome.\n2. Sélectionnez 'Installer l'application' ou 'Ajouter à l'écran d'accueil'.", "Installer sur Android");
+    }
+  };
+}
+
+// 3. Cacher le bouton si l'app est déjà installée
+window.addEventListener('appinstalled', () => {
+  if (installBtn) installBtn.style.display = 'none';
+});
+    
     function render() {
       if (currentView === 'apiary-list') renderApiaryList();
       else if (currentView === 'hive-list') renderHiveList();
