@@ -193,12 +193,15 @@
 <div class="modal-overlay" id="vespafinderModal"><div class="modal" style="max-width:500px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h3 style="margin:0;">🔗 <span data-lang="import_vespafinder">Importer Vespafinder</span></h3><button class="modal-close" onclick="closeModal('vespafinderModal')" style="position:static;">✕</button></div><div style="margin-top:10px;"><p style="font-size:0.85rem;margin-bottom:8px;" data-lang="vespafinder_instructions">Collez le lien Vespafinder ci-dessous :</p><textarea id="vespafinderUrl" placeholder="https://vf.iotrobor.nl/prediction?id=..." style="width:100%;min-height:80px;font-size:0.8rem;"></textarea><div class="flex-row" style="margin-top:10px;"><button class="btn-red btn-sm" onclick="closeModal('vespafinderModal')" data-lang="cancel_btn">Annuler</button><button class="btn-gold btn-sm" onclick="importFromVespafinder()" data-lang="import_btn">Importer</button></div></div></div></div>
 
 <div class="modal-overlay" id="accountModal"><div class="modal" style="max-width:450px;padding-top:10px;">
-  <div id="accountStepLogin">
-    <div style="display:flex;align-items:center;justify-content:space-between;">
-      <h2 style="margin:0;">👤 <span data-lang="account_title">Compte</span></h2>
-      <button class="modal-close" onclick="closeModal('accountModal')" style="position:static;">✕</button>
-    </div>
-    <p style="font-size:0.85rem;color:#888;margin-top:8px;" data-lang="account_subtitle">Optionnel — synchronisez vos données entre appareils</p>
+<div id="accountStepLogin">
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <h2 style="margin:0;">👤 <span data-lang="account_title">Compte</span></h2>
+    <button class="modal-close" onclick="closeModal('accountModal')" style="position:static;">✕</button>
+  </div>
+  <div style="text-align:center;margin:12px 0;">
+    <img src="logo.png" alt="VespaTimer" style="max-width:100px;max-height:100px;border-radius:16px;">
+  </div>
+  <p style="font-size:0.85rem;color:#888;margin-top:8px;" data-lang="account_subtitle">Optionnel — synchronisez vos données entre appareils</p>
     <input type="email" id="loginEmail" placeholder="E-mail" style="width:100%;padding:12px;border-radius:12px;border:2px solid #e0d5c0;font-size:16px;background:#fefdf9;margin-top:12px;">
     <input type="password" id="loginPassword" placeholder="Mot de passe" style="width:100%;padding:12px;border-radius:12px;border:2px solid #e0d5c0;font-size:16px;background:#fefdf9;margin-top:8px;">
     <button class="btn-gold" onclick="doSignIn()" style="width:100%;padding:14px;margin-top:14px;border-radius:25px;font-size:1rem;" data-lang="account_sign_in">Se connecter</button>
