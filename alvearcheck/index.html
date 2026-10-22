@@ -102,6 +102,9 @@
   </div>
 
   <script>
+  window.addEventListener('error', function(e) {
+  alert("CRASH: " + e.message + "\nLine: " + e.lineno);
+});
     window.onerror = function(msg, url, line) {
       var box = document.getElementById('errorBox');
       if (box) { box.style.display = 'block'; box.innerHTML += "CRASH: " + msg + "<br>Line: " + line + "<br><br>"; }
