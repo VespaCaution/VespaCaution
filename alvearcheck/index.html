@@ -339,7 +339,7 @@ var supabase = sbClient;
     function renderApiaryList() {
       var apiaries = appData.apiaries; var anySwarmAlert = apiaries.some(function(a) { return apiaryHasSwarmAlert(a); });
       var html = '<button class="account-btn" id="accountBtn">👤 ' + t('account') + '</button>';
-      html += '<div class="app-header"><img src="logo.png" alt="AlvearCheck" style="max-height: 50px; margin-right: auto;"><span style="font-size: 0.9rem; color: #b0967a; margin-left: 10px;">v1.3</span>' + renderLangSelector() + '</div>';
+      html += '<div class="app-header"><h1>🐝 ' + t('appName') + ' <small>v1.3 · ' + t('apiaryTracker') + '</small></h1>' + renderLangSelector() + '</div>';
       html += (anySwarmAlert ? '<div style="background:#f5d9b0;color:#8a5c00;padding:0.6rem 1rem;border-radius:1rem;margin-bottom:1rem;font-weight:500;display:flex;align-items:center;gap:0.5rem;">' + t('swarmAlertActive') + '</div>' : '');
       html += '<div class="subhead">' + t('manageApiaries') + '</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;"><span style="font-weight:500;color:#7a6a58;">' + apiaries.length + ' ' + (apiaries.length !== 1 ? t('apiaries') : t('apiary')) + '</span><div style="display:flex;gap:0.5rem;flex-wrap:wrap;"><button class="outline" id="exportCsvBtn">' + t('exportCSV') + '</button><button class="primary" id="addApiaryBtn">' + t('addApiary') + '</button></div></div>';
       
