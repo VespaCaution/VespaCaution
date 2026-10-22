@@ -76,9 +76,18 @@
     <input type="password" id="authPassword" placeholder="Mot de passe">
     <button id="loginBtn" class="primary" style="width: 100%; margin-bottom: 0.5rem;">Se connecter</button>
     <button id="registerBtn" class="outline" style="width: 100%;">Créer un compte</button>
+<!-- ADD THIS LINE -->
+<button id="forgotBtn" style="background: none; color: #7a6a58; font-size: 0.8rem; padding: 0; text-decoration: underline; margin-top: 10px;">Mot de passe oublié ?</button>
     <p id="authMessage" style="margin-top: 1rem; font-weight: bold;"></p>
   </div>
-
+<!-- ADD THIS ENTIRE BLOCK -->
+<div id="resetScreen" style="display: none; max-width: 400px; margin: 10vh auto; padding: 2rem; background: #fffdf7; border-radius: 2rem; text-align: center; border: 1px solid #f0e3cf;">
+  <h2 style="color: #c47b2e; margin-bottom: 1rem;">Nouveau mot de passe</h2>
+  <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #7a6a58;">Entrez votre nouveau mot de passe ci-dessous.</p>
+  <input type="password" id="newPassword" placeholder="Nouveau mot de passe" style="margin-bottom: 1rem;">
+  <button id="saveNewPasswordBtn" class="primary" style="width: 100%;">Enregistrer</button>
+  <p id="resetMessage" style="margin-top: 1rem; font-weight: bold;"></p>
+</div>
   <div class="app" id="app" style="display:none;"></div>
   <button class="voice-btn" id="voiceBtn" style="display:none;">🎤</button>
   <div class="voice-status" id="voiceStatus"></div>
@@ -150,7 +159,53 @@
         msg.style.color = "green";
       }
     };
+// --- FORGOT PASSWORD ---
+document.getElementById('forgotBtn').onclick = async function() {
+  var email = document.getElementById('authEmail').value;
+  var msg = document.getElementById('authMessage');
+  if (!email) { msg.innerText = "Please enter your email first."; msg.style.color = "red"; return; }
+  
+  msg.innerText = "Sending reset email..."; msg.style.color = "#c47b2e";
+  var result = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
+  if (result.error) {
+    msg.innerText = "Error: " + result.error.message; msg.style.color = "red";
+  } else {
+    msg.innerText = "Email sent! Check your inbox."; msg.style.color = "green";
+  }
+};
 
+// --- SAVE NEW PASSWORD ---
+document.getElementById('saveNewPasswordBtn').onclick = async function() {
+  var newPass = document.getElementById('newPassword').value;
+  var msg = document.getElementById('resetMessage');
+  if (!newPass) { msg.innerText = "Enter a password."; msg.style.color = "red"; return; }
+  
+  msg.innerText = "Saving..."; msg.style.color = "#c47b2e";
+  var result = await supabase.auth.updateUser({ password: newPass });
+  if (result.error) {
+    msg.innerText = "Error: " + result.error.message; msg.style.color = "red";
+  } else {
+    msg.innerText = "Password updated! Redirecting..."; msg.style.color = "green";
+    setTimeout(function() { document.getElementById('resetScreen').style.display = 'none'; showApp(); }, 1500);
+  }
+};
+
+// --- STAY LOGGED IN & HANDLE RESET LINK ---
+supabase.auth.onAuthStateChange(function(event, session) {
+  if (event === 'PASSWORD_RECOVERY') {
+    // User clicked the link in the email
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('resetScreen').style.display = 'block';
+  } else if (session) {
+    // User is logged in (or refreshed the page)
+    showApp();
+  }
+});
+
+// Check if user is already logged in when the app loads
+supabase.auth.getSession().then(function(result) {
+  if (result.data.session) { showApp(); }
+});
     async function showApp() {
       document.getElementById('authScreen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
