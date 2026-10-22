@@ -106,13 +106,23 @@
       var box = document.getElementById('errorBox');
       if (box) { box.style.display = 'block'; box.innerHTML += "CRASH: " + msg + "<br>Line: " + line + "<br><br>"; }
     };
-
-    var supabase = window.supabase.createClient('https://hdhoctahsnqlvqsmwrsf.supabase.co', 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D', {
-      auth: { experimental: { passkey: true } }
-    });
+    
     var GROQ_API_KEY = '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';
     const SB_APP_ID = 'vespatimer-app2';
 const SB_STORAGE_KEY = 'sb-vespatimer-app2-auth';
+   var SUPABASE_URL = 'https://hdhoctahsnqlvqsmwrsf.supabase.co';
+var SUPABASE_KEY = 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D';
+
+var sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { 
+    persistSession: true, 
+    autoRefreshToken: true, 
+    detectSessionInUrl: true,
+    storageKey: SB_STORAGE_KEY,
+    experimental: { passkey: true } 
+  }
+});
+var supabase = sbClient;
     var translations = {
       en: { appName: 'AlvearCheck', apiaryTracker: 'apiary tracker', manageApiaries: 'Manage your apiaries and their hives', addApiary: '＋ Add apiary', apiary: 'apiary', apiaries: 'apiaries', addHive: '＋ Add hive', hive: 'hive', hives: 'hives', backToApiaries: '← Back to apiaries', backToHives: '← Back to hives', edit: '✎ Edit', delete: '✕ Delete', deleteApiaryConfirm: 'Delete this apiary and all its hives?', deleteHiveConfirm: 'Delete this hive?', noApiaries: 'No apiaries yet.', noHives: 'No hives in this apiary.', noVisits: 'No visits recorded yet.', visits: 'Visits', visitHistory: 'visit history', allVisits: '📋 All visits', date: 'Date', maleFrames: 'Male frames', honeyFrames: 'Honey frames', broodFrames: 'Brood frames', swarmRisk: 'Swarm risk', queenColor: 'Queen color', varroa: 'Varroa', remarks: 'Remarks', swarmAlert: '⚠️ swarm alert', atRisk: '⚠️ at risk', swarmAlertActive: '⚠️ Swarm alert active', apiaryName: 'Apiary name *', orientation: 'Orientation', coordinates: 'Coordinates', hiveName: 'Hive name *', queenColorYear: 'Queen color (year)', varroaCount: 'Varroa count', atRiskOfSwarming: 'At risk of swarming', notes: 'Any notes...', save: 'Save changes', create: 'Create', cancel: 'Cancel', pleaseEnterApiaryName: 'Please enter an apiary name.', pleaseEnterHiveName: 'Please enter a hive name.', apiaryNotFound: 'Apiary not found.', hiveNotFound: 'Hive not found.', useMyLocation: 'Use my location', geolocationNotSupported: 'Geolocation not supported.', geolocationError: 'Could not get location: ', exportCSV: '📥 Export CSV', noDataToExport: 'No visits to export.', editApiary: 'Edit apiary', newApiary: 'New apiary', editHive: 'Edit hive', newHive: 'New hive', name: 'Name', queenColorBlue: 'Blue', queenColorWhite: 'White', queenColorYellow: 'Yellow', queenColorRed: 'Red', queenColorGreen: 'Green', swarmWarningLabel: 'Swarm risk', confirmTitle: 'Confirm', alertTitle: 'Notice', deleteTitle: 'Delete', yes: 'Yes', no: 'No', ok: 'OK', account: 'My Account', logout: 'Log out', enableBiometrics: 'Enable biometrics', userId: 'User ID:', biometricEnabled: 'Biometrics enabled!' },
       fr: { appName: 'AlvearCheck', apiaryTracker: 'suivi des ruchers', manageApiaries: 'Gérez vos ruchers et leurs ruches', addApiary: '＋ Ajouter un rucher', apiary: 'rucher', apiaries: 'ruchers', addHive: '＋ Ajouter une ruche', hive: 'ruche', hives: 'ruches', backToApiaries: '← Retour aux ruchers', backToHives: '← Retour aux ruches', edit: '✎ Modifier', delete: '✕ Supprimer', deleteApiaryConfirm: 'Supprimer ce rucher et toutes ses ruches ?', deleteHiveConfirm: 'Supprimer cette ruche ?', noApiaries: 'Aucun rucher.', noHives: 'Aucune ruche dans ce rucher.', noVisits: 'Aucune visite enregistrée.', visits: 'Visites', visitHistory: 'historique des visites', allVisits: '📋 Toutes les visites', date: 'Date', maleFrames: 'Cadres mâles', honeyFrames: 'Cadres de miel', broodFrames: 'Cadres de couvain', swarmRisk: 'Risque d\'essaimage', queenColor: 'Couleur de la reine', varroa: 'Varroa', remarks: 'Remarques', swarmAlert: '⚠️ alerte essaimage', atRisk: '⚠️ à risque', swarmAlertActive: '⚠️ Alerte essaimage active', apiaryName: 'Nom du rucher *', orientation: 'Orientation', coordinates: 'Coordonnées', hiveName: 'Nom de la ruche *', queenColorYear: 'Couleur de la reine (année)', varroaCount: 'Nombre de varroas', atRiskOfSwarming: 'Risque d\'essaimage', notes: 'Notes...', save: 'Enregistrer', create: 'Créer', cancel: 'Annuler', pleaseEnterApiaryName: 'Veuillez entrer un nom de rucher.', pleaseEnterHiveName: 'Veuillez entrer un nom de ruche.', apiaryNotFound: 'Rucher non trouvé.', hiveNotFound: 'Ruche non trouvée.', useMyLocation: 'Utiliser ma position', geolocationNotSupported: 'Géolocalisation non supportée.', geolocationError: 'Impossible d\'obtenir la position : ', exportCSV: '📥 Exporter CSV', noDataToExport: 'Aucune visite à exporter.', editApiary: 'Modifier le rucher', newApiary: 'Nouveau rucher', editHive: 'Modifier la ruche', newHive: 'Nouvelle ruche', name: 'Nom', queenColorBlue: 'Bleu', queenColorWhite: 'Blanc', queenColorYellow: 'Jaune', queenColorRed: 'Rouge', queenColorGreen: 'Vert', swarmWarningLabel: 'Risque d\'essaimage', confirmTitle: 'Confirmer', alertTitle: 'Avis', deleteTitle: 'Supprimer', yes: 'Oui', no: 'Non', ok: 'OK', account: 'Mon Compte', logout: 'Se déconnecter', enableBiometrics: 'Activer la biométrie', userId: 'ID Utilisateur :', biometricEnabled: 'Biométrie activée !' },
