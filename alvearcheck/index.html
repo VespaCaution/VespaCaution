@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlvearCheck v1.2</title>
+  <title>AlvearCheck v1.3</title>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -71,10 +71,10 @@
 <body>
   <div id="errorBox"></div>
 
-<div id="authScreen">
-  <img src="logo.png" alt="AlvearCheck Logo" style="max-width: 180px; width: 100%; height: auto; margin: 0 auto 1.5rem auto; display: block;">
-  <input type="email" id="authEmail" placeholder="Email">
-  <input type="password" id="authPassword" placeholder="Mot de passe">
+  <div id="authScreen">
+    <img src="logo.png" alt="AlvearCheck Logo" style="max-width: 180px; width: 100%; height: auto; margin: 0 auto 1.5rem auto; display: block;">
+    <input type="email" id="authEmail" placeholder="Email">
+    <input type="password" id="authPassword" placeholder="Mot de passe">
     <button id="loginBtn" class="primary" style="width: 100%; margin-bottom: 0.5rem;">Se connecter</button>
     <button id="passkeyLoginBtn" class="outline" style="width: 100%; margin-bottom: 0.5rem;">🔐 Se connecter avec biométrie</button>
     <button id="registerBtn" class="outline" style="width: 100%; margin-bottom: 0.5rem;">Créer un compte</button>
@@ -121,6 +121,7 @@
     };
 
     var currentLang = 'fr';
+    var currentUser = null; // Global user state
     function t(key) { return (translations[currentLang] && translations[currentLang][key]) || translations.en[key] || key; }
     function escapeHtml(str) { if (str == null) return ''; return String(str).replace(/[&<>"]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; if (m === '"') return '&quot;'; return m; }); }
 
@@ -143,7 +144,7 @@
       if (result.error) {
         msg.innerText = "Error: " + result.error.message; msg.style.color = "red";
       } else {
-                showApp();
+        showApp();
       }
     };
 
@@ -193,49 +194,82 @@
       }
     };
 
+    // --- AUTH STATE LISTENER (Multi-tab + Reset) ---
     supabase.auth.onAuthStateChange(function(event, session) {
       if (event === 'PASSWORD_RECOVERY') {
         document.getElementById('authScreen').style.display = 'none';
         document.getElementById('resetScreen').style.display = 'block';
-      } else if (session) {
-                showApp();
+        return;
+      }
+
+      if (session && session.user) { 
+        currentUser = session.user; 
+        if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+          showApp();
+        }
+      } 
+      else if (event === 'SIGNED_OUT') { 
+        currentUser = null; 
+        appData = { apiaries: [] };
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('voiceBtn').style.display = 'none';
+        document.getElementById('resetScreen').style.display = 'none';
+        document.getElementById('authScreen').style.display = 'block';
+        if (typeof render === 'function') render();
       }
     });
 
-    supabase.auth.getSession().then(function(result) {
-      if (result.data.session) { 
-                showApp(); 
+    // --- INITIAL SESSION CHECK & CLOUD SYNC ---
+    supabase.auth.getSession().then(function(res) {
+      if (res && res.data && res.data.session && res.data.session.user) {
+        currentUser = res.data.session.user;
+        showApp(); 
+        
+        // Background sync
+        supabase.from('user_data').select('data').eq('user_id', currentUser.id).single().then(function(dbResult) {
+          if (dbResult.data && dbResult.data.data) {
+            appData = dbResult.data.data;
+            if (currentView === 'apiary-list') renderApiaryList();
+            else if (currentView === 'hive-list') renderHiveList();
+            else if (currentView === 'hive-visits') renderHiveVisits();
+            else if (currentView === 'account') renderAccountPage();
+          }
+        }).catch(function(e) { console.log('Background sync failed:', e); });
       }
-    });
+    }).catch(function(e){ console.log('Session check failed:', e); });
 
     async function showApp() {
       document.getElementById('authScreen').style.display = 'none';
       document.getElementById('resetScreen').style.display = 'none';
       document.getElementById('app').style.display = 'block';
       document.getElementById('voiceBtn').style.display = 'flex';
-      try {
+      
+      if (!currentUser) {
         var userResult = await supabase.auth.getUser();
-        if (userResult.data.user) {
-           var dbResult = await supabase.from('user_data').select('data').eq('user_id', userResult.data.user.id).single();
-           if (dbResult.data && dbResult.data.data) appData = dbResult.data.data;
-        }
-      } catch (err) { console.error(err); }
+        currentUser = userResult.data.user;
+      }
+      
+      if (currentUser && appData.apiaries.length === 0) {
+        try {
+          var dbResult = await supabase.from('user_data').select('data').eq('user_id', currentUser.id).single();
+          if (dbResult.data && dbResult.data.data) appData = dbResult.data.data;
+        } catch (err) { console.error(err); }
+      }
+      
       render();
     }
 
     async function saveData(data) {
       appData = data;
-      var userResult = await supabase.auth.getUser();
-      if (userResult.data.user) {
-        await supabase.from('user_data').upsert({ user_id: userResult.data.user.id, data: data, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
+      if (currentUser) {
+        await supabase.from('user_data').upsert({ user_id: currentUser.id, data: data, updated_at: new Date().toISOString() }, { onConflict: 'user_id' });
       }
     }
 
     // --- ACCOUNT PAGE ---
     async function renderAccountPage() {
       var appEl = document.getElementById('app');
-      var userResult = await supabase.auth.getUser();
-      var userId = userResult.data.user ? userResult.data.user.id : 'Unknown';
+      var userId = currentUser ? currentUser.id : 'Unknown';
       
       var html = '<button class="back-link" id="backToApiariesFromAccount">← ' + t('backToApiaries') + '</button>';
       html += '<div class="app-header"><h1>' + t('account') + '</h1></div>';
@@ -266,10 +300,6 @@
 
       document.getElementById('logoutBtn').onclick = async function() {
         await supabase.auth.signOut();
-        document.getElementById('app').style.display = 'none';
-        document.getElementById('voiceBtn').style.display = 'none';
-        document.getElementById('authScreen').style.display = 'block';
-        document.getElementById('passkeyLoginBtn').style.display = 'none';
       };
     }
 
@@ -295,7 +325,7 @@
     function renderApiaryList() {
       var apiaries = appData.apiaries; var anySwarmAlert = apiaries.some(function(a) { return apiaryHasSwarmAlert(a); });
       var html = '<button class="account-btn" id="accountBtn">👤 ' + t('account') + '</button>';
-      html += '<div class="app-header"><h1>🐝 ' + t('appName') + ' <small>v1.2 · ' + t('apiaryTracker') + '</small></h1>' + renderLangSelector() + '</div>';
+      html += '<div class="app-header"><img src="logo.png" alt="AlvearCheck" style="max-height: 50px; margin-right: auto;"><span style="font-size: 0.9rem; color: #b0967a; margin-left: 10px;">v1.3</span>' + renderLangSelector() + '</div>';
       html += (anySwarmAlert ? '<div style="background:#f5d9b0;color:#8a5c00;padding:0.6rem 1rem;border-radius:1rem;margin-bottom:1rem;font-weight:500;display:flex;align-items:center;gap:0.5rem;">' + t('swarmAlertActive') + '</div>' : '');
       html += '<div class="subhead">' + t('manageApiaries') + '</div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:0.5rem;"><span style="font-weight:500;color:#7a6a58;">' + apiaries.length + ' ' + (apiaries.length !== 1 ? t('apiaries') : t('apiary')) + '</span><div style="display:flex;gap:0.5rem;flex-wrap:wrap;"><button class="outline" id="exportCsvBtn">' + t('exportCSV') + '</button><button class="primary" id="addApiaryBtn">' + t('addApiary') + '</button></div></div>';
       
@@ -321,7 +351,7 @@
     function renderHiveList() {
       var apiary = findApiary(activeApiaryId); if (!apiary) { currentView = 'apiary-list'; render(); return; }
       var hives = apiary.hives;
-      var html = '<button class="back-link" id="backToApiaries">' + t('backToApiaries') + '</button><div class="app-header"><h1 style="font-size:1.8rem;">' + escapeHtml(apiary.name) + ' <small>v1.2 · 🐝 ' + hives.length + ' ' + (hives.length !== 1 ? t('hives') : t('hive')) + '</small></h1>' + renderLangSelector() + '</div><div style="display:flex;gap:1rem;align-items:center;margin:0.5rem 0 1rem;flex-wrap:wrap;"><span class="badge">🧭 ' + escapeHtml(apiary.orientation || '—') + '</span><span class="badge">📍 ' + escapeHtml(apiary.coordinates || '—') + '</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;"><span style="font-weight:500;color:#7a6a58;">' + t('hives') + '</span><button class="primary" id="addHiveBtn">' + t('addHive') + '</button></div>';
+      var html = '<button class="back-link" id="backToApiaries">' + t('backToApiaries') + '</button><div class="app-header"><h1 style="font-size:1.8rem;">' + escapeHtml(apiary.name) + ' <small>v1.3 · 🐝 ' + hives.length + ' ' + (hives.length !== 1 ? t('hives') : t('hive')) + '</small></h1>' + renderLangSelector() + '</div><div style="display:flex;gap:1rem;align-items:center;margin:0.5rem 0 1rem;flex-wrap:wrap;"><span class="badge">🧭 ' + escapeHtml(apiary.orientation || '—') + '</span><span class="badge">📍 ' + escapeHtml(apiary.coordinates || '—') + '</span></div><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;"><span style="font-weight:500;color:#7a6a58;">' + t('hives') + '</span><button class="primary" id="addHiveBtn">' + t('addHive') + '</button></div>';
       
       if (hives.length === 0) { html += '<div class="empty-state">' + t('noHives') + '</div>'; } 
       else {
@@ -346,7 +376,7 @@
     function renderHiveVisits() {
       var apiary = findApiary(activeApiaryId); var hive = findHive(activeApiaryId, activeHiveId); if (!apiary || !hive) { currentView = 'hive-list'; render(); return; }
       var visits = hive.visits || [];
-      var html = '<button class="back-link" id="backToHives">' + t('backToHives') + '</button><div class="app-header"><h1 style="font-size:1.8rem;">' + escapeHtml(hive.name) + ' <small>v1.2 · ' + t('visitHistory') + '</small></h1>' + renderLangSelector() + '</div><div style="display:flex;gap:1rem;align-items:center;margin:0.5rem 0 1rem;flex-wrap:wrap;"><span class="badge">📍 ' + escapeHtml(apiary.name) + '</span><span class="badge">🐝 ' + escapeHtml(hive.name) + '</span></div>';
+      var html = '<button class="back-link" id="backToHives">' + t('backToHives') + '</button><div class="app-header"><h1 style="font-size:1.8rem;">' + escapeHtml(hive.name) + ' <small>v1.3 · ' + t('visitHistory') + '</small></h1>' + renderLangSelector() + '</div><div style="display:flex;gap:1rem;align-items:center;margin:0.5rem 0 1rem;flex-wrap:wrap;"><span class="badge">📍 ' + escapeHtml(apiary.name) + '</span><span class="badge">🐝 ' + escapeHtml(hive.name) + '</span></div>';
       
       if (visits.length === 0) { html += '<div class="empty-state">' + t('noVisits') + '</div>'; } 
       else {
@@ -361,7 +391,7 @@
 
     function renderApiaryForm() {
       var isEdit = currentView === 'edit-apiary'; var data = editApiaryData || { name: '', orientation: '', coordinates: '' };
-      var html = '<button class="back-link" id="cancelApiaryForm">← ' + t('cancel') + '</button><div class="app-header"><h1 style="font-size:1.8rem;">' + (isEdit ? t('editApiary') : t('newApiary')) + ' <small>v1.2</small></h1>' + renderLangSelector() + '</div><div class="form-panel"><div class="form-grid"><div class="field" style="grid-column:span 2;"><label>' + t('apiaryName') + '</label><input type="text" id="apiaryName" value="' + escapeHtml(data.name) + '" required></div><div class="field"><label>' + t('orientation') + '</label><input type="text" id="apiaryOrientation" value="' + escapeHtml(data.orientation || '') + '"></div><div class="field"><label>' + t('coordinates') + '</label><div style="display:flex;gap:0.4rem;align-items:center;"><input type="text" id="apiaryCoordinates" value="' + escapeHtml(data.coordinates || '') + '" style="flex:1;"><button class="geo-btn" id="geoBtn">📍</button></div></div></div><div class="row-actions"><button class="outline" id="cancelApiaryBtn">' + t('cancel') + '</button><button class="primary" id="saveApiaryBtn">' + (isEdit ? t('save') : t('create')) + '</button></div></div>';
+      var html = '<button class="back-link" id="cancelApiaryForm">← ' + t('cancel') + '</button><div class="app-header"><h1 style="font-size:1.8rem;">' + (isEdit ? t('editApiary') : t('newApiary')) + ' <small>v1.3</small></h1>' + renderLangSelector() + '</div><div class="form-panel"><div class="form-grid"><div class="field" style="grid-column:span 2;"><label>' + t('apiaryName') + '</label><input type="text" id="apiaryName" value="' + escapeHtml(data.name) + '" required></div><div class="field"><label>' + t('orientation') + '</label><input type="text" id="apiaryOrientation" value="' + escapeHtml(data.orientation || '') + '"></div><div class="field"><label>' + t('coordinates') + '</label><div style="display:flex;gap:0.4rem;align-items:center;"><input type="text" id="apiaryCoordinates" value="' + escapeHtml(data.coordinates || '') + '" style="flex:1;"><button class="geo-btn" id="geoBtn">📍</button></div></div></div><div class="row-actions"><button class="outline" id="cancelApiaryBtn">' + t('cancel') + '</button><button class="primary" id="saveApiaryBtn">' + (isEdit ? t('save') : t('create')) + '</button></div></div>';
       appEl.innerHTML = html; attachLangListeners();
       
       document.getElementById('geoBtn').onclick = function() { if (geoLoading) return; if (!navigator.geolocation) { nativeAlert(t('geolocationNotSupported')); return; } geoLoading = true; var btn = document.getElementById('geoBtn'); btn.textContent = '⏳'; navigator.geolocation.getCurrentPosition(function(pos) { document.getElementById('apiaryCoordinates').value = pos.coords.latitude.toFixed(6) + ', ' + pos.coords.longitude.toFixed(6); geoLoading = false; btn.textContent = '📍'; }, function(err) { nativeAlert(t('geolocationError') + err.message); geoLoading = false; btn.textContent = '📍'; }); };
@@ -376,7 +406,7 @@
       var isEdit = currentView === 'edit-hive'; var data = editHiveData || { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' };
       var colorOptions = queenColors.map(function(c) { return '<option value="' + c.value + '"' + (data.queenColor === c.value ? ' selected' : '') + '>' + t(c.labelKey) + '</option>'; }).join('');
       var swarmWarning = ''; if (isEdit && activeHiveId) { var hive = findHive(activeApiaryId, activeHiveId); if (hive && hive.swarmRisk && hive.swarmRiskSetAt) { var diffDays = (new Date() - new Date(hive.swarmRiskSetAt)) / (1000 * 60 * 60 * 24); if (diffDays >= 14) swarmWarning = '<span class="swarm-risk-warning">⚠️</span>'; } }
-      var html = '<button class="back-link" id="cancelHiveForm">← ' + t('cancel') + '</button><div class="app-header"><h1 style="font-size:1.8rem;">' + (isEdit ? t('editHive') : t('newHive')) + ' <small>v1.2</small></h1>' + renderLangSelector() + '</div><div class="form-panel"><div class="form-grid"><div class="field" style="grid-column:span 2;"><label>' + t('hiveName') + '</label><input type="text" id="hiveName" value="' + escapeHtml(data.name) + '" required></div><div class="field"><label>' + t('maleFrames') + '</label><input type="number" id="maleFrames" value="' + (data.maleFrames || '') + '" min="0"></div><div class="field"><label>' + t('honeyFrames') + '</label><input type="number" id="honeyFrames" value="' + (data.honeyFrames || '') + '" min="0"></div><div class="field"><label>' + t('broodFrames') + '</label><input type="number" id="broodFrames" value="' + (data.broodFrames || '') + '" min="0"></div><div class="field"><label>' + t('queenColorYear') + '</label><select id="queenColor">' + colorOptions + '</select></div><div class="field"><label>' + t('varroaCount') + '</label><input type="number" id="varroaCount" value="' + (data.varroaCount || '') + '" min="0"></div><div class="field" style="grid-column:span 2;"><label>' + t('swarmWarningLabel') + '</label><div class="checkbox-row"><input type="checkbox" id="swarmRisk" ' + (data.swarmRisk ? 'checked' : '') + '><label for="swarmRisk" style="text-transform:none;font-weight:400;">' + t('atRiskOfSwarming') + '</label>' + swarmWarning + '</div></div><div class="field" style="grid-column:span 2;"><label>' + t('remarks') + '</label><textarea id="hiveRemarks">' + escapeHtml(data.remarks || '') + '</textarea></div></div><div class="row-actions"><button class="outline" id="cancelHiveBtn">' + t('cancel') + '</button><button class="primary" id="saveHiveBtn">' + (isEdit ? t('save') : t('create')) + '</button></div></div>';
+      var html = '<button class="back-link" id="cancelHiveForm">← ' + t('cancel') + '</button><div class="app-header"><h1 style="font-size:1.8rem;">' + (isEdit ? t('editHive') : t('newHive')) + ' <small>v1.3</small></h1>' + renderLangSelector() + '</div><div class="form-panel"><div class="form-grid"><div class="field" style="grid-column:span 2;"><label>' + t('hiveName') + '</label><input type="text" id="hiveName" value="' + escapeHtml(data.name) + '" required></div><div class="field"><label>' + t('maleFrames') + '</label><input type="number" id="maleFrames" value="' + (data.maleFrames || '') + '" min="0"></div><div class="field"><label>' + t('honeyFrames') + '</label><input type="number" id="honeyFrames" value="' + (data.honeyFrames || '') + '" min="0"></div><div class="field"><label>' + t('broodFrames') + '</label><input type="number" id="broodFrames" value="' + (data.broodFrames || '') + '" min="0"></div><div class="field"><label>' + t('queenColorYear') + '</label><select id="queenColor">' + colorOptions + '</select></div><div class="field"><label>' + t('varroaCount') + '</label><input type="number" id="varroaCount" value="' + (data.varroaCount || '') + '" min="0"></div><div class="field" style="grid-column:span 2;"><label>' + t('swarmWarningLabel') + '</label><div class="checkbox-row"><input type="checkbox" id="swarmRisk" ' + (data.swarmRisk ? 'checked' : '') + '><label for="swarmRisk" style="text-transform:none;font-weight:400;">' + t('atRiskOfSwarming') + '</label>' + swarmWarning + '</div></div><div class="field" style="grid-column:span 2;"><label>' + t('remarks') + '</label><textarea id="hiveRemarks">' + escapeHtml(data.remarks || '') + '</textarea></div></div><div class="row-actions"><button class="outline" id="cancelHiveBtn">' + t('cancel') + '</button><button class="primary" id="saveHiveBtn">' + (isEdit ? t('save') : t('create')) + '</button></div></div>';
       appEl.innerHTML = html; attachLangListeners();
       
       var backToList = function() { currentView = 'hive-list'; editHiveData = null; activeHiveId = null; render(); };
