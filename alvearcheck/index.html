@@ -457,22 +457,26 @@ var supabase = sbClient;
     async function processDictation(audioBlob) {
   showVoiceStatus("🧠 Transcribing...");
   try {
+    // On prépare le fichier audio comme un vrai fichier
     var formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
     var langCode = currentLang === 'fr' ? 'fr' : currentLang === 'de' ? 'de' : currentLang === 'it' ? 'it' : 'en';
     formData.append('language', langCode);
 
-    // Envoi de l'audio à l'Edge Function
     var sttResponse = await fetch('https://hdhoctahsnqlvqsmwrsf.supabase.co/functions/v1/groq-ai', { 
       method: 'POST', 
       headers: { 
-        'Authorization': 'Bearer sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D',
-        'Content-Type': 'application/json'
+        // On ne met PAS de Content-Type, le navigateur le fera tout seul pour le FormData
+        'Authorization': 'Bearer sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D' 
       }, 
-      body: JSON.stringify({ action: 'transcribe', audio: audioBlob, language: langCode })
+      body: formData
     });
 
-    if (!sttResponse.ok) throw new Error("STT API failed");
+    if (!sttResponse.ok) {
+      var errText = await sttResponse.text();
+      showVoiceStatus("⚠️ Erreur " + sttResponse.status + " : " + errText, 10000);
+      return;
+    }
     
     var sttResult = await sttResponse.json();
     var transcript = sttResult.text;
@@ -487,11 +491,9 @@ var supabase = sbClient;
     await screenReaderAI(transcript);
 
   } catch (err) {
-    console.error(err);
     showVoiceStatus("⚠️ AI Error: " + err.message);
   }
-}
-
+    }
 async function screenReaderAI(transcript) {
   showVoiceStatus("🤖 Reading screen & filling...");
   var formFields = [];
