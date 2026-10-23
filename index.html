@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VespaCaution</title>
+    <title>Vespacaution</title>
     
-    <!-- UMAMI ANALYTICS (Remplace YOUR-WEBSITE-ID) -->
+    <!-- UMAMI ANALYTICS -->
     <script defer src="https://cloud.umami.is/script.js" data-website-id="94107104-0725-41e7-a07b-45c73b417fe8"></script>
-    
+
     <style>
         :root {
             --bg-color: #fcf9f2;
@@ -43,40 +43,14 @@
 
         .header-left { display: flex; align-items: center; gap: 15px; }
         
-        /* LOGO PLUS GRAND */
-        .logo-container {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-        }
-
-        .logo-container img {
-            height: 50px;
-            width: auto;
-            max-width: 280px;
-            object-fit: contain;
-            mix-blend-mode: multiply; 
-        }
+        .logo-container { display: flex; align-items: center; text-decoration: none; }
+        .logo-container img { height: 50px; width: auto; max-width: 280px; object-fit: contain; mix-blend-mode: multiply; }
 
         /* Language Selector */
         .lang-selector {
-            display: flex;
-            gap: 4px;
-            font-size: 0.8rem;
-            background: var(--white);
-            padding: 3px;
-            border-radius: 20px;
-            border: 1px solid var(--border);
+            display: flex; gap: 4px; font-size: 0.8rem; background: var(--white); padding: 3px; border-radius: 20px; border: 1px solid var(--border);
         }
-        .lang-btn {
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 2px 6px;
-            border-radius: 12px;
-            color: var(--text-muted);
-            font-weight: bold;
-        }
+        .lang-btn { background: transparent; border: none; cursor: pointer; padding: 2px 6px; border-radius: 12px; color: var(--text-muted); font-weight: bold; }
         .lang-btn.active { background: var(--primary); color: var(--white); }
 
         /* Navigation */
@@ -84,107 +58,63 @@
         nav a { text-decoration: none; color: var(--text-main); font-weight: 600; transition: color 0.2s; }
         nav a:hover { color: var(--primary); }
         
-        /* ICÔNES SOCIALES DE MÊME TAILLE */
+        /* ICÔNES SOCIALES */
         .social-icons { display: flex; gap: 10px; margin-left: 10px; align-items: center; }
         .social-icons img { height: 24px; width: 24px; cursor: pointer; transition: transform 0.2s; object-fit: contain; }
         .social-icons img:hover { transform: scale(1.1); }
 
         /* Main Content */
         main { max-width: 900px; margin: 30px auto; padding: 0 15px; min-height: 70vh; }
-        
         h1, h2, h3 { color: var(--primary); margin-bottom: 10px; }
         h1 { font-size: 2rem; }
         
         /* App Cards */
         .app-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
         .app-card {
-            background: var(--surface);
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-            border: 1px solid var(--border);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
+            background: var(--surface); padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid var(--border); transition: transform 0.2s; display: flex; flex-direction: column;
         }
         .app-card:hover { transform: translateY(-3px); box-shadow: 0 6px 15px rgba(0,0,0,0.08); }
         .app-card h3 { margin-bottom: 10px; font-size: 1.3rem; color: var(--text-main); }
         .app-card p { flex-grow: 1; margin-bottom: 15px; font-size: 0.95rem; }
         
         .btn {
-            display: inline-block;
-            background: var(--primary);
-            color: var(--white);
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            font-weight: bold;
-            text-align: center;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
+            display: inline-block; background: var(--primary); color: var(--white); padding: 10px 20px; border-radius: 25px; text-decoration: none; font-weight: bold; text-align: center; border: none; cursor: pointer; transition: background 0.2s;
         }
         .btn:hover { background: var(--primary-hover); }
 
-        /* App Details */
-        .app-details { background: var(--surface); padding: 25px; border-radius: 15px; border: 1px solid var(--border); }
+        /* App Details & Instructions */
+        .app-details { background: var(--surface); padding: 25px; border-radius: 15px; border: 1px solid var(--border); margin-bottom: 20px; }
         .app-details p, .app-details li { margin-bottom: 10px; color: var(--text-main); }
         .app-details ul { margin-left: 20px; margin-bottom: 20px; }
         .app-details h3 { margin-top: 20px; font-size: 1.2rem; }
 
-        /* Resource Links */
-        .resource-link {
-            display: block;
-            padding: 15px;
-            background: var(--white);
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            margin-bottom: 12px;
-            text-decoration: none;
-            color: var(--text-main);
-            transition: border-color 0.2s, transform 0.2s;
+        /* Accordion (Collapsible Instructions) */
+        .accordion { background: var(--white); border: 1px solid var(--border); border-radius: 10px; margin-top: 20px; overflow: hidden; }
+        .accordion-header {
+            background: var(--primary); color: var(--white); padding: 15px; cursor: pointer; font-weight: bold; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;
         }
-        .resource-link:hover {
-            border-color: var(--primary);
-            transform: translateX(5px);
-        }
-        .resource-link strong {
-            display: block;
-            color: var(--primary);
-            font-size: 1.1rem;
-            margin-bottom: 5px;
-        }
-        .resource-link span {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-        }
+        .accordion-header:hover { background: var(--primary-hover); }
+        .accordion-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; padding: 0 20px; }
+        .accordion-content.active { max-height: 5000px; padding: 20px; border-top: 1px solid var(--border); }
+        .accordion-content img { width: 100%; max-width: 400px; display: block; margin: 15px auto; border-radius: 10px; border: 1px solid var(--border); }
+        
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; margin-top: 20px; border-radius: 10px; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+        
+        .account-notice { background: #fff3cd; color: #856404; padding: 15px; border-radius: 10px; border: 1px solid #ffeeba; margin-top: 20px; font-weight: bold; }
+        .account-notice.yes { background: #f8d7da; color: #721c24; border-color: #f5c6cb; }
 
-        /* Forms */
+        /* Forms & Footer */
         .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; color: var(--text-main); }
-        .form-group input, .form-group textarea, .form-group select {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            font-size: 1rem;
-            background: var(--white);
-            color: var(--text-main);
-        }
-        .form-group textarea { resize: vertical; min-height: 120px; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        /* Footer */
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
+        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 1rem; background: var(--white); color: var(--text-main); }
+        .form-group textarea { min-height: 120px; resize: vertical; }
+        
         footer { background: var(--surface); border-top: 2px solid var(--border); padding: 30px 15px; margin-top: 40px; }
         footer a { color: var(--primary); text-decoration: none; font-weight: bold; }
-        footer a:hover { text-decoration: underline; }
         .footer-content { max-width: 900px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
         .footer-bottom { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.9rem; color: var(--text-muted); }
 
-        .hidden { display: none !important; }
         .alert { padding: 15px; margin-bottom: 20px; border-radius: 10px; text-align: center; font-weight: bold;}
         .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
         .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
@@ -200,11 +130,9 @@
 
     <header>
         <div class="header-left">
-            <!-- LOGO GOOGLE DRIVE AGRANDI -->
             <a href="#" class="logo-container">
-                <img src="https://drive.google.com/uc?export=download&id=1_3Qc1Qbh36B4NTPlqPXumKHQg05Rq3NX" alt="VespaCaution Logo" onerror="this.src='logo.png'">
+                <img src="https://drive.google.com/uc?export=download&id=1_3Qc1Qbh36B4NTPlqPXumKHQg05Rq3NX" alt="Vespacaution Logo" onerror="this.src='logo.png'">
             </a>
-            
             <div class="lang-selector">
                 <button class="lang-btn" onclick="setLanguage('en')">EN</button>
                 <button class="lang-btn active" onclick="setLanguage('fr')">FR</button>
@@ -237,7 +165,7 @@
     <footer>
         <div class="footer-content">
             <div>
-                <h3>VespaCaution</h3>
+                <h3>Vespacaution</h3>
                 <p data-i18n="footer_desc">Outils pour apiculteurs et chasseurs de frelons.</p>
             </div>
             <div>
@@ -256,7 +184,7 @@
             </div>
         </div>
         <div class="footer-bottom">
-            &copy; <span id="year"></span> VespaCaution. <span data-i18n="footer_credit">Créé par Ben Hupka.</span>
+            &copy; <span id="year"></span> Vespacaution. <span data-i18n="footer_credit">Créé par Ben Hupka.</span>
         </div>
     </footer>
 
@@ -270,10 +198,10 @@
             en: {
                 nav_home: "Home", nav_apps: "Apps", nav_resources: "Resources", nav_contact: "Contact", nav_privacy: "Privacy Policy", nav_support: "Support",
                 footer_desc: "Tools for beekeepers and hornet hunters.", footer_legal: "Legal", footer_credit: "Created by Ben Hupka.", nav_menu: "Menu",
-                btn_open: "🚀 Open", btn_view: "View Details",
-                home_title: "Welcome to VespaCaution",
+                btn_open: "🚀 Open", btn_view: "View Details", btn_instructions: "📖 How to use this app",
+                home_title: "Welcome to Vespacaution",
                 home_desc1: "I create open, reliable, and privacy-first digital tools to help beekeepers manage their apiaries and assist volunteers in the fight against the Asian hornet (<em>Vespa velutina</em>).",
-                home_desc2: "Whether you are tracking hornets in the field, managing hive inspections, or looking for seasonal beekeeping advice, my apps are designed to work directly in your browser, offline when needed, and without forcing you to create an account.",
+                home_desc2: "Whether you are tracking hornets in the field, managing hive inspections, or looking for seasonal beekeeping advice, my apps are designed to work directly in your browser, offline when needed.",
                 home_my_apps: "My Apps",
                 contact_title: "Contact Us", contact_desc: "Have a question, found a bug, or want to suggest a feature? Send a message below!",
                 contact_name: "Name", contact_email: "Email", contact_app: "Which app is this about?", contact_general: "General Question",
@@ -286,24 +214,26 @@
                 link_abeilles: "The Swiss Beekeepers Association (APISUISSE).",
                 link_melizoe: "Swiss platform for the sale of honey.",
                 credit_sar: "SAR (Société d'Apiculture Romande)",
-                support_title: "Support VespaCaution",
-                support_desc: "You like my applications and would like to support them? You can do so by making a donation with Twint at the number below. Thank you very much! 🙂",
-                privacy_title: "Privacy Policy", privacy_date: "Last updated:", privacy_p1: "At VespaCaution, your privacy is a top priority. This policy explains how our applications handle your data.",
-                privacy_h1: "1. Local-First Data Storage", privacy_t1: "Applications like ApiGuide and AlvearCheck store your data locally on your device using your browser's localStorage. We do not collect, transmit, or have access to this data.",
-                privacy_h2: "2. Optional Cloud Accounts (VespaTimer)", privacy_t2: "VespaTimer works entirely offline by default. If you choose to create an optional account, your data is securely stored using Supabase. You can request account deletion at any time via our contact form.",
-                privacy_h3: "3. AI Dictation (AlvearCheck)", privacy_t3: "When using the voice dictation feature, audio is processed securely via third-party AI providers (Groq/Whisper). The audio is used solely to extract data and is not stored by us.",
+                support_title: "Support Vespacaution", support_desc: "You like my applications? You can support them by making a donation with Twint at the number below. Thank you! 🙂",
+                privacy_title: "Privacy Policy", privacy_date: "Last updated:", privacy_p1: "At Vespacaution, your privacy is a top priority.",
+                privacy_h1: "1. Local-First Data Storage", privacy_t1: "Applications like ApiGuide store your data locally on your device. We do not collect, transmit, or have access to this data.",
+                privacy_h2: "2. Mandatory Cloud Accounts", privacy_t2: "VespaTimer (optional) and AlvearCheck (mandatory) use Supabase for secure authentication and data synchronization. You can request account deletion at any time.",
+                privacy_h3: "3. AI Dictation (AlvearCheck)", privacy_t3: "When using the voice dictation feature, audio is processed securely via third-party AI providers (Groq/Whisper). The audio is used solely to extract data.",
                 privacy_h4: "4. Contact Forms", privacy_t4: "We use Web3Forms to deliver your message to our email. We collect your name, email, and message solely to respond to your inquiry.",
-                privacy_h5: "5. Contact", privacy_t5: "If you have any questions about this Privacy Policy, please use the contact page.",
-                privacy_h6: "6. Analytics", privacy_t6: "We use Umami Analytics to measure site traffic. Umami is privacy-friendly, does not use cookies, and does not track personal data.",
-                privacy_h7: "7. Mandatory Accounts (AlvearCheck)", privacy_t7: "AlvearCheck now requires an account to securely save and sync your apiary data to the cloud, ensuring you don't lose your data if you lose your device."
+                privacy_h5: "5. Analytics", privacy_t5: "We use Umami Analytics to measure site traffic. Umami is privacy-friendly, does not use cookies, and does not track personal data.",
+                privacy_h6: "6. External Links", privacy_t6: "Our site contains links to external sites. We are not responsible for their privacy practices.",
+                privacy_h7: "7. Contact", privacy_t7: "If you have any questions about this Privacy Policy, please use the contact page.",
+                need_account_yes: "⚠️ An account is mandatory to use this application and save your data securely.",
+                need_account_no: "✅ You can use this app 100% offline without an account. Creating an account is optional but allows cloud sync.",
+                contact_me: "📬 Contact Me", privacy_link: "🔒 Privacy Policy"
             },
             fr: {
                 nav_home: "Accueil", nav_apps: "Apps", nav_resources: "Ressources", nav_contact: "Contact", nav_privacy: "Confidentialité", nav_support: "Soutenir",
                 footer_desc: "Outils pour apiculteurs et chasseurs de frelons.", footer_legal: "Légal", footer_credit: "Créé par Ben Hupka.", nav_menu: "Menu",
-                btn_open: "🚀 Ouvrir", btn_view: "Voir les détails",
-                home_title: "Bienvenue sur VespaCaution",
+                btn_open: "🚀 Ouvrir", btn_view: "Voir les détails", btn_instructions: "📖 Comment utiliser cette application",
+                home_title: "Bienvenue sur Vespacaution",
                 home_desc1: "Je crée des outils numériques ouverts, fiables et respectueux de la vie privée pour aider les apiculteurs à gérer leurs ruchers et assister les bénévoles dans la lutte contre le frelon asiatique (<em>Vespa velutina</em>).",
-                home_desc2: "Que vous suiviez les frelons sur le terrain, gériez les inspections des ruches ou cherchiez des conseils saisonniers, mes applications sont conçues pour fonctionner directement dans votre navigateur, hors ligne si nécessaire, et sans créer de compte.",
+                home_desc2: "Que vous suiviez les frelons sur le terrain, gériez les inspections des ruches ou cherchiez des conseils saisonniers, mes applications sont conçues pour fonctionner directement dans votre navigateur, hors ligne si nécessaire.",
                 home_my_apps: "Mes Applications",
                 contact_title: "Contactez-nous", contact_desc: "Une question, un bug, ou une suggestion ? Envoyez un message ci-dessous !",
                 contact_name: "Nom", contact_email: "Email", contact_app: "Concernant quelle app ?", contact_general: "Question Générale",
@@ -316,106 +246,101 @@
                 link_abeilles: "La Fédération Suisse des Apiculteurs (APISUISSE).",
                 link_melizoe: "Plateforme suisse de vente de miel.",
                 credit_sar: "SAR (Société d'Apiculture Romande)",
-                support_title: "Soutenir VespaCaution",
-                support_desc: "Vous aimez mes applications et vous voudriez les soutenir ? Vous le pouvez en faisant un don avec Twint au numéro ci-dessous. Merci beaucoup ! 🙂",
-                privacy_title: "Politique de confidentialité", privacy_date: "Dernière mise à jour :", privacy_p1: "Chez VespaCaution, votre vie privée est une priorité. Cette politique explique comment nos applications gèrent vos données.",
-                privacy_h1: "1. Stockage local", privacy_t1: "Les applications comme ApiGuide et AlvearCheck stockent vos données localement sur votre appareil. Nous ne collectons ni ne transmettons ces données.",
-                privacy_h2: "2. Comptes Cloud (VespaTimer)", privacy_t2: "VespaTimer fonctionne hors ligne par défaut. Si vous créez un compte, vos données sont sécurisées via Supabase. Vous pouvez demander la suppression à tout moment.",
-                privacy_h3: "3. Dictée IA (AlvearCheck)", privacy_t3: "Lors de l'utilisation de la dictée vocale, l'audio est traité via des fournisseurs d'IA tiers (Groq/Whisper). L'audio sert uniquement à extraire les données.",
+                support_title: "Soutenir Vespacaution", support_desc: "Vous aimez mes applications ? Vous pouvez les soutenir en faisant un don avec Twint au numéro ci-dessous. Merci ! 🙂",
+                privacy_title: "Politique de confidentialité", privacy_date: "Dernière mise à jour :", privacy_p1: "Chez Vespacaution, votre vie privée est une priorité.",
+                privacy_h1: "1. Stockage local", privacy_t1: "Les applications comme ApiGuide stockent vos données localement sur votre appareil. Nous ne collectons ni ne transmettons ces données.",
+                privacy_h2: "2. Comptes Cloud obligatoires", privacy_t2: "VespaTimer (optionnel) et AlvearCheck (obligatoire) utilisent Supabase pour l'authentification sécurisée et la synchronisation. Vous pouvez demander la suppression de votre compte à tout moment.",
+                privacy_h3: "3. Dictée IA (AlvearCheck)", privacy_t3: "Lors de l'utilisation de la dictée vocale, l'audio est traité via des fournisseurs d'IA tiers (Groq/Whisper). L'audio sert uniquement à extraire les données et n'est pas stocké.",
                 privacy_h4: "4. Formulaires de contact", privacy_t4: "Nous utilisons Web3Forms pour recevoir vos messages. Nous collectons uniquement votre nom, email et message pour vous répondre.",
-                privacy_h5: "5. Contact", privacy_t5: "Pour toute question, veuillez utiliser la page de contact.",
-                privacy_h6: "6. Analytique", privacy_t6: "Nous utilisons Umami Analytics pour mesurer le trafic du site. Umami respecte la vie privée, n'utilise pas de cookies et ne suit aucune donnée personnelle.",
-                privacy_h7: "7. Comptes obligatoires (AlvearCheck)", privacy_t7: "AlvearCheck nécessite désormais un compte pour sauvegarder et synchroniser en toute sécurité vos données d'apiary dans le cloud, garantissant que vous ne perdrez pas vos données en cas de perte de votre appareil."
+                privacy_h5: "5. Analytique", privacy_t5: "Nous utilisons Umami Analytics pour mesurer le trafic. Umami respecte la vie privée, n'utilise pas de cookies et ne suit aucune donnée personnelle.",
+                privacy_h6: "6. Liens externes", privacy_t6: "Notre site contient des liens vers des sites externes. Nous ne sommes pas responsables de leurs pratiques en matière de confidentialité.",
+                privacy_h7: "7. Contact", privacy_t7: "Pour toute question, veuillez utiliser la page de contact.",
+                need_account_yes: "⚠️ Un compte est obligatoire pour utiliser cette application et sauvegarder vos données en toute sécurité.",
+                need_account_no: "✅ Vous pouvez utiliser cette application 100% hors ligne sans compte. Créer un compte est optionnel mais permet la synchronisation cloud.",
+                contact_me: "📬 Contactez-moi", privacy_link: "🔒 Politique de confidentialité"
             },
             de: {
                 nav_home: "Startseite", nav_apps: "Apps", nav_resources: "Ressourcen", nav_contact: "Kontakt", nav_privacy: "Datenschutz", nav_support: "Unterstützen",
                 footer_desc: "Werkzeuge für Imker und Hornissenjäger.", footer_legal: "Rechtliches", footer_credit: "Erstellt von Ben Hupka.", nav_menu: "Menü",
-                btn_open: "🚀 Öffnen", btn_view: "Details ansehen",
-                home_title: "Willkommen bei VespaCaution",
-                home_desc1: "Ich entwickle offene, zuverlässige und datenschutzfreundliche digitale Werkzeuge für Imker und Freiwillige im Kampf gegen die Asiatische Hornisse (<em>Vespa velutina</em>).",
-                home_desc2: "Ob Sie Hornissen im Feld verfolgen, Bienenstöcke inspizieren oder saisonale Ratschläge suchen – meine Apps laufen direkt im Browser, offline und ohne Konto.",
+                btn_open: "🚀 Öffnen", btn_view: "Details ansehen", btn_instructions: "📖 Wie man diese App benutzt",
+                home_title: "Willkommen bei Vespacaution",
+                home_desc1: "Ich entwickle offene, zuverlässige und datenschutzfreundliche digitale Werkzeuge für Imker und Freiwillige im Kampf gegen die Asiatische Hornisse.",
+                home_desc2: "Ob Sie Hornissen verfolgen oder Bienenstöcke inspizieren – meine Apps laufen direkt im Browser.",
                 home_my_apps: "Meine Apps",
-                contact_title: "Kontakt", contact_desc: "Fragen, Fehler gefunden oder Ideen? Schreiben Sie uns!",
+                contact_title: "Kontakt", contact_desc: "Fragen oder Ideen? Schreiben Sie uns!",
                 contact_name: "Name", contact_email: "E-Mail", contact_app: "Um welche App geht es?", contact_general: "Allgemeine Frage",
                 contact_type: "Art der Anfrage", contact_opt_q: "Frage", contact_opt_bug: "Fehlerbericht", contact_opt_feat: "Funktionswunsch", contact_opt_other: "Partnerschaft / Sonstiges",
-                contact_msg: "Nachricht", contact_send: "Nachricht senden", contact_sending: "Wird gesendet...", contact_success: "Nachricht erfolgreich gesendet!", contact_error: "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
-                res_title: "Ressourcen & Nützliche Links", res_desc: "Vertrauenswürdige Ressourcen für Imker und Hornissenjäger in der Schweiz.",
+                contact_msg: "Nachricht", contact_send: "Nachricht senden", contact_sending: "Wird gesendet...", contact_success: "Nachricht erfolgreich gesendet!", contact_error: "Etwas ist schiefgelaufen.",
+                res_title: "Ressourcen & Nützliche Links", res_desc: "Vertrauenswürdige Ressourcen für Imker.",
                 res_swiss: "🇨🇭 Schweizer Ressourcen", res_credits: "🏆 Credits", res_creator: "Ersteller:", res_video: "Videos:", res_code: "Code-Assistent:", res_base: "ApiGuide basiert auf:",
-                link_frelon: "Offizielle Informationen und Koordination zur Asiatischen Hornisse in der Schweiz.",
-                link_stop: "Ressourcen und Meldewerkzeuge für Hornissenjäger.",
-                link_abeilles: "Der Schweizerische Imkerverband (APISUISSE).",
-                link_melizoe: "Schweizer Plattform für den Honigverkauf.",
+                link_frelon: "Offizielle Informationen zur Asiatischen Hornisse.", link_stop: "Meldewerkzeuge für Hornissenjäger.", link_abeilles: "Der Schweizerische Imkerverband.", link_melizoe: "Schweizer Plattform für Honigverkauf.",
                 credit_sar: "SAR (Société d'Apiculture Romande)",
-                support_title: "VespaCaution unterstützen",
-                support_desc: "Sie mögen meine Anwendungen und möchten sie unterstützen? Das können Sie tun, indem Sie mit Twint an die unten stehende Nummer spenden. Vielen Dank! 🙂",
-                privacy_title: "Datenschutzerklärung", privacy_date: "Zuletzt aktualisiert:", privacy_p1: "Datenschutz hat Priorität. Diese Richtlinie erklärt, wie wir mit Ihren Daten umgehen.",
-                privacy_h1: "1. Lokale Speicherung", privacy_t1: "Apps wie ApiGuide und AlvearCheck speichern Daten lokal in Ihrem Browser. Wir haben keinen Zugriff darauf.",
-                privacy_h2: "2. Cloud-Konten (VespaTimer)", privacy_t2: "VespaTimer funktioniert offline. Bei Erstellung eines Kontos werden Daten über Supabase sicher gespeichert. Löschung jederzeit möglich.",
-                privacy_h3: "3. KI-Diktat (AlvearCheck)", privacy_t3: "Bei der Sprachdiktat-Funktion wird Audio über Drittanbieter (Groq/Whisper) verarbeitet. Audio wird nur zur Datenextraktion genutzt.",
-                privacy_h4: "4. Kontaktformulare", privacy_t4: "Wir nutzen Web3Forms. Name, E-Mail und Nachricht werden nur zur Beantwortung genutzt.",
-                privacy_h5: "5. Kontakt", privacy_t5: "Bei Fragen nutzen Sie bitte die Kontaktseite.",
-                privacy_h6: "6. Analytik", privacy_t6: "Wir verwenden Umami Analytics, um den Website-Traffic zu messen. Umami ist datenschutzfreundlich, verwendet keine Cookies und verfolgt keine persönlichen Daten.",
-                privacy_h7: "7. Pflichtkonten (AlvearCheck)", privacy_t7: "AlvearCheck erfordert jetzt ein Konto, um Ihre Bienenstandsdaten sicher in der Cloud zu speichern und zu synchronisieren, damit Sie Ihre Daten nicht verlieren, wenn Sie Ihr Gerät verlieren."
+                support_title: "Vespacaution unterstützen", support_desc: "Sie mögen meine Anwendungen? Unterstützen Sie sie mit einer Twint-Spende. Vielen Dank! 🙂",
+                privacy_title: "Datenschutzerklärung", privacy_date: "Zuletzt aktualisiert:", privacy_p1: "Datenschutz hat Priorität.",
+                privacy_h1: "1. Lokale Speicherung", privacy_t1: "Apps wie ApiGuide speichern Daten lokal in Ihrem Browser.",
+                privacy_h2: "2. Cloud-Konten", privacy_t2: "VespaTimer und AlvearCheck nutzen Supabase für sichere Authentifizierung.",
+                privacy_h3: "3. KI-Diktat", privacy_t3: "Audio wird über Drittanbieter verarbeitet.",
+                privacy_h4: "4. Kontaktformulare", privacy_t4: "Wir nutzen Web3Forms.",
+                privacy_h5: "5. Analytik", privacy_t5: "Wir verwenden Umami Analytics ohne Cookies.",
+                privacy_h6: "6. Externe Links", privacy_t6: "Wir sind nicht für externe Datenschutzpraktiken verantwortlich.",
+                privacy_h7: "7. Kontakt", privacy_t7: "Bei Fragen nutzen Sie bitte die Kontaktseite.",
+                need_account_yes: "⚠️ Ein Konto ist obligatorisch, um diese App zu nutzen.",
+                need_account_no: "✅ Sie können diese App 100% offline ohne Konto nutzen. Ein Konto ist optional.",
+                contact_me: "📬 Kontaktieren Sie mich", privacy_link: "🔒 Datenschutz"
             },
             it: {
                 nav_home: "Home", nav_apps: "App", nav_resources: "Risorse", nav_contact: "Contatto", nav_privacy: "Privacy", nav_support: "Sostieni",
-                footer_desc: "Strumenti per apicoltori e cacciatori di calabroni.", footer_legal: "Legale", footer_credit: "Creato da Ben Hupka.", nav_menu: "Menu",
-                btn_open: "🚀 Apri", btn_view: "Dettagli",
-                home_title: "Benvenuti su VespaCaution",
-                home_desc1: "Creo strumenti digitali aperti, affidabili e attenti alla privacy per aiutare gli apicoltori a gestire gli apiari e i volontari nella lotta contro il calabrone asiatico (<em>Vespa velutina</em>).",
-                home_desc2: "Che stiate tracciando calabroni, gestendo le ispezioni o cercando consigli stagionali, le mie app funzionano direttamente nel browser, offline e senza creare un account.",
+                footer_desc: "Strumenti per apicoltori.", footer_legal: "Legale", footer_credit: "Creato da Ben Hupka.", nav_menu: "Menu",
+                btn_open: "🚀 Apri", btn_view: "Dettagli", btn_instructions: "📖 Come usare questa app",
+                home_title: "Benvenuti su Vespacaution", home_desc1: "Creo strumenti digitali aperti e attenti alla privacy.", home_desc2: "Le mie app funzionano direttamente nel browser.",
                 home_my_apps: "Le Mie App",
-                contact_title: "Contattaci", contact_desc: "Hai una domanda, un bug o un suggerimento? Invia un messaggio!",
+                contact_title: "Contattaci", contact_desc: "Invia un messaggio!",
                 contact_name: "Nome", contact_email: "Email", contact_app: "Riguardo quale app?", contact_general: "Domanda Generale",
-                contact_type: "Tipo di richiesta", contact_opt_q: "Domanda", contact_opt_bug: "Segnala un bug", contact_opt_feat: "Suggerimento", contact_opt_other: "Partnership / Altro",
-                contact_msg: "Messaggio", contact_send: "Invia Messaggio", contact_sending: "Invio in corso...", contact_success: "Messaggio inviato con successo!", contact_error: "Si è verificato un errore. Riprova.",
-                res_title: "Risorse & Link Utili", res_desc: "Risorse affidabili per apicoltori in Svizzera.",
+                contact_type: "Tipo di richiesta", contact_opt_q: "Domanda", contact_opt_bug: "Segnala un bug", contact_opt_feat: "Suggerimento", contact_opt_other: "Altro",
+                contact_msg: "Messaggio", contact_send: "Invia Messaggio", contact_sending: "Invio...", contact_success: "Inviato!", contact_error: "Errore.",
+                res_title: "Risorse & Link Utili", res_desc: "Risorse per apicoltori in Svizzera.",
                 res_swiss: "🇨🇭 Risorse Svizzere", res_credits: "🏆 Crediti", res_creator: "Creatore:", res_video: "Video:", res_code: "Assistente codice:", res_base: "ApiGuide basato su:",
-                link_frelon: "Informazioni ufficiali e coordinamento per il calabrone asiatico in Svizzera.",
-                link_stop: "Risorse e strumenti di segnalazione per i cacciatori di calabroni.",
-                link_abeilles: "L'Associazione Svizzera degli Apicoltori (APISUISSE).",
-                link_melizoe: "Piattaforma svizzera per la vendita di miele.",
+                link_frelon: "Informazioni ufficiali.", link_stop: "Risorse per cacciatori.", link_abeilles: "Associazione Svizzera Apicoltori.", link_melizoe: "Piattaforma svizzera per il miele.",
                 credit_sar: "SAR (Société d'Apiculture Romande)",
-                support_title: "Sostieni VespaCaution",
-                support_desc: "Ti piacciono le mie applicazioni e vorresti sostenerle? Puoi farlo facendo una donazione con Twint al numero qui sotto. Grazie mille! 🙂",
-                privacy_title: "Informativa sulla Privacy", privacy_date: "Ultimo aggiornamento:", privacy_p1: "La tua privacy è importante. Questa politica spiega come gestiamo i dati.",
-                privacy_h1: "1. Archiviazione locale", privacy_t1: "App come ApiGuide e AlvearCheck salvano i dati localmente. Non abbiamo accesso a questi dati.",
-                privacy_h2: "2. Account Cloud (VespaTimer)", privacy_t2: "VespaTimer funziona offline. Se crei un account, i dati sono salvati tramite Supabase. Puoi chiedere la cancellazione in qualsiasi momento.",
-                privacy_h3: "3. Dettatura AI (AlvearCheck)", privacy_t3: "L'audio viene elaborato tramite provider AI (Groq/Whisper) solo per estrarre i dati.",
-                privacy_h4: "4. Moduli di contatto", privacy_t4: "Usiamo Web3Forms per ricevere messaggi. Raccogliamo solo nome, email e messaggio.",
-                privacy_h5: "5. Contatto", privacy_t5: "Per domande, usa la pagina di contatto.",
-                privacy_h6: "6. Analisi", privacy_t6: "Utilizziamo Umami Analytics per misurare il traffico del sito. Umami rispetta la privacy, non utilizza cookie e non traccia dati personali.",
-                privacy_h7: "7. Account obbligatori (AlvearCheck)", privacy_t7: "AlvearCheck ora richiede un account per salvare e sincronizzare in modo sicuro i dati del tuo apiario nel cloud, assicurando che tu non perda i dati se perdi il tuo dispositivo."
+                support_title: "Sostieni Vespacaution", support_desc: "Sostieni le mie app con una donazione Twint. Grazie! 🙂",
+                privacy_title: "Informativa sulla Privacy", privacy_date: "Ultimo aggiornamento:", privacy_p1: "La tua privacy è importante.",
+                privacy_h1: "1. Archiviazione locale", privacy_t1: "ApiGuide salva i dati localmente.",
+                privacy_h2: "2. Account Cloud", privacy_t2: "VespaTimer e AlvearCheck usano Supabase.",
+                privacy_h3: "3. Dettatura AI", privacy_t3: "L'audio viene elaborato tramite provider AI.",
+                privacy_h4: "4. Moduli di contatto", privacy_t4: "Usiamo Web3Forms.",
+                privacy_h5: "5. Analisi", privacy_t5: "Utilizziamo Umami Analytics senza cookie.",
+                privacy_h6: "6. Link esterni", privacy_t6: "Non siamo responsabili dei siti esterni.",
+                privacy_h7: "7. Contatto", privacy_t7: "Usa la pagina di contatto.",
+                need_account_yes: "⚠️ Un account è obbligatorio per questa app.",
+                need_account_no: "✅ Puoi usare questa app offline senza account.",
+                contact_me: "📬 Contattami", privacy_link: "🔒 Privacy"
             },
             rm: {
                 nav_home: "Chasa", nav_apps: "Apps", nav_resources: "Resursas", nav_contact: "Contact", nav_privacy: "Protecziun da datas", nav_support: "Sustegn",
-                footer_desc: "Instruments per apiculturs e chatschaders da vespras.", footer_legal: "Legal", footer_credit: "Creà da Ben Hupka.", nav_menu: "Menu",
-                btn_open: "🚀 Avrir", btn_view: "Detagls",
-                home_title: "Bainvegni tar VespaCaution",
-                home_desc1: "Jau creesch instruments digitals averts, fidabels e respectus da la sfera privata per gidar apiculturs e voluntaris en la cumbat cunter la vespra asiatica (<em>Vespa velutina</em>).",
-                home_desc2: "Ils mes apps lavuran directamain en il navigatur, era offline, e senza conto.",
+                footer_desc: "Instruments per apiculturs.", footer_legal: "Legal", footer_credit: "Creà da Ben Hupka.", nav_menu: "Menu",
+                btn_open: "🚀 Avrir", btn_view: "Detagls", btn_instructions: "📖 Co duvrar questa app",
+                home_title: "Bainvegni tar Vespacaution", home_desc1: "Jau creesch instruments digitals averts.", home_desc2: "Ils mes apps lavuran en il navigatur.",
                 home_my_apps: "Mes Apps",
-                contact_title: "Contact", contact_desc: "Ina dumonda, in bug u ina suggestiun? Trametta in messadi!",
+                contact_title: "Contact", contact_desc: "Trametta in messadi!",
                 contact_name: "Num", contact_email: "E-mail", contact_app: "Davart tge app?", contact_general: "Dumonda generala",
-                contact_type: "Tip da dumonda", contact_opt_q: "Dumonda", contact_opt_bug: "Rapport da bug", contact_opt_feat: "Suggeriment", contact_opt_other: "Partnership / Auter",
-                contact_msg: "Messadi", contact_send: "Trametter messadi", contact_sending: "Trametta...", contact_success: "Messadi tramess cun success!", contact_error: "Ina errur è succedida. Prova puspè.",
-                res_title: "Resursas & Colliaziuns", res_desc: "Resursas fidablas per apiculturs en Svizra.",
+                contact_type: "Tip da dumonda", contact_opt_q: "Dumonda", contact_opt_bug: "Rapport da bug", contact_opt_feat: "Suggeriment", contact_opt_other: "Auter",
+                contact_msg: "Messadi", contact_send: "Trametter", contact_sending: "Trametta...", contact_success: "Tramess!", contact_error: "Errur.",
+                res_title: "Resursas & Colliaziuns", res_desc: "Resursas per apiculturs.",
                 res_swiss: "🇨🇭 Resursas svizras", res_credits: "🏆 Credits", res_creator: "Creatur:", res_video: "Videos:", res_code: "Assistent da code:", res_base: "ApiGuide basa sin:",
-                link_frelon: "Infurmaziuns officialas e coordinaziun per la vespra asiatica en Svizra.",
-                link_stop: "Resursas ed instruments da rapport per chatschaders da vespras.",
-                link_abeilles: "L'associaziun svizra d'apiculturs (APISUISSE).",
-                link_melizoe: "Plattafurma svizra per la vendita da mel.",
+                link_frelon: "Infurmaziuns officialas.", link_stop: "Resursas per chatschaders.", link_abeilles: "Associaziun svizra d'apiculturs.", link_melizoe: "Plattafurma svizra per mel.",
                 credit_sar: "SAR (Société d'Apiculture Romande)",
-                support_title: "Sustegn VespaCaution",
-                support_desc: "Ti plaschan mes apps e vuls sustegnair ellas? Ti pos far ina donaziun cun Twint al numer sutvart. Grazia fich! 🙂",
-                privacy_title: "Protecziun da datas", privacy_date: "Ultima actualisaziun:", privacy_p1: "La tia sfera privata è impurtanta. Questa politica explitgescha co nus tractain las datas.",
-                privacy_h1: "1. Archivaziun locala", privacy_t1: "Apps sco ApiGuide ed AlvearCheck memoriseschan datas localmain. Nus n'avain betg access a quellas datas.",
-                privacy_h2: "2. Contos Cloud (VespaTimer)", privacy_t2: "VespaTimer lavura offline. Sche ti creesch in conto, las datas vegnan memorisadas tras Supabase. Ti pos dumandar la stizzaziun da tut temps.",
-                privacy_h3: "3. Dictat AI (AlvearCheck)", privacy_t3: "L'audio vegn elavurà tras providers AI (Groq/Whisper) mo per extrair las datas.",
-                privacy_h4: "4. Formulars da contact", privacy_t4: "Nus duvrain Web3Forms. Nus rimnain mo num, e-mail e messadi.",
-                privacy_h5: "5. Contact", privacy_t5: "Per dumondas, duvra la pagina da contact.",
-                privacy_h6: "6. Analitica", privacy_t6: "Nus duvrain Umami Analytics per mesirar il traffic dal sit. Umami respecta la sfera privata, n'utilisescha betg cookies e na fastizar betg datas persunalas.",
-                privacy_h7: "7. Contos obligatorics (AlvearCheck)", privacy_t7: "AlvearCheck dovra ussa in conto per memorisar e sincronisar las datas da tes apiari en il cloud, uschia che ti na perdias betg tes datas sche ti perdias tes telefon."
+                support_title: "Sustegn Vespacaution", support_desc: "Sustegna mes apps cun ina donaziun Twint. Grazia! 🙂",
+                privacy_title: "Protecziun da datas", privacy_date: "Ultima actualisaziun:", privacy_p1: "La tia sfera privata è impurtanta.",
+                privacy_h1: "1. Archivaziun locala", privacy_t1: "ApiGuide memorisescha datas localmain.",
+                privacy_h2: "2. Contos Cloud", privacy_t2: "VespaTimer ed AlvearCheck duvrain Supabase.",
+                privacy_h3: "3. Dictat AI", privacy_t3: "L'audio vegn elavurà tras providers AI.",
+                privacy_h4: "4. Formulars", privacy_t4: "Nus duvrain Web3Forms.",
+                privacy_h5: "5. Analitica", privacy_t5: "Nus duvrain Umami senza cookies.",
+                privacy_h6: "6. Colliaziuns externas", privacy_t6: "Nus n'es betg responsabels per auters sits.",
+                privacy_h7: "7. Contact", privacy_t7: "Duvra la pagina da contact.",
+                need_account_yes: "⚠️ In conto è obligatoric per questa app.",
+                need_account_no: "✅ Ti pos duvrar questa app offline senza conto.",
+                contact_me: "📬 Contact", privacy_link: "🔒 Protecziun da datas"
             }
         };
 
@@ -433,7 +358,6 @@
                     el.innerHTML = translations[lang][key];
                 }
             });
-
             render();
         }
 
@@ -442,7 +366,7 @@
         }
 
         // ==========================================
-        // 2. CONFIGURATION: APP DETAILS (UPDATED)
+        // 2. APP DETAILS & INSTRUCTIONS (Translated)
         // ==========================================
         const appsConfig = {
             'vespatimer': {
@@ -456,11 +380,63 @@
                     rm: "L'assistent digital dal Pot-à-Mèche"
                 },
                 html: {
-                    en: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer is a web tool (and mobile PWA) designed specifically to facilitate the field work of volunteers fighting the Asian hornet.</p><p>Its goal is to replace the stopwatch and paper sheet by automating average calculations and triangulation to locate nests faster.</p><h3>Features</h3><ul><li><strong>Multi-Stopwatch:</strong> Track up to 13 hornets simultaneously.</li><li><strong>Triangulation:</strong> Estimates nest position based on flight time.</li><li><strong>Compass:</strong> Uses phone sensors for exact takeoff direction.</li><li><strong>Export:</strong> PDF, JSON, GPX/KML.</li><li><strong>History:</strong> Saves sessions from the last 90 days.</li><li><strong>Optional Account:</strong> Cloud sync and unlimited history.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; },
-                    fr: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer est un outil web (et application mobile PWA) conçu spécifiquement pour faciliter le travail de terrain des télémètres et des bénévoles qui luttent contre le frelon asiatique.</p><p>Son but est de remplacer le chronomètre et la feuille de papier en automatisant les calculs de moyennes et la triangulation.</p><h3>Fonctionnalités</h3><ul><li><strong>Multi-Chronomètre :</strong> Suivez jusqu'à 13 frelons.</li><li><strong>Triangulation :</strong> Estime la position du nid.</li><li><strong>Boussole :</strong> Direction exacte via capteurs.</li><li><strong>Exportation :</strong> PDF, JSON, GPX/KML.</li><li><strong>Historique :</strong> 90 jours de données.</li><li><strong>Compte Optionnel :</strong> Synchro cloud et historique étendu.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; },
-                    de: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer ist ein Web-Tool für die Feldarbeit gegen die Asiatische Hornisse.</p><h3>Funktionen</h3><ul><li>Multi-Stoppuhr für bis zu 13 Hornissen.</li><li>Triangulation zur Nestfindung.</li><li>Integrierter Kompass.</li><li>Export: PDF, JSON, GPX/KML.</li><li>Verlauf der letzten 90 Tage.</li><li>Optionales Konto für Cloud-Sync.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; },
-                    it: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer è uno strumento web per il lavoro sul campo contro il calabrone asiatico.</p><h3>Funzionalità</h3><ul><li>Multi-cronometro per 13 calabroni.</li><li>Triangolazione per trovare il nido.</li><li>Bussola integrata.</li><li>Esportazione: PDF, JSON, GPX/KML.</li><li>Cronologia di 90 giorni.</li><li>Account opzionale per la sincronizzazione.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; },
-                    rm: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer è in instrument web per la lavur cunter la vespra asiatica.</p><h3>Funcziuns</h3><ul><li>Multi-cronometer per 13 vespras.</li><li>Triangulaziun per chattar il gnieu.</li><li>Bussola integrada.</li><li>Export: PDF, JSON, GPX/KML.</li><li>Istorgia da 90 dis.</li><li>Conto opzional per la sincronisaziun.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a></div>`; }
+                    en: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer is a web tool designed to facilitate the field work of volunteers fighting the Asian hornet.</p><h3>Features</h3><ul><li><strong>Multi-Stopwatch:</strong> Track up to 13 hornets.</li><li><strong>Triangulation:</strong> Estimates nest position.</li><li><strong>Compass:</strong> Uses phone sensors.</li><li><strong>Export:</strong> PDF, JSON, GPX/KML.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Setup and Timer</h3><p>Place your trap (Pot-à-Mèche). When a hornet is captured, start the timer. Stop it when the hornet leaves. The app automatically calculates the average flight time for up to 13 hornets.</p><img src="./vespatimer/1.png" alt="Timer">
+                            <h3>2. Triangulation</h3><p>Enter the departure direction using your phone's compass. The app calculates the distance and displays an estimated search zone on the map.</p><img src="./vespatimer/2.png" alt="Map">
+                            <h3>3. Export</h3><p>Export your data as PDF for reports, JSON for backups, or GPX/KML to view nests on Google Earth.</p><img src="./vespatimer/3.png" alt="Export">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    fr: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer est un outil web conçu pour faciliter le travail de terrain des télémètres et des bénévoles.</p><h3>Fonctionnalités</h3><ul><li><strong>Multi-Chronomètre :</strong> Suivez jusqu'à 13 frelons.</li><li><strong>Triangulation :</strong> Estime la position du nid.</li><li><strong>Boussole :</strong> Direction exacte via capteurs.</li><li><strong>Exportation :</strong> PDF, JSON, GPX/KML.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Configuration et Chrono</h3><p>Installez votre pot-à-mèche. Quand un frelon est capturé, lancez le chrono. Arrêtez-le à l'envol. L'application calcule automatiquement le temps de vol moyen pour vos 13 frelons.</p><img src="./vespatimer/1.png" alt="Chrono">
+                            <h3>2. Triangulation</h3><p>Entrez la direction d'envol grâce à la boussole de votre téléphone. L'application calcule la distance et affiche une zone de recherche ovale sur la carte.</p><img src="./vespatimer/2.png" alt="Carte">
+                            <h3>3. Exportation</h3><p>Exportez en PDF pour les rapports, en JSON pour sauvegarder, ou en GPX/KML pour voir les nids sur Google Earth.</p><img src="./vespatimer/3.png" alt="Export">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    de: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer ist ein Web-Tool für die Feldarbeit.</p><h3>Funktionen</h3><ul><li>Multi-Stoppuhr.</li><li>Triangulation.</li><li>Kompass.</li><li>Export: PDF, JSON.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Einrichtung und Timer</h3><p>Stellen Sie die Falle auf. Starten Sie den Timer, wenn die Hornisse gefangen wird.</p><img src="./vespatimer/1.png" alt="Timer">
+                            <h3>2. Triangulation</h3><p>Geben Sie die Richtung mit dem Kompass ein, um den Nistplatz zu berechnen.</p><img src="./vespatimer/2.png" alt="Karte">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    it: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer è uno strumento per il lavoro sul campo.</p><h3>Funzionalità</h3><ul><li>Multi-cronometro.</li><li>Triangolazione.</li><li>Bussola.</li><li>Esportazione.</li></ul><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Cronometro</h3><p>Avvia il cronometro quando il calabrone viene catturato.</p><img src="./vespatimer/1.png" alt="Timer">
+                            <h3>2. Triangolazione</h3><p>Inserisci la direzione per calcolare la posizione del nido.</p><img src="./vespatimer/2.png" alt="Mappa">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    rm: function() { return `<div class="app-details"><h1>🐝 VespaTimer</h1><p>VespaTimer è in instrument per la lavur.</p><a href="./vespatimer/index.html" class="btn">${t('btn_open')} VespaTimer</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Cronometer</h3><p>Avrir il cronometer per il vespras.</p><img src="./vespatimer/1.png" alt="Timer">
+                            <h3>2. Triangulaziun</h3><p>Endatar la direcziun per chattar il gnieu.</p><img src="./vespatimer/2.png" alt="Map">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; }
                 }
             },
             'apiguide': {
@@ -474,244 +450,4 @@
                     rm: "Cudesch da las stagiuns e activitats da las avieuls"
                 },
                 html: {
-                    en: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide is a PWA designed to accompany beekeepers throughout the year.</p><ul><li><strong>Seasons:</strong> Spring, Summer, Autumn, Winter.</li><li><strong>Activities:</strong> 10 main activities per season.</li><li><strong>Sheets:</strong> Read-only text sheets with advice.</li></ul><h3>📖 Apipedia</h3><p>A new community wiki for beekeeping! Found at the bottom of the page, it allows beekeepers to share their knowledge. You can propose new pages by sending the text to VespaCaution for review.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
-                    fr: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide est une PWA conçue pour accompagner les apiculteurs tout au long de l'année.</p><ul><li><strong>Saisons :</strong> Printemps, Été, Automne, Hiver.</li><li><strong>Activités :</strong> 10 activités principales par saison.</li><li><strong>Fiches :</strong> Textes de conseils en lecture seule.</li></ul><h3>📖 Apipedia</h3><p>Un tout nouveau wiki communautaire pour l'apiculture ! Situé en bas de page, il permet aux apiculteurs de partager leurs connaissances. Vous pouvez proposer de nouvelles pages en envoyant le texte à VespaCaution pour relecture.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
-                    de: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide ist eine PWA für Imker über das ganze Jahr.</p><ul><li>Jahreszeiten: Frühling, Sommer, Herbst, Winter.</li><li>10 Hauptaktivitäten pro Jahreszeit.</li><li>Textblätter mit Ratschlägen.</li></ul><h3>📖 Apipedia</h3><p>Ein neues Community-Wiki für die Imkerei! Es befindet sich am Ende der Seite und ermöglicht Imkern, ihr Wissen zu teilen. Sie können neue Seiten vorschlagen, indem Sie den Text zur Überprüfung an VespaCaution senden.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
-                    it: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è una PWA per accompagnare gli apicoltori tutto l'anno.</p><ul><li>Stagioni: Primavera, Estate, Autunno, Inverno.</li><li>10 attività principali per stagione.</li><li>Schede di testo con consigli.</li></ul><h3>📖 Apipedia</h3><p>Un nuovo wiki comunitario per l'apicoltura! Situato in fondo alla pagina, permette agli apicoltori di condividere le proprie conoscenze. Puoi proporre nuove pagine inviando il testo a VespaCaution per la revisione.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; },
-                    rm: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è ina PWA per apiculturs durant tut l'on.</p><ul><li>Stagiuns: Primavaira, Stad, Atun, Enviern.</li><li>10 activitats principalas per stagiun.</li><li>Fichas da text cun cussegls.</li></ul><h3>📖 Apipedia</h3><p>In nov wiki da la communitad per l'apicultura! Situà en il fund da la pagina, permetta als apiculturs da cundivider lur savair. Ti pos proponer novas paginas tramettend il text a VespaCaution per la revisiun.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a></div>`; }
-                }
-            },
-            'alvearcheck': {
-                title: 'AlvearCheck',
-                icon: '📋',
-                shortDesc: {
-                    en: "The digital apiary notebook",
-                    fr: "Le carnet de rucher numérique",
-                    de: "Das digitale Bienenstock-Notizbuch",
-                    it: "Il quaderno digitale dell'apiario",
-                    rm: "Il cudesch digital da l'apiari"
-                },
-                html: {
-                    en: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>A standalone web app replacing the paper notebook. <strong>An account is now mandatory</strong> to save your data securely and sync it to the cloud.</p><ul><li><strong>Apiaries:</strong> GPS coordinates and orientation.</li><li><strong>Hives:</strong> Track frames, queen color, varroa.</li><li><strong>Swarm Alerts:</strong> Visual warning after 14 days of risk.</li><li><strong>History & CSV:</strong> Export your visits.</li><li><strong>AI Dictaphone:</strong> Hands-free voice input.</li><li><strong>Cloud Sync:</strong> Mandatory account prevents data loss.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
-                    fr: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Une application web autonome remplaçant le carnet papier. <strong>Un compte est désormais obligatoire</strong> pour sauvegarder vos données en toute sécurité et les synchroniser dans le cloud.</p><ul><li><strong>Ruchers :</strong> Coordonnées GPS et orientation.</li><li><strong>Ruches :</strong> Cadres, couleur de la reine, varroas.</li><li><strong>Alertes d'essaimage :</strong> Alerte visuelle après 14 jours.</li><li><strong>Historique & CSV :</strong> Exportez vos visites.</li><li><strong>Dictaphone IA :</strong> Saisie vocale mains libres.</li><li><strong>Sauvegarde Cloud :</strong> Le compte obligatoire évite la perte de données.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
-                    de: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Eine Web-App, die das Papier-Notizbuch ersetzt. <strong>Ein Konto ist jetzt obligatorisch</strong>, um Ihre Daten sicher zu speichern und in der Cloud zu synchronisieren.</p><ul><li>Bienenstände: GPS und Ausrichtung.</li><li>Völker: Rahmen, Königinfarbe, Varroa.</li><li>Schwarmalarm: Warnung nach 14 Tagen.</li><li>Verlauf & CSV-Export.</li><li>KI-Diktiergerät: Freisprech-Eingabe.</li><li>Cloud-Sync: Pflichtkonto verhindert Datenverlust.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
-                    it: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Un'app web che sostituisce il quaderno cartaceo. <strong>Un account è ora obbligatorio</strong> per salvare i tuoi dati in modo sicuro e sincronizzarli nel cloud.</p><ul><li>Apiari: GPS e orientamento.</li><li>Arnie: Telai, colore regina, varroa.</li><li>Avvisi sciamatura: dopo 14 giorni.</li><li>Cronologia ed esportazione CSV.</li><li>Dettatura AI: input vocale.</li><li>Sincronizzazione Cloud: l'account obbligatorio evita la perdita di dati.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; },
-                    rm: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Ina web-app che remplazza il cudesch da palpiri. <strong>In conto è ussa obligatoric</strong> per memorisar tes datas en tutta segirezza e sincronisar ellas en il cloud.</p><ul><li>Apiaris: GPS ed orientaziun.</li><li>Avieuls: Caders, colur da la regina, varroa.</li><li>Avvis da schigientar: suenter 14 dis.</li><li>Istorgia ed export CSV.</li><li>Dictafon AI: entrada vocala.</li><li>Sincronisaziun Cloud: il conto obligatoric evitescha la perdita da datas.</li></ul><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a></div>`; }
-                }
-            }
-        };
-
-        // ==========================================
-        // 3. PAGE TEMPLATES
-        // ==========================================
-        
-        const getHomeHtml = () => `
-            <h1>${t('home_title')}</h1>
-            <p style="font-size: 1.1rem; margin-bottom: 15px;">${t('home_desc1')}</p>
-            <p style="margin-bottom: 30px;">${t('home_desc2')}</p>
-
-            <h2 id="apps" style="margin-top: 30px;">${t('home_my_apps')}</h2>
-            <div class="app-grid">
-                ${Object.keys(appsConfig).map(key => `
-                    <div class="app-card">
-                        <h3>${appsConfig[key].icon} ${appsConfig[key].title}</h3>
-                        <p>${appsConfig[key].shortDesc[currentLang]}</p>
-                        <a href="#${key}" class="btn">${t('btn_view')}</a>
-                    </div>
-                `).join('')}
-            </div>
-        `;
-
-        const getResourcesHtml = () => `
-            <h1>${t('res_title')}</h1>
-            <p>${t('res_desc')}</p>
-            
-            <div class="app-details" style="margin-top: 20px;">
-                <h3>${t('res_swiss')}</h3>
-                
-                <a href="https://frelonasiatique.ch" target="_blank" class="resource-link">
-                    <strong>frelonasiatique.ch</strong>
-                    <span>${t('link_frelon')}</span>
-                </a>
-
-                <a href="https://stopfrelons.ch" target="_blank" class="resource-link">
-                    <strong>stopfrelons.ch</strong>
-                    <span>${t('link_stop')}</span>
-                </a>
-
-                <a href="https://abeilles.ch" target="_blank" class="resource-link">
-                    <strong>abeilles.ch</strong>
-                    <span>${t('link_abeilles')}</span>
-                </a>
-
-                <a href="https://melizoe.ch" target="_blank" class="resource-link">
-                    <strong>melizoe.ch</strong>
-                    <span>${t('link_melizoe')}</span>
-                </a>
-            </div>
-
-            <div class="app-details" style="margin-top: 20px;">
-                <h3>${t('res_credits')}</h3>
-                <ul>
-                    <li><strong>${t('res_creator')}</strong> Ben Hupka</li>
-                    <li><strong>${t('res_video')}</strong> Grégoire Hupka</li>
-                    <li><strong>${t('res_code')}</strong> DeepSeek AI</li>
-                    <li><strong>${t('res_base')}</strong> ${t('credit_sar')}</li>
-                </ul>
-            </div>
-        `;
-
-        const getSupportHtml = () => `
-            <h1 id="support">${t('support_title')}</h1>
-            <div class="app-details" style="margin-top: 20px; text-align: center;">
-                <p style="font-size: 1.2rem; margin-bottom: 20px;">${t('support_desc')}</p>
-                <div style="font-size: 2rem; font-weight: bold; color: var(--primary); letter-spacing: 2px;">
-                    📱 079 938 41 98
-                </div>
-            </div>
-        `;
-
-        const getContactHtml = () => `
-            <h1 id="contact">${t('contact_title')}</h1>
-            <p>${t('contact_desc')}</p>
-            
-            <div class="app-details" style="margin-top: 20px;">
-                <form id="contactForm">
-                    <input type="hidden" name="access_key" value="c62ff1e0-99f0-4191-8264-6b540925caf3">
-                    
-                    <div class="form-group">
-                        <label for="name">${t('contact_name')}</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="email">${t('contact_email')}</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="app">${t('contact_app')}</label>
-                        <select id="app" name="app">
-                            <option value="General">${t('contact_general')}</option>
-                            ${Object.keys(appsConfig).map(key => `<option value="${appsConfig[key].title}">${appsConfig[key].title}</option>`).join('')}
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="type">${t('contact_type')}</label>
-                        <select id="type" name="type">
-                            <option value="Question">${t('contact_opt_q')}</option>
-                            <option value="Bug Report">${t('contact_opt_bug')}</option>
-                            <option value="Feature Request">${t('contact_opt_feat')}</option>
-                            <option value="Other">${t('contact_opt_other')}</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="message">${t('contact_msg')}</label>
-                        <textarea id="message" name="message" required></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn" id="submitBtn">${t('contact_send')}</button>
-                    <p id="formStatus" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
-                </form>
-            </div>
-        `;
-
-        const getPrivacyHtml = () => `
-            <h1>${t('privacy_title')}</h1>
-            <div class="app-details" style="margin-top: 20px;">
-                <p><strong>${t('privacy_date')}</strong> ${new Date().toLocaleDateString(currentLang)}</p>
-                <p>${t('privacy_p1')}</p>
-                <h3>${t('privacy_h1')}</h3><p>${t('privacy_t1')}</p>
-                <h3>${t('privacy_h2')}</h3><p>${t('privacy_t2')}</p>
-                <h3>${t('privacy_h3')}</h3><p>${t('privacy_t3')}</p>
-                <h3>${t('privacy_h4')}</h3><p>${t('privacy_t4')}</p>
-                <h3>${t('privacy_h6')}</h3><p>${t('privacy_t6')}</p>
-                <h3>${t('privacy_h7')}</h3><p>${t('privacy_t7')}</p>
-                <h3>${t('privacy_h5')}</h3><p>${t('privacy_t5')}</p>
-            </div>
-        `;
-
-        // ==========================================
-        // 4. ROUTING LOGIC
-        // ==========================================
-        
-        const mainContent = document.getElementById('app-content');
-
-        function render() {
-            const hash = window.location.hash.replace('#', '') || 'home';
-            window.scrollTo(0, 0);
-
-            if (appsConfig[hash]) {
-                mainContent.innerHTML = appsConfig[hash].html[currentLang]();
-            } else if (hash === 'apps') {
-                mainContent.innerHTML = getHomeHtml();
-                const el = document.getElementById('apps');
-                if(el) el.scrollIntoView();
-            } else if (hash === 'resources') {
-                mainContent.innerHTML = getResourcesHtml();
-            } else if (hash === 'support') {
-                mainContent.innerHTML = getSupportHtml();
-            } else if (hash === 'contact') {
-                mainContent.innerHTML = getContactHtml();
-                setupContactForm();
-            } else if (hash === 'privacy') {
-                mainContent.innerHTML = getPrivacyHtml();
-            } else {
-                mainContent.innerHTML = getHomeHtml();
-            }
-        }
-
-        // ==========================================
-        // 5. CONTACT FORM LOGIC
-        // ==========================================
-        function setupContactForm() {
-            const form = document.getElementById('contactForm');
-            if (!form) return;
-
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const submitBtn = document.getElementById('submitBtn');
-                const status = document.getElementById('formStatus');
-                const formData = new FormData(form);
-
-                submitBtn.textContent = t('contact_sending');
-                submitBtn.disabled = true;
-                status.className = '';
-                status.textContent = '';
-
-                try {
-                    const response = await fetch('https://api.web3forms.com/submit', {
-                        method: 'POST',
-                        body: formData
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        status.className = 'alert alert-success';
-                        status.textContent = t('contact_success');
-                        form.reset();
-                    } else {
-                        status.className = 'alert alert-error';
-                        status.textContent = t('contact_error');
-                    }
-                } catch (error) {
-                    status.className = 'alert alert-error';
-                    status.textContent = t('contact_error');
-                } finally {
-                    submitBtn.textContent = t('contact_send');
-                    submitBtn.disabled = false;
-                }
-            });
-        }
-
-        window.addEventListener('hashchange', render);
-        
-        // Initial load
-        setLanguage('fr');
-    </script>
-</body>
-</html>
+                    en: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide is a PWA designed to accompany beekeepers throughout the year.</p><h3>📖 Apipedia</h3><p>A new community wiki for beekeeping! Propose pages by sending text to Vespacaution.</p><a href="./apiguide/index.html" class="btn">${t(
