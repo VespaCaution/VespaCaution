@@ -115,8 +115,7 @@
       if (box) { box.style.display = 'block'; box.innerHTML += "CRASH: " + msg + "<br>Line: " + line + "<br><br>"; }
     };
     
-    var GROQ_API_KEY = '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';
-    const SB_APP_ID = 'vespatimer-app2';
+        const SB_APP_ID = 'vespatimer-app2';
 const SB_STORAGE_KEY = 'sb-vespatimer-app2-auth';
    var SUPABASE_URL = 'https://hdhoctahsnqlvqsmwrsf.supabase.co';
 var SUPABASE_KEY = 'sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D';
@@ -455,7 +454,47 @@ var supabase = sbClient;
     function startRecordingChunk() { if (!streamRef) return; mediaRecorder = new MediaRecorder(streamRef); audioChunks = []; mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) audioChunks.push(e.data); }; mediaRecorder.onstop = async function() { var audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); if (audioBlob.size > 5000) await processDictation(audioBlob); if (isRecording) startRecordingChunk(); }; mediaRecorder.start(); isRecording = true; monitorSilence(); }
     function monitorSilence() { if (!analyser || !isRecording) return; var dataArray = new Uint8Array(analyser.frequencyBinCount); var silenceStart = Date.now(); var hasSpoken = false; function checkVolume() { if (!isRecording || !mediaRecorder || mediaRecorder.state !== 'recording') return; analyser.getByteFrequencyData(dataArray); var sum = 0; for (var i = 0; i < dataArray.length; i++) sum += dataArray[i]; if ((sum / dataArray.length) > 25) { hasSpoken = true; silenceStart = Date.now(); } if (hasSpoken && (Date.now() - silenceStart) > 1200) { if (mediaRecorder.state === 'recording') mediaRecorder.stop(); return; } requestAnimationFrame(checkVolume); } checkVolume(); }
     function stopDictation() { isRecording = false; if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop(); if (streamRef) streamRef.getTracks().forEach(function(t) { return t.stop(); }); if (audioContext) audioContext.close(); }
-    async function processDictation(audioBlob) { showVoiceStatus("🧠 Transcribing..."); try { var formData = new FormData(); formData.append('file', audioBlob, 'audio.webm'); formData.append('model', 'whisper-large-v3'); var langCode = currentLang === 'fr' ? 'fr' : currentLang === 'de' ? 'de' : currentLang === 'it' ? 'it' : 'en'; formData.append('language', langCode); var sttResponse = await fetch('https://api.groq.com/openai/v1/audio/transcriptions', { method: 'POST', headers: { 'Authorization': 'Bearer ' + GROQ_API_KEY }, body: formData }); var sttResult = await sttResponse.json(); var transcript = sttResult.text; if (!transcript || transcript.trim().length < 3) { showVoiceStatus("🎙️ Listening... (didn't catch that)"); return; } console.log("AI Heard:", transcript); showVoiceStatus('📝 "' + transcript + '"', 4000); await new Promise(function(r) { return setTimeout(r, 600); }); await screenReaderAI(transcript); } catch (err) { console.error(err); showVoiceStatus("⚠️ AI Error: " + err.message); } }
+    async function processDictation(audioBlob) {
+  showVoiceStatus("🧠 Envoi au serveur...", 10000);
+
+  try {
+    var formData = new FormData();
+    formData.append('file', audioBlob, 'audio.webm');
+    var langCode = currentLang === 'fr' ? 'fr' : currentLang === 'de' ? 'de' : currentLang === 'it' ? 'it' : 'en';
+    formData.append('language', langCode);
+
+    // On appelle ton Edge Function Supabase
+    var sttResponse = await fetch('https://hdhoctahsnqlvqsmwrsf.supabase.co/functions/v1/groq-ai', { 
+      method: 'POST', 
+      headers: { 
+        'Authorization': 'Bearer sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D' 
+      }, 
+      body: formData 
+    });
+
+    if (!sttResponse.ok) {
+      var errorText = await sttResponse.text();
+      showVoiceStatus("⚠️ Erreur " + sttResponse.status + " : " + errorText.substring(0, 50), 15000);
+      return;
+    }
+
+    var sttResult = await sttResponse.json();
+    var transcript = sttResult.text;
+
+    if (!transcript || transcript.trim().length < 3) {
+      showVoiceStatus("🎙️ Listening... (didn't catch that)");
+      return;
+    }
+
+    showVoiceStatus('📝 "' + transcript + '"', 4000);
+    
+    await new Promise(function(r) { return setTimeout(r, 600); });
+    await screenReaderAI(transcript);
+
+  } catch (err) {
+    showVoiceStatus("⚠️ Crash: " + err.message, 15000);
+  }
+    }
     async function screenReaderAI(transcript) { showVoiceStatus("🤖 Reading screen & filling..."); var formFields = []; document.querySelectorAll('.field').forEach(function(field) { var labelEl = field.querySelector('label'); var label = labelEl ? labelEl.textContent.trim() : null; var input = field.querySelector('input, select, textarea'); if (label && input) formFields.push('Label: "' + label + '" (ID: ' + input.id + ')'); }); var navContext = ""; if (currentView === 'apiary-list') navContext = "User is on the list of apiaries. Available apiaries: " + appData.apiaries.map(function(a) { return a.name; }).join(', '); else if (currentView === 'hive-list') { var apiary = findApiary(activeApiaryId); navContext = 'User is viewing the hives of ' + apiary.name + '. Available hives: ' + apiary.hives.map(function(h) { return h.name; }).join(', '); } var systemPrompt = 'You are an AI controlling a beekeeping app. ' + navContext + ' Form fields visible: ' + (formFields.join('\n') || 'No form fields visible.') + ' The user said: "' + transcript + '". Actions you can take: 1. Navigate to a specific hive: { "action": "navigate", "target": "hive", "apiary_name": "Name", "hive_name": "Name" } 2. Add a new apiary: { "action": "navigate", "target": "add_apiary" } 3. Add a new hive: { "action": "navigate", "target": "add_hive" } 4. Go back: { "action": "navigate", "target": "go_back" } 5. Save: { "action": "navigate", "target": "save" } 6. Fill form fields (use IDs from above): { "action": "fill_form", "data": { "id": "value" } } Return ONLY valid raw JSON. No markdown.'; try { var llmResponse = await fetch('https://api.groq.com/openai/v1/chat/completions', { method: 'POST', headers: { 'Authorization': 'Bearer ' + GROQ_API_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify({ model: 'qwen/qwen3.8-27b', reasoning_effort: "none", messages: [{ role: 'user', content: systemPrompt }], temperature: 0.1, response_format: { type: 'json_object' } }) }); if (!llmResponse.ok) throw new Error("LLM API failed"); var llmResult = await llmResponse.json(); var rawContent = llmResult.choices[0].message.content; rawContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim(); var firstBrace = rawContent.indexOf('{'); var lastBrace = rawContent.lastIndexOf('}'); if (firstBrace !== -1 && lastBrace !== -1) rawContent = rawContent.substring(firstBrace, lastBrace + 1); var parsed = JSON.parse(rawContent); console.log("AI Action:", parsed); await executeAIAction(parsed); } catch (err) { console.error("LLM Error:", err); showVoiceStatus("⚠️ AI failed to read screen."); } }
     async function executeAIAction(data) { if (data.action === "navigate" && data.target === "hive") { if (data.apiary_name) { var apiary = appData.apiaries.find(function(a) { return a.name.toLowerCase().includes(data.apiary_name.toLowerCase()); }); if (apiary) { activeApiaryId = apiary.id; currentView = 'hive-list'; render(); await new Promise(function(r) { return setTimeout(r, 400); }); } else { showVoiceStatus("⚠️ Apiary not found"); return; } } if (data.hive_name && activeApiaryId) { var apiary = findApiary(activeApiaryId); var hive = apiary.hives.find(function(h) { return h.name.toLowerCase().includes(data.hive_name.toLowerCase()); }); if (hive) { activeHiveId = hive.id; editHiveData = { name: hive.name, maleFrames: hive.maleFrames || '', honeyFrames: hive.honeyFrames || '', broodFrames: hive.broodFrames || '', swarmRisk: hive.swarmRisk, queenColor: hive.queenColor, varroaCount: hive.varroaCount || '', remarks: hive.remarks || '' }; currentView = 'edit-hive'; render(); showVoiceStatus("✅ Opened " + hive.name); } else { showVoiceStatus("⚠️ Hive not found"); return; } } return; } if (data.action === "navigate") { if (data.target === "add_apiary") { currentView = 'add-apiary'; editApiaryData = { name: '', orientation: '', coordinates: '' }; render(); return; } if (data.target === "add_hive") { if (!activeApiaryId) { showVoiceStatus("⚠️ Open an apiary first"); return; } currentView = 'add-hive'; editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; render(); return; } if (data.target === "go_back") { if (currentView === 'hive-visits') { currentView = 'hive-list'; activeHiveId = null; } else { currentView = 'apiary-list'; activeApiaryId = null; } render(); return; } if (data.target === "save") { var btn = document.getElementById('saveHiveBtn') || document.getElementById('saveApiaryBtn'); if (btn) { btn.click(); showVoiceStatus("✅ Saved"); } else { showVoiceStatus("⚠️ No form to save"); } return; } } if (data.action === "fill_form" && data.data) { showVoiceStatus('✅ Filled: ' + Object.keys(data.data).length + ' fields', 4000); setTimeout(function() { var _loop_1 = function(id, val) { var el = document.getElementById(id); if (el && val != null && val !== '') { if (el.type === 'checkbox') el.checked = Boolean(val); else if (el.tagName === 'SELECT') { for (var _i = 0, _a = el.options; _i < _a.length; _i++) { var opt = _a[_i]; if (opt.value.toLowerCase() === String(val).toLowerCase() || opt.text.toLowerCase() === String(val).toLowerCase()) { el.value = opt.value; break; } } } else { el.value = val; } el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); } }; for (var _i = 0, _a = Object.entries(data.data); _i < _a.length; _i++) { var _b = _a[_i], id = _b[0], val = _b[1]; _loop_1(id, val); } }, 100); } }
     var voiceBtnEl = document.getElementById('voiceBtn'); if (voiceBtnEl) { voiceBtnEl.onclick = startHandsFreeDictation; voiceBtnEl.title = "AI Dictaphone"; }
