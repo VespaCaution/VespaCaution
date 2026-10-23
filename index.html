@@ -450,4 +450,291 @@
                     rm: "Cudesch da las stagiuns e activitats da las avieuls"
                 },
                 html: {
-                    en: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide is a PWA designed to accompany beekeepers throughout the year.</p><h3>📖 Apipedia</h3><p>A new community wiki for beekeeping! Propose pages by sending text to Vespacaution.</p><a href="./apiguide/index.html" class="btn">${t(
+                    en: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide is a PWA designed to accompany beekeepers throughout the year.</p><h3>📖 Apipedia</h3><p>A new community wiki for beekeeping! Propose pages by sending text to Vespacaution.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Navigation</h3><p>Select a season (Spring, Summer, Autumn, Winter), then choose an activity. Each activity contains detailed text sheets.</p><img src="./apiguide/1.png" alt="Navigation">
+                            <h3>2. Apipedia</h3><p>At the bottom of the page, open Apipedia to read community articles or learn how to submit your own.</p><img src="./apiguide/2.png" alt="Apipedia">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    fr: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide est une PWA conçue pour accompagner les apiculteurs tout au long de l'année.</p><h3>📖 Apipedia</h3><p>Un wiki communautaire ! Proposez de nouvelles pages en envoyant le texte à Vespacaution.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Navigation</h3><p>Sélectionnez une saison (Printemps, Été, Automne, Hiver), puis choisissez une activité. Chaque activité contient des fiches de texte détaillées.</p><img src="./apiguide/1.png" alt="Navigation">
+                            <h3>2. Apipedia</h3><p>En bas de la page, ouvrez Apipedia pour lire les articles de la communauté ou découvrir comment soumettre les vôtres.</p><img src="./apiguide/2.png" alt="Apipedia">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    de: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide ist eine PWA für Imker.</p><h3>📖 Apipedia</h3><p>Ein Wiki für Imker!</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Navigation</h3><p>Wählen Sie eine Jahreszeit und eine Aktivität.</p><img src="./apiguide/1.png" alt="Navigation">
+                            <h3>2. Apipedia</h3><p>Öffnen Sie Apipedia am Ende der Seite für Community-Artikel.</p><img src="./apiguide/2.png" alt="Apipedia">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    it: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è una PWA per apicoltori.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Navigazione</h3><p>Seleziona una stagione e un'attività.</p><img src="./apiguide/1.png" alt="Navigazione">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    rm: function() { return `<div class="app-details"><h1>ApiGuide v1.0</h1><p>ApiGuide è ina PWA.</p><a href="./apiguide/index.html" class="btn">${t('btn_open')} ApiGuide</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Navigaziun</h3><p>Tscherna ina stagiun.</p><img src="./apiguide/1.png" alt="Navigaziun">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice">${t('need_account_no')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; }
+                }
+            },
+            'alvearcheck': {
+                title: 'AlvearCheck',
+                icon: '📋',
+                shortDesc: {
+                    en: "The digital apiary notebook",
+                    fr: "Le carnet de rucher numérique",
+                    de: "Das digitale Bienenstock-Notizbuch",
+                    it: "Il quaderno digitale dell'apiario",
+                    rm: "Il cudesch digital da l'apiari"
+                },
+                html: {
+                    en: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>A standalone web app replacing the paper notebook. <strong>An account is now mandatory</strong>.</p><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Account & Apiaries</h3><p>Log in to sync your data. Create an apiary and automatically fill in its GPS coordinates.</p><img src="./alvearcheck/1.png" alt="Login">
+                            <h3>2. Hives & AI</h3><p>Add hives and record frames, queen color, and varroa. Use the AI microphone to dictate your notes hands-free!</p><img src="./alvearcheck/2.png" alt="Hives">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice yes">${t('need_account_yes')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    fr: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p>Une application web autonome. <strong>Un compte est désormais obligatoire</strong>.</p><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Compte et Ruchers</h3><p>Connectez-vous pour synchroniser vos données. Créez un rucher et remplissez automatiquement ses coordonnées GPS.</p><img src="./alvearcheck/1.png" alt="Login">
+                            <h3>2. Ruches et IA</h3><p>Ajoutez des ruches, notez les cadres, la couleur de la reine et les varroas. Utilisez le micro IA pour dicter vos notes sans les mains !</p><img src="./alvearcheck/2.png" alt="Ruches">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice yes">${t('need_account_yes')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    de: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p><strong>Ein Konto ist obligatorisch</strong>.</p><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Konto & Stände</h3><p>Melden Sie sich an und erstellen Sie einen Bienenstand mit GPS.</p><img src="./alvearcheck/1.png" alt="Login">
+                            <h3>2. Völker & KI</h3><p>Nutzen Sie das KI-Mikrofon für Ihre Notizen.</p><img src="./alvearcheck/2.png" alt="Völker">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice yes">${t('need_account_yes')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    it: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p><strong>Un account è obbligatorio</strong>.</p><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Account e Apiari</h3><p>Accedi e crea un apiario con GPS.</p><img src="./alvearcheck/1.png" alt="Login">
+                            <h3>2. Arnie e IA</h3><p>Usa il microfono IA per dettare.</p><img src="./alvearcheck/2.png" alt="Arnie">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice yes">${t('need_account_yes')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; },
+                    rm: function() { return `<div class="app-details"><h1>AlvearCheck v1.0</h1><p><strong>In conto è obligatoric</strong>.</p><a href="./alvearcheck/index.html" class="btn">${t('btn_open')} AlvearCheck</a>
+                    <div class="accordion">
+                        <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span>+</span></div>
+                        <div class="accordion-content">
+                            <h3>1. Conto ed Apiaris</h3><p>S'annunzia e crea in apiari.</p><img src="./alvearcheck/1.png" alt="Login">
+                            <h3>2. Avieuls ed IA</h3><p>Duvra il microfon IA.</p><img src="./alvearcheck/2.png" alt="Avieuls">
+                            <div class="video-container"><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe></div>
+                            <div class="account-notice yes">${t('need_account_yes')}</div>
+                            <div style="margin-top:20px; display:flex; gap:10px;"><a href="#contact" class="btn">${t('contact_me')}</a><a href="#privacy" class="btn" style="background:var(--text-muted);">${t('privacy_link')}</a></div>
+                        </div>
+                    </div></div>`; }
+                }
+            }
+        };
+
+        // ==========================================
+        // 3. PAGE TEMPLATES
+        // ==========================================
+        
+        const getHomeHtml = () => `
+            <h1>${t('home_title')}</h1>
+            <p style="font-size: 1.1rem; margin-bottom: 15px;">${t('home_desc1')}</p>
+            <p style="margin-bottom: 30px;">${t('home_desc2')}</p>
+            <h2 id="apps" style="margin-top: 30px;">${t('home_my_apps')}</h2>
+            <div class="app-grid">
+                ${Object.keys(appsConfig).map(key => `
+                    <div class="app-card">
+                        <h3>${appsConfig[key].icon} ${appsConfig[key].title}</h3>
+                        <p>${appsConfig[key].shortDesc[currentLang]}</p>
+                        <a href="#${key}" class="btn">${t('btn_view')}</a>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        const getResourcesHtml = () => `
+            <h1>${t('res_title')}</h1>
+            <p>${t('res_desc')}</p>
+            <div class="app-details" style="margin-top: 20px;">
+                <h3>${t('res_swiss')}</h3>
+                <a href="https://frelonasiatique.ch" target="_blank" class="resource-link"><strong>frelonasiatique.ch</strong><span>${t('link_frelon')}</span></a>
+                <a href="https://stopfrelons.ch" target="_blank" class="resource-link"><strong>stopfrelons.ch</strong><span>${t('link_stop')}</span></a>
+                <a href="https://abeilles.ch" target="_blank" class="resource-link"><strong>abeilles.ch</strong><span>${t('link_abeilles')}</span></a>
+                <a href="https://melizoe.ch" target="_blank" class="resource-link"><strong>melizoe.ch</strong><span>${t('link_melizoe')}</span></a>
+            </div>
+            <div class="app-details" style="margin-top: 20px;">
+                <h3>${t('res_credits')}</h3>
+                <ul>
+                    <li><strong>${t('res_creator')}</strong> Ben Hupka</li>
+                    <li><strong>${t('res_video')}</strong> Grégoire Hupka</li>
+                    <li><strong>${t('res_code')}</strong> DeepSeek AI</li>
+                    <li><strong>${t('res_base')}</strong> ${t('credit_sar')}</li>
+                </ul>
+            </div>
+        `;
+
+        const getSupportHtml = () => `
+            <h1 id="support">${t('support_title')}</h1>
+            <div class="app-details" style="margin-top: 20px; text-align: center;">
+                <p style="font-size: 1.2rem; margin-bottom: 20px;">${t('support_desc')}</p>
+                <div style="font-size: 2rem; font-weight: bold; color: var(--primary); letter-spacing: 2px;">📱 079 938 41 98</div>
+            </div>
+        `;
+
+        const getContactHtml = () => `
+            <h1 id="contact">${t('contact_title')}</h1>
+            <p>${t('contact_desc')}</p>
+            <div class="app-details" style="margin-top: 20px;">
+                <form id="contactForm">
+                    <input type="hidden" name="access_key" value="c62ff1e0-99f0-4191-8264-6b540925caf3">
+                    <div class="form-group"><label>${t('contact_name')}</label><input type="text" name="name" required></div>
+                    <div class="form-group"><label>${t('contact_email')}</label><input type="email" name="email" required></div>
+                    <div class="form-group"><label>${t('contact_app')}</label><select name="app"><option value="General">${t('contact_general')}</option>${Object.keys(appsConfig).map(key => `<option value="${appsConfig[key].title}">${appsConfig[key].title}</option>`).join('')}</select></div>
+                    <div class="form-group"><label>${t('contact_type')}</label><select name="type"><option value="Question">${t('contact_opt_q')}</option><option value="Bug Report">${t('contact_opt_bug')}</option><option value="Feature Request">${t('contact_opt_feat')}</option><option value="Other">${t('contact_opt_other')}</option></select></div>
+                    <div class="form-group"><label>${t('contact_msg')}</label><textarea name="message" required></textarea></div>
+                    <button type="submit" class="btn" id="submitBtn">${t('contact_send')}</button>
+                    <p id="formStatus" style="margin-top: 15px; font-weight: bold; text-align: center;"></p>
+                </form>
+            </div>
+        `;
+
+        const getPrivacyHtml = () => `
+            <h1>${t('privacy_title')}</h1>
+            <div class="app-details" style="margin-top: 20px;">
+                <p><strong>${t('privacy_date')}</strong> ${new Date().toLocaleDateString(currentLang)}</p>
+                <p>${t('privacy_p1')}</p>
+                <h3>${t('privacy_h1')}</h3><p>${t('privacy_t1')}</p>
+                <h3>${t('privacy_h2')}</h3><p>${t('privacy_t2')}</p>
+                <h3>${t('privacy_h3')}</h3><p>${t('privacy_t3')}</p>
+                <h3>${t('privacy_h4')}</h3><p>${t('privacy_t4')}</p>
+                <h3>${t('privacy_h5')}</h3><p>${t('privacy_t5')}</p>
+                <h3>${t('privacy_h6')}</h3><p>${t('privacy_t6')}</p>
+                <h3>${t('privacy_h7')}</h3><p>${t('privacy_t7')}</p>
+            </div>
+        `;
+
+        // ==========================================
+        // 4. ROUTING LOGIC & ACCORDION
+        // ==========================================
+        const mainContent = document.getElementById('app-content');
+
+        function toggleAccordion(header) {
+            const content = header.nextElementSibling;
+            const icon = header.querySelector('span');
+            if (content.classList.contains('active')) {
+                content.classList.remove('active');
+                icon.textContent = '+';
+            } else {
+                content.classList.add('active');
+                icon.textContent = '-';
+            }
+        }
+
+        function render() {
+            const hash = window.location.hash.replace('#', '') || 'home';
+            window.scrollTo(0, 0);
+
+            if (appsConfig[hash]) {
+                mainContent.innerHTML = appsConfig[hash].html[currentLang]();
+            } else if (hash === 'apps') {
+                mainContent.innerHTML = getHomeHtml();
+                const el = document.getElementById('apps');
+                if(el) el.scrollIntoView();
+            } else if (hash === 'resources') {
+                mainContent.innerHTML = getResourcesHtml();
+            } else if (hash === 'support') {
+                mainContent.innerHTML = getSupportHtml();
+            } else if (hash === 'contact') {
+                mainContent.innerHTML = getContactHtml();
+                setupContactForm();
+            } else if (hash === 'privacy') {
+                mainContent.innerHTML = getPrivacyHtml();
+            } else {
+                mainContent.innerHTML = getHomeHtml();
+            }
+        }
+
+        // ==========================================
+        // 5. CONTACT FORM LOGIC
+        // ==========================================
+        function setupContactForm() {
+            const form = document.getElementById('contactForm');
+            if (!form) return;
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                const submitBtn = document.getElementById('submitBtn');
+                const status = document.getElementById('formStatus');
+                const formData = new FormData(form);
+                submitBtn.textContent = t('contact_sending');
+                submitBtn.disabled = true;
+                status.className = '';
+                status.textContent = '';
+                try {
+                    const response = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: formData });
+                    const data = await response.json();
+                    if (data.success) {
+                        status.className = 'alert alert-success';
+                        status.textContent = t('contact_success');
+                        form.reset();
+                    } else {
+                        status.className = 'alert alert-error';
+                        status.textContent = t('contact_error');
+                    }
+                } catch (error) {
+                    status.className = 'alert alert-error';
+                    status.textContent = t('contact_error');
+                } finally {
+                    submitBtn.textContent = t('contact_send');
+                    submitBtn.disabled = false;
+                }
+            });
+        }
+
+        window.addEventListener('hashchange', render);
+        setLanguage('fr');
+    </script>
+</body>
+</html>
