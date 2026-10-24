@@ -544,7 +544,43 @@ async function processDictation(audioBlob) {
 async function screenReaderAI(transcript) {
   var text = transcript.toLowerCase();
 
-  // 1. GESTION DES BOUTONS (Sans IA, 100% fiable)
+  // ==========================================
+  // 1. NAVIGATION VERS UN RUCHER OU UNE RUCHE PAR NOM
+  // ==========================================
+  
+  // Chercher si on veut ouvrir un rucher
+  if (text.includes('ouvre') || text.includes('ouvrir') || text.includes('open')) {
+    
+    // On cherche d'abord dans les ruchers
+    if (currentView === 'apiary-list') {
+      var apiary = appData.apiaries.find(function(a) { return text.includes(a.name.toLowerCase()); });
+      if (apiary) {
+        activeApiaryId = apiary.id;
+        currentView = 'hive-list';
+        render();
+        showVoiceStatus("✅ Rucher ouvert : " + apiary.name);
+        return;
+      }
+    }
+
+    // On cherche ensuite dans les ruches
+    if (currentView === 'hive-list' && activeApiaryId) {
+      var currentApiary = findApiary(activeApiaryId);
+      var hive = currentApiary.hives.find(function(h) { return text.includes(h.name.toLowerCase()); });
+      if (hive) {
+        activeHiveId = hive.id;
+        editHiveData = { name: hive.name, maleFrames: hive.maleFrames || '', honeyFrames: hive.honeyFrames || '', broodFrames: hive.broodFrames || '', swarmRisk: hive.swarmRisk, queenColor: hive.queenColor, varroaCount: hive.varroaCount || '', remarks: hive.remarks || '' };
+        currentView = 'edit-hive';
+        render();
+        showVoiceStatus("✅ Ruche ouverte : " + hive.name);
+        return;
+      }
+    }
+  }
+
+  // ==========================================
+  // 2. GESTION DES BOUTONS (Sans IA)
+  // ==========================================
   var actionMap = {
     'enregistr': 'saveHiveBtn', 'sauvegard': 'saveHiveBtn', 'valide': 'saveHiveBtn',
     'annul': 'cancelHiveBtn', 'retour': 'backToApiaries', 'revenir': 'backToApiaries',
@@ -560,9 +596,7 @@ async function screenReaderAI(transcript) {
     }
   }
 
-  // Si on a trouvé un bouton, on clique et on s'arrête là !
   if (foundId) {
-    // Cas particulier pour les boutons dynamiques (par classe)
     if (foundId === 'visit-history-btn' && activeHiveId) {
       var btn = document.querySelector('.visit-history-btn[data-hive-id="' + activeHiveId + '"]');
       if (btn) { btn.click(); showVoiceStatus("✅ Visites ouvertes"); return; }
@@ -571,8 +605,6 @@ async function screenReaderAI(transcript) {
       var btn = document.querySelector('.edit-hive-btn[data-hive-id="' + activeHiveId + '"]');
       if (btn) { btn.click(); showVoiceStatus("✅ Modification ouverte"); return; }
     }
-    
-    // Boutons standards (par ID)
     var btn = document.getElementById(foundId);
     if (btn) {
       btn.click();
@@ -581,7 +613,9 @@ async function screenReaderAI(transcript) {
     }
   }
 
-  // 2. GESTION DES DONNÉES (Avec l'IA, uniquement pour remplir les champs)
+  // ==========================================
+  // 3. GESTION DES DONNÉES (Avec l'IA)
+  // ==========================================
   showVoiceStatus("🤖 Remplissage du formulaire...");
   
   var formFields = [];
@@ -605,7 +639,7 @@ async function screenReaderAI(transcript) {
         'Content-Type': 'application/json'
       }, 
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant', // On utilise un petit modèle rapide
+        model: 'llama-3.1-8b-instant',
         messages: [
           { role: 'system', content: 'You are a JSON API. Output ONLY valid JSON.' },
           { role: 'user', content: systemPrompt }
@@ -623,18 +657,12 @@ async function screenReaderAI(transcript) {
     if (firstBrace !== -1 && lastBrace !== -1) rawContent = rawContent.substring(firstBrace, lastBrace + 1);
     
     var parsed = JSON.parse(rawContent);
-    
-    if (parsed.action === "fill_form") {
-      await executeAIAction(parsed);
-    } else {
-      showVoiceStatus("⚠️ Je n'ai pas compris la commande.");
-    }
+    await executeAIAction(parsed);
     
   } catch (err) {
     showVoiceStatus("⚠️ Erreur de compréhension.");
   }
 }
-
 // --- EXÉCUTION DES ACTIONS ---
 async function executeAIAction(data) { 
   if (data.action === "click" && data.id) { 
