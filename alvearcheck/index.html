@@ -541,52 +541,98 @@ async function processDictation(audioBlob) {
 }
 
 // --- LECTURE DE L'ÉCRAN & ENVOI DU PROMPT ---
-async function screenReaderAI(transcript) { 
-  showVoiceStatus("🤖 Reading screen..."); 
-  var formFields = []; 
-  document.querySelectorAll('.field').forEach(function(field) { 
-    var labelEl = field.querySelector('label'); 
-    var label = labelEl ? labelEl.textContent.trim() : null; 
-    var input = field.querySelector('input, select, textarea'); 
-    if (label && input) formFields.push('Field: "' + label + '" (ID: ' + input.id + ')'); 
-  }); 
-  var buttons = []; 
-  document.querySelectorAll('button').forEach(function(btn) { 
-    if (btn.id && btn.id !== 'voiceBtn') buttons.push('Button: "' + btn.textContent.trim() + '" (ID: ' + btn.id + ')'); 
-  }); 
-  var navContext = ""; 
-  if (currentView === 'apiary-list') navContext = "User is on the apiary list."; 
-  else if (currentView === 'hive-list') navContext = "User is viewing hives."; 
-  else if (currentView === 'hive-visits') navContext = "User is viewing visits."; 
-  else if (currentView === 'account') navContext = "User is on the account page."; 
+async function screenReaderAI(transcript) {
+  var text = transcript.toLowerCase();
 
-  var systemPrompt = 'Context: ' + navContext + '\n\nButtons:\n' + (buttons.join('\n') || 'None') + '\n\nFields:\n' + (formFields.join('\n') || 'None') + '\n\nUser said: "' + transcript + '"' + '\n\nIf user wants to click/save/cancel/go back, return: { "action": "click", "id": "button_id" }.' + '\nIf user describes data, return: { "action": "fill_form", "data": { "field_id": "value" } }.' + '\nReturn ONLY the JSON object.'; 
+  // 1. GESTION DES BOUTONS (Sans IA, 100% fiable)
+  var actionMap = {
+    'enregistr': 'saveHiveBtn', 'sauvegard': 'saveHiveBtn', 'valide': 'saveHiveBtn',
+    'annul': 'cancelHiveBtn', 'retour': 'backToApiaries', 'revenir': 'backToApiaries',
+    'visite': 'visit-history-btn', 'modifi': 'edit-hive-btn', 'ajout': 'addHiveBtn',
+    'compte': 'accountBtn', 'déconnex': 'logoutBtn'
+  };
 
-  try { 
+  var foundId = null;
+  for (var key in actionMap) {
+    if (text.includes(key)) {
+      foundId = actionMap[key];
+      break;
+    }
+  }
+
+  // Si on a trouvé un bouton, on clique et on s'arrête là !
+  if (foundId) {
+    // Cas particulier pour les boutons dynamiques (par classe)
+    if (foundId === 'visit-history-btn' && activeHiveId) {
+      var btn = document.querySelector('.visit-history-btn[data-hive-id="' + activeHiveId + '"]');
+      if (btn) { btn.click(); showVoiceStatus("✅ Visites ouvertes"); return; }
+    }
+    if (foundId === 'edit-hive-btn' && activeHiveId) {
+      var btn = document.querySelector('.edit-hive-btn[data-hive-id="' + activeHiveId + '"]');
+      if (btn) { btn.click(); showVoiceStatus("✅ Modification ouverte"); return; }
+    }
+    
+    // Boutons standards (par ID)
+    var btn = document.getElementById(foundId);
+    if (btn) {
+      btn.click();
+      showVoiceStatus("✅ Clic : " + foundId);
+      return;
+    }
+  }
+
+  // 2. GESTION DES DONNÉES (Avec l'IA, uniquement pour remplir les champs)
+  showVoiceStatus("🤖 Remplissage du formulaire...");
+  
+  var formFields = [];
+  document.querySelectorAll('.field').forEach(function(field) {
+    var labelEl = field.querySelector('label');
+    var label = labelEl ? labelEl.textContent.trim() : null;
+    var input = field.querySelector('input, select, textarea');
+    if (label && input) formFields.push('Field: "' + label + '" (ID: ' + input.id + ')');
+  });
+
+  var systemPrompt = 'Available Fields:\n' + (formFields.join('\n') || 'None') + 
+    '\n\nUser said: "' + transcript + '"' +
+    '\n\nReturn exactly: { "action": "fill_form", "data": { "field_id": "value" } }.' +
+    '\nDo not add any text.';
+
+  try {
     var llmResponse = await fetch('https://hdhoctahsnqlvqsmwrsf.supabase.co/functions/v1/groq-ai', { 
       method: 'POST', 
-      headers: { 'Authorization': 'Bearer sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D', 'Content-Type': 'application/json' }, 
-      body: JSON.stringify({ 
-        model: 'qwen/qwen3.8-27b', 
-        reasoning_effort: "none", 
-        messages: [ 
-          { role: 'system', content: 'You are an API. You MUST return ONLY a valid JSON object. Do NOT write sentences. Do NOT use markdown.' }, 
-          { role: 'user', content: systemPrompt } 
-        ], 
-        temperature: 0.1, 
-        response_format: { type: 'json_object' } 
-      }) 
-    }); 
-    if (!llmResponse.ok) throw new Error("LLM API failed"); 
-    var llmResult = await llmResponse.json(); 
-    var rawContent = llmResult.choices[0].message.content; 
-    rawContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim(); 
-    var firstBrace = rawContent.indexOf('{'); 
-    var lastBrace = rawContent.lastIndexOf('}'); 
-    if (firstBrace !== -1 && lastBrace !== -1) rawContent = rawContent.substring(firstBrace, lastBrace + 1); 
-    var parsed = JSON.parse(rawContent); 
-    await executeAIAction(parsed); 
-  } catch (err) { showVoiceStatus("⚠️ AI failed to read screen."); } 
+      headers: { 
+        'Authorization': 'Bearer sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D',
+        'Content-Type': 'application/json'
+      }, 
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant', // On utilise un petit modèle rapide
+        messages: [
+          { role: 'system', content: 'You are a JSON API. Output ONLY valid JSON.' },
+          { role: 'user', content: systemPrompt }
+        ],
+        temperature: 0.0,
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    var llmResult = await llmResponse.json();
+    var rawContent = llmResult.choices[0].message.content;
+    
+    var firstBrace = rawContent.indexOf('{');
+    var lastBrace = rawContent.lastIndexOf('}');
+    if (firstBrace !== -1 && lastBrace !== -1) rawContent = rawContent.substring(firstBrace, lastBrace + 1);
+    
+    var parsed = JSON.parse(rawContent);
+    
+    if (parsed.action === "fill_form") {
+      await executeAIAction(parsed);
+    } else {
+      showVoiceStatus("⚠️ Je n'ai pas compris la commande.");
+    }
+    
+  } catch (err) {
+    showVoiceStatus("⚠️ Erreur de compréhension.");
+  }
 }
 
 // --- EXÉCUTION DES ACTIONS ---
