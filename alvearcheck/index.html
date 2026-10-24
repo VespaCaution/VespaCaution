@@ -446,232 +446,193 @@ var supabase = sbClient;
     function exportAllVisitsCSV() { var rows = []; var header = [t('apiary'), t('hive'), t('date'), t('maleFrames'), t('honeyFrames'), t('broodFrames'), t('swarmRisk'), t('queenColor'), t('varroa'), t('remarks')]; appData.apiaries.forEach(function(a) { (a.hives || []).forEach(function(h) { (h.visits || []).forEach(function(v) { var d = new Date(v.date); var dateStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }); rows.push([a.name, h.name, dateStr, v.maleFrames || '', v.honeyFrames || '', v.broodFrames || '', v.swarmRisk ? t('yes') : t('no'), v.queenColor || '', v.varroaCount || '', v.remarks || ''].map(function(c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(',')); }); }); }); if (rows.length === 0) { nativeAlert(t('noDataToExport')); return; } downloadCSV([header.map(function(h) { return '"' + h + '"'; }).join(',')].concat(rows).join('\n'), 'alvearcheck_all_visits.csv'); }
     
     function downloadCSV(csv, filename) { var blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); var url = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url); }
+// --- AI VOICE (MICRO & AUDIO) ---
+var mediaRecorder = null; 
+var audioChunks = []; 
+var isRecording = false; 
+var audioContext = null; 
+var analyser = null; 
+var streamRef = null;
 
-    // --- AI VOICE ---
-    var mediaRecorder = null; var audioChunks = []; var isRecording = false; var audioContext = null; var analyser = null; var streamRef = null;
-    function showVoiceStatus(msg, time) { if (!time) time = 5000; var el = document.getElementById('voiceStatus'); el.textContent = msg; el.classList.add('visible'); clearTimeout(el._timeout); el._timeout = setTimeout(function() { el.classList.remove('visible'); }, time); }
-    async function startHandsFreeDictation() { var btn = document.getElementById('voiceBtn'); if (isRecording) { stopDictation(); btn.classList.remove('active'); showVoiceStatus("Dictation stopped."); return; } btn.classList.add('active'); showVoiceStatus("🎙️ Listening... Speak now."); try { streamRef = await navigator.mediaDevices.getUserMedia({ audio: true }); audioContext = new (window.AudioContext || window.webkitAudioContext)(); var source = audioContext.createMediaStreamSource(streamRef); analyser = audioContext.createAnalyser(); analyser.fftSize = 512; source.connect(analyser); startRecordingChunk(); } catch (err) { nativeAlert("Microphone access denied."); btn.classList.remove('active'); } }
-    function startRecordingChunk() { if (!streamRef) return; mediaRecorder = new MediaRecorder(streamRef); audioChunks = []; mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) audioChunks.push(e.data); }; mediaRecorder.onstop = async function() { var audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); if (audioBlob.size > 5000) await processDictation(audioBlob); if (isRecording) startRecordingChunk(); }; mediaRecorder.start(); isRecording = true; monitorSilence(); }
-    function monitorSilence() { if (!analyser || !isRecording) return; var dataArray = new Uint8Array(analyser.frequencyBinCount); var silenceStart = Date.now(); var hasSpoken = false; function checkVolume() { if (!isRecording || !mediaRecorder || mediaRecorder.state !== 'recording') return; analyser.getByteFrequencyData(dataArray); var sum = 0; for (var i = 0; i < dataArray.length; i++) sum += dataArray[i]; if ((sum / dataArray.length) > 25) { hasSpoken = true; silenceStart = Date.now(); } if (hasSpoken && (Date.now() - silenceStart) > 1200) { if (mediaRecorder.state === 'recording') mediaRecorder.stop(); return; } requestAnimationFrame(checkVolume); } checkVolume(); }
-    function stopDictation() { isRecording = false; if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop(); if (streamRef) streamRef.getTracks().forEach(function(t) { return t.stop(); }); if (audioContext) audioContext.close(); }
-    async function processDictation(audioBlob) {
-  showVoiceStatus("🧠 Transcribing...");
-  try {
-    // On prépare le fichier audio comme un vrai fichier
-    var formData = new FormData();
-    formData.append('file', audioBlob, 'audio.webm');
-    var langCode = currentLang === 'fr' ? 'fr' : currentLang === 'de' ? 'de' : currentLang === 'it' ? 'it' : 'en';
-    formData.append('language', langCode);
+function showVoiceStatus(msg, time) { 
+  if (!time) time = 5000; 
+  var el = document.getElementById('voiceStatus'); 
+  el.textContent = msg; 
+  el.classList.add('visible'); 
+  clearTimeout(el._timeout); 
+  el._timeout = setTimeout(function() { el.classList.remove('visible'); }, time); 
+}
+
+async function startHandsFreeDictation() { 
+  var btn = document.getElementById('voiceBtn'); 
+  if (isRecording) { stopDictation(); btn.classList.remove('active'); showVoiceStatus("Dictation stopped."); return; } 
+  btn.classList.add('active'); showVoiceStatus("🎙️ Listening... Speak now."); 
+  try { 
+    streamRef = await navigator.mediaDevices.getUserMedia({ audio: true }); 
+    audioContext = new (window.AudioContext || window.webkitAudioContext)(); 
+    var source = audioContext.createMediaStreamSource(streamRef); 
+    analyser = audioContext.createAnalyser(); 
+    analyser.fftSize = 512; 
+    source.connect(analyser); 
+    startRecordingChunk(); 
+  } catch (err) { nativeAlert("Microphone access denied."); btn.classList.remove('active'); } 
+}
+
+function startRecordingChunk() { 
+  if (!streamRef) return; 
+  mediaRecorder = new MediaRecorder(streamRef); 
+  audioChunks = []; 
+  mediaRecorder.ondataavailable = function(e) { if (e.data.size > 0) audioChunks.push(e.data); }; 
+  mediaRecorder.onstop = async function() { 
+    var audioBlob = new Blob(audioChunks, { type: 'audio/webm' }); 
+    if (audioBlob.size > 1000) await processDictation(audioBlob); 
+    if (isRecording) startRecordingChunk(); 
+  }; 
+  mediaRecorder.start(); 
+  isRecording = true; 
+  monitorSilence(); 
+}
+
+function monitorSilence() { 
+  if (!analyser || !isRecording) return; 
+  var dataArray = new Uint8Array(analyser.frequencyBinCount); 
+  var silenceStart = Date.now(); 
+  var hasSpoken = false; 
+  function checkVolume() { 
+    if (!isRecording || !mediaRecorder || mediaRecorder.state !== 'recording') return; 
+    analyser.getByteFrequencyData(dataArray); 
+    var sum = 0; 
+    for (var i = 0; i < dataArray.length; i++) sum += dataArray[i]; 
+    if ((sum / dataArray.length) > 15) { hasSpoken = true; silenceStart = Date.now(); } 
+    if (hasSpoken && (Date.now() - silenceStart) > 2000) { if (mediaRecorder.state === 'recording') mediaRecorder.stop(); return; } 
+    requestAnimationFrame(checkVolume); 
+  } 
+  checkVolume(); 
+}
+
+function stopDictation() { 
+  isRecording = false; 
+  if (mediaRecorder && mediaRecorder.state === 'recording') mediaRecorder.stop(); 
+  if (streamRef) streamRef.getTracks().forEach(function(t) { return t.stop(); }); 
+  if (audioContext) audioContext.close(); 
+}
+
+async function processDictation(audioBlob) { 
+  showVoiceStatus("🧠 Transcribing..."); 
+  try { 
+    var formData = new FormData(); 
+    formData.append('file', audioBlob, 'audio.webm'); 
+    var langCode = currentLang === 'fr' ? 'fr' : currentLang === 'de' ? 'de' : currentLang === 'it' ? 'it' : 'en'; 
+    formData.append('language', langCode); 
 
     var sttResponse = await fetch('https://hdhoctahsnqlvqsmwrsf.supabase.co/functions/v1/groq-ai', { 
       method: 'POST', 
-      headers: { 
-        // On ne met PAS de Content-Type, le navigateur le fera tout seul pour le FormData
-        'Authorization': 'Bearer sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D' 
-      }, 
-      body: formData
-    });
+      headers: { 'Authorization': 'Bearer sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D' }, 
+      body: formData 
+    }); 
+    if (!sttResponse.ok) throw new Error("STT API failed"); 
+    var sttResult = await sttResponse.json(); 
+    var transcript = sttResult.text; 
+    if (!transcript || transcript.trim().length < 3) { showVoiceStatus("🎙️ Listening... (didn't catch that)"); return; } 
+    showVoiceStatus('📝 "' + transcript + '"', 4000); 
+    await new Promise(function(r) { return setTimeout(r, 600); }); 
+    await screenReaderAI(transcript); 
+  } catch (err) { showVoiceStatus("⚠️ AI Error: " + err.message); } 
+}
 
-    if (!sttResponse.ok) {
-      var errText = await sttResponse.text();
-      showVoiceStatus("⚠️ Erreur " + sttResponse.status + " : " + errText, 10000);
-      return;
-    }
-    
-    var sttResult = await sttResponse.json();
-    var transcript = sttResult.text;
+// --- LECTURE DE L'ÉCRAN & ENVOI DU PROMPT ---
+async function screenReaderAI(transcript) { 
+  showVoiceStatus("🤖 Reading screen..."); 
+  var formFields = []; 
+  document.querySelectorAll('.field').forEach(function(field) { 
+    var labelEl = field.querySelector('label'); 
+    var label = labelEl ? labelEl.textContent.trim() : null; 
+    var input = field.querySelector('input, select, textarea'); 
+    if (label && input) formFields.push('Field: "' + label + '" (ID: ' + input.id + ')'); 
+  }); 
+  var buttons = []; 
+  document.querySelectorAll('button').forEach(function(btn) { 
+    if (btn.id && btn.id !== 'voiceBtn') buttons.push('Button: "' + btn.textContent.trim() + '" (ID: ' + btn.id + ')'); 
+  }); 
+  var navContext = ""; 
+  if (currentView === 'apiary-list') navContext = "User is on the apiary list."; 
+  else if (currentView === 'hive-list') navContext = "User is viewing hives."; 
+  else if (currentView === 'hive-visits') navContext = "User is viewing visits."; 
+  else if (currentView === 'account') navContext = "User is on the account page."; 
 
-    if (!transcript || transcript.trim().length < 3) {
-      showVoiceStatus("🎙️ Listening... (didn't catch that)");
-      return;
-    }
+  var systemPrompt = 'Context: ' + navContext + '\n\nButtons:\n' + (buttons.join('\n') || 'None') + '\n\nFields:\n' + (formFields.join('\n') || 'None') + '\n\nUser said: "' + transcript + '"' + '\n\nIf user wants to click/save/cancel/go back, return: { "action": "click", "id": "button_id" }.' + '\nIf user describes data, return: { "action": "fill_form", "data": { "field_id": "value" } }.' + '\nReturn ONLY the JSON object.'; 
 
-    showVoiceStatus('📝 "' + transcript + '"', 4000);
-    await new Promise(function(r) { return setTimeout(r, 600); });
-    await screenReaderAI(transcript);
-
-  } catch (err) {
-    showVoiceStatus("⚠️ AI Error: " + err.message);
-  }
-    }
-async function screenReaderAI(transcript) {
-  showVoiceStatus("🤖 Reading screen...");
-  
-  // 1. Trouver tous les champs de texte
-  var formFields = [];
-  document.querySelectorAll('.field').forEach(function(field) {
-    var labelEl = field.querySelector('label');
-    var label = labelEl ? labelEl.textContent.trim() : null;
-    var input = field.querySelector('input, select, textarea');
-    if (label && input) formFields.push('Label: "' + label + '" (ID: ' + input.id + ')');
-  });
-  
-  // 2. Trouver tous les boutons cliquables sur la page
-  var buttons = [];
-  document.querySelectorAll('button').forEach(function(btn) {
-    if (btn.id && btn.id !== 'voiceBtn') {
-      buttons.push('Button ID: "' + btn.id + '" (Text: "' + btn.textContent.trim() + '")');
-    }
-  });
-
-  // 3. Contexte de la page
-  var navContext = "";
-  if (currentView === 'apiary-list') navContext = "User is on the list of apiaries. Available apiaries: " + appData.apiaries.map(function(a) { return a.name; }).join(', ');
-  else if (currentView === 'hive-list') { var apiary = findApiary(activeApiaryId); navContext = 'User is viewing the hives of ' + apiary.name + '. Available hives: ' + apiary.hives.map(function(h) { return h.name; }).join(', '); }
-  else if (currentView === 'hive-visits') navContext = "User is viewing the visit history.";
-  else if (currentView === 'account') navContext = "User is on the account page.";
-
-  // 4. Le prompt ultime
-  var systemPrompt = 'You are an AI controlling a beekeeping app. ' + navContext + 
-    ' Form fields visible: ' + (formFields.join('\n') || 'None') + 
-    ' Clickable buttons: ' + (buttons.join('\n') || 'None') + 
-    ' The user said: "' + transcript + '".' +
-    ' Actions you can take: ' +
-    '1. Click a button: { "action": "click", "id": "button_id_here" } ' +
-    '2. Navigate to a specific hive: { "action": "navigate", "target": "hive", "apiary_name": "Name", "hive_name": "Name" } ' +
-    '3. Go back: { "action": "navigate", "target": "go_back" } ' +
-    '4. Fill form fields (use IDs from above): { "action": "fill_form", "data": { "id": "value" } } ' +
-    'Return ONLY valid raw JSON. No markdown.';
-
-  try {
+  try { 
     var llmResponse = await fetch('https://hdhoctahsnqlvqsmwrsf.supabase.co/functions/v1/groq-ai', { 
       method: 'POST', 
-      headers: { 
-        'Authorization': 'Bearer sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D',
-        'Content-Type': 'application/json'
-      }, 
-      body: JSON.stringify({ action: 'read_screen', prompt: systemPrompt })
-    });
-
-    if (!llmResponse.ok) throw new Error("LLM API failed");
-    
-    var llmResult = await llmResponse.json();
-    var rawContent = llmResult.choices[0].message.content;
-    
-    // Nettoyage extrême du JSON
-    rawContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
-    var firstBrace = rawContent.indexOf('{');
-    var lastBrace = rawContent.lastIndexOf('}');
-    if (firstBrace !== -1 && lastBrace !== -1) rawContent = rawContent.substring(firstBrace, lastBrace + 1);
-    
-    var parsed = JSON.parse(rawContent);
-    console.log("AI Action:", parsed);
-    await executeAIAction(parsed);
-    
-  } catch (err) {
-    console.error("LLM Error:", err);
-    showVoiceStatus("⚠️ AI failed to read screen.");
-  }
+      headers: { 'Authorization': 'Bearer sb_publishable_Ydpj5A6_qxPfX2EcDM8Ogw_J1-t3Z8D', 'Content-Type': 'application/json' }, 
+      body: JSON.stringify({ 
+        model: 'qwen/qwen3.8-27b', 
+        reasoning_effort: "none", 
+        messages: [ 
+          { role: 'system', content: 'You are an API. You MUST return ONLY a valid JSON object. Do NOT write sentences. Do NOT use markdown.' }, 
+          { role: 'user', content: systemPrompt } 
+        ], 
+        temperature: 0.1, 
+        response_format: { type: 'json_object' } 
+      }) 
+    }); 
+    if (!llmResponse.ok) throw new Error("LLM API failed"); 
+    var llmResult = await llmResponse.json(); 
+    var rawContent = llmResult.choices[0].message.content; 
+    rawContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim(); 
+    var firstBrace = rawContent.indexOf('{'); 
+    var lastBrace = rawContent.lastIndexOf('}'); 
+    if (firstBrace !== -1 && lastBrace !== -1) rawContent = rawContent.substring(firstBrace, lastBrace + 1); 
+    var parsed = JSON.parse(rawContent); 
+    await executeAIAction(parsed); 
+  } catch (err) { showVoiceStatus("⚠️ AI failed to read screen."); } 
 }
-    async function executeAIAction(data) {
-  
-  // --- 1. CLIC SUR UN BOUTON SPÉCIFIQUE ---
-  if (data.action === "click" && data.id) {
-    var btn = document.getElementById(data.id);
-    if (btn) {
-      btn.click();
-      showVoiceStatus("✅ Clicked: " + (btn.textContent.trim() || data.id), 3000);
-    } else {
-      showVoiceStatus("⚠️ Button not found: " + data.id);
-    }
-    return;
-  }
 
-  // --- 2. NAVIGATION VERS UNE RUCHE SPÉCIFIQUE ---
-  if (data.action === "navigate" && data.target === "hive") {
-    if (data.apiary_name) {
-      var apiary = appData.apiaries.find(function(a) { return a.name.toLowerCase().includes(data.apiary_name.toLowerCase()); });
-      if (apiary) {
-        activeApiaryId = apiary.id;
-        currentView = 'hive-list';
-        render();
-        await new Promise(function(r) { return setTimeout(r, 400); });
-      } else {
-        showVoiceStatus("⚠️ Apiary not found"); return;
-      }
-    }
-    if (data.hive_name && activeApiaryId) {
-      var apiary = findApiary(activeApiaryId);
-      var hive = apiary.hives.find(function(h) { return h.name.toLowerCase().includes(data.hive_name.toLowerCase()); });
-      if (hive) {
-        activeHiveId = hive.id;
-        editHiveData = { name: hive.name, maleFrames: hive.maleFrames || '', honeyFrames: hive.honeyFrames || '', broodFrames: hive.broodFrames || '', swarmRisk: hive.swarmRisk, queenColor: hive.queenColor, varroaCount: hive.varroaCount || '', remarks: hive.remarks || '' };
-        currentView = 'edit-hive';
-        render();
-        showVoiceStatus("✅ Opened " + hive.name);
-      } else {
-        showVoiceStatus("⚠️ Hive not found"); return;
-      }
-    }
-    return;
-  }
-
-  // --- 3. AUTRES COMMANDES DE NAVIGATION (Retour, Ajouter, etc.) ---
-  if (data.action === "navigate") {
-    if (data.target === "add_apiary") { 
-      currentView = 'add-apiary'; 
-      editApiaryData = { name: '', orientation: '', coordinates: '' }; 
-      render(); 
-      return; 
-    }
-    if (data.target === "add_hive") { 
-      if (!activeApiaryId) { showVoiceStatus("⚠️ Open an apiary first"); return; } 
-      currentView = 'add-hive'; 
-      editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; 
-      render(); 
-      return; 
-    }
-    if (data.target === "go_back") { 
-      if (currentView === 'hive-visits') { currentView = 'hive-list'; activeHiveId = null; } 
-      else { currentView = 'apiary-list'; activeApiaryId = null; } 
-      render(); 
-      return; 
-    }
-    if (data.target === "save") { 
-      var btn = document.getElementById('saveHiveBtn') || document.getElementById('saveApiaryBtn'); 
-      if (btn) { 
-        btn.click(); 
-        showVoiceStatus("✅ Saved"); 
-      } else { 
-        showVoiceStatus("⚠️ No form to save"); 
+// --- EXÉCUTION DES ACTIONS ---
+async function executeAIAction(data) { 
+  if (data.action === "click" && data.id) { 
+    var btn = document.getElementById(data.id); 
+    if (btn) { btn.click(); showVoiceStatus("✅ Clicked: " + data.id, 3000); } 
+    else { showVoiceStatus("⚠️ Button not found: " + data.id); } 
+    return; 
+  } 
+  if (data.action === "navigate" && data.target === "hive") { 
+    if (data.apiary_name) { var apiary = appData.apiaries.find(function(a) { return a.name.toLowerCase().includes(data.apiary_name.toLowerCase()); }); if (apiary) { activeApiaryId = apiary.id; currentView = 'hive-list'; render(); await new Promise(function(r) { return setTimeout(r, 400); }); } else { showVoiceStatus("⚠️ Apiary not found"); return; } } 
+    if (data.hive_name && activeApiaryId) { var apiary = findApiary(activeApiaryId); var hive = apiary.hives.find(function(h) { return h.name.toLowerCase().includes(data.hive_name.toLowerCase()); }); if (hive) { activeHiveId = hive.id; editHiveData = { name: hive.name, maleFrames: hive.maleFrames || '', honeyFrames: hive.honeyFrames || '', broodFrames: hive.broodFrames || '', swarmRisk: hive.swarmRisk, queenColor: hive.queenColor, varroaCount: hive.varroaCount || '', remarks: hive.remarks || '' }; currentView = 'edit-hive'; render(); showVoiceStatus("✅ Opened " + hive.name); } else { showVoiceStatus("⚠️ Hive not found"); return; } } 
+    return; 
+  } 
+  if (data.action === "navigate") { 
+    if (data.target === "add_apiary") { currentView = 'add-apiary'; editApiaryData = { name: '', orientation: '', coordinates: '' }; render(); return; } 
+    if (data.target === "add_hive") { if (!activeApiaryId) { showVoiceStatus("⚠️ Open an apiary first"); return; } currentView = 'add-hive'; editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; render(); return; } 
+    if (data.target === "go_back") { if (currentView === 'hive-visits') { currentView = 'hive-list'; activeHiveId = null; } else { currentView = 'apiary-list'; activeApiaryId = null; } render(); return; } 
+    if (data.target === "save") { var btn = document.getElementById('saveHiveBtn') || document.getElementById('saveApiaryBtn'); if (btn) { btn.click(); showVoiceStatus("✅ Saved"); } else { showVoiceStatus("⚠️ No form to save"); } return; } 
+  } 
+  if (data.action === "fill_form" && data.data) { 
+    showVoiceStatus('✅ Filled: ' + Object.keys(data.data).length + ' fields', 4000); 
+    setTimeout(function() { 
+      for (var _i = 0, _a = Object.entries(data.data); _i < _a.length; _i++) { 
+        var _b = _a[_i], id = _b[0], val = _b[1]; 
+        var el = document.getElementById(id); 
+        if (el && val != null && val !== '') { 
+          if (el.type === 'checkbox') el.checked = Boolean(val); 
+          else if (el.tagName === 'SELECT') { 
+            for (var _j = 0, _c = el.options; _j < _c.length; _j++) { 
+              var opt = _c[_j]; 
+              if (opt.value.toLowerCase() === String(val).toLowerCase() || opt.text.toLowerCase() === String(val).toLowerCase()) { el.value = opt.value; break; } 
+            } 
+          } else el.value = val; 
+          el.dispatchEvent(new Event('input', { bubbles: true })); 
+          el.dispatchEvent(new Event('change', { bubbles: true })); 
+        } 
       } 
-      return; 
-    }
-  }
+    }, 100); 
+  } 
+}
 
-  // --- 4. REMPLISSAGE DES CHAMPS DU FORMULAIRE ---
-  if (data.action === "fill_form" && data.data) {
-    showVoiceStatus('✅ Filled: ' + Object.keys(data.data).length + ' fields', 4000);
-    setTimeout(function() {
-      var _loop_1 = function(id, val) {
-        var el = document.getElementById(id);
-        if (el && val != null && val !== '') {
-          if (el.type === 'checkbox') {
-            el.checked = Boolean(val);
-          } else if (el.tagName === 'SELECT') {
-            for (var _i = 0, _a = el.options; _i < _a.length; _i++) {
-              var opt = _a[_i];
-              if (opt.value.toLowerCase() === String(val).toLowerCase() || opt.text.toLowerCase() === String(val).toLowerCase()) {
-                el.value = opt.value;
-                break;
-              }
-            }
-          } else {
-            el.value = val;
-          }
-          el.dispatchEvent(new Event('input', { bubbles: true }));
-          el.dispatchEvent(new Event('change', { bubbles: true }));
-        }
-      };
-      for (var _i = 0, _a = Object.entries(data.data); _i < _a.length; _i++) {
-        var _b = _a[_i], id = _b[0], val = _b[1];
-        _loop_1(id, val);
-      }
-    }, 100);
-  }
-                        }
-    var voiceBtnEl = document.getElementById('voiceBtn'); if (voiceBtnEl) { voiceBtnEl.onclick = startHandsFreeDictation; voiceBtnEl.title = "AI Dictaphone"; }
-
+var voiceBtnEl = document.getElementById('voiceBtn'); 
+if (voiceBtnEl) { voiceBtnEl.onclick = startHandsFreeDictation; voiceBtnEl.title = "AI Dictaphone"; }
+        
     // --- PWA (INSTALLATION & SERVICE WORKER) ---
 
 // 1. Enregistrer le Service Worker (uniquement sur HTTPS / localhost)
