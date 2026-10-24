@@ -495,7 +495,9 @@ var supabase = sbClient;
   }
     }
 async function screenReaderAI(transcript) {
-  showVoiceStatus("🤖 Reading screen & filling...");
+  showVoiceStatus("🤖 Reading screen...");
+  
+  // 1. Trouver tous les champs de texte
   var formFields = [];
   document.querySelectorAll('.field').forEach(function(field) {
     var labelEl = field.querySelector('label');
@@ -504,14 +506,34 @@ async function screenReaderAI(transcript) {
     if (label && input) formFields.push('Label: "' + label + '" (ID: ' + input.id + ')');
   });
   
+  // 2. Trouver tous les boutons cliquables sur la page
+  var buttons = [];
+  document.querySelectorAll('button').forEach(function(btn) {
+    if (btn.id && btn.id !== 'voiceBtn') {
+      buttons.push('Button ID: "' + btn.id + '" (Text: "' + btn.textContent.trim() + '")');
+    }
+  });
+
+  // 3. Contexte de la page
   var navContext = "";
   if (currentView === 'apiary-list') navContext = "User is on the list of apiaries. Available apiaries: " + appData.apiaries.map(function(a) { return a.name; }).join(', ');
   else if (currentView === 'hive-list') { var apiary = findApiary(activeApiaryId); navContext = 'User is viewing the hives of ' + apiary.name + '. Available hives: ' + apiary.hives.map(function(h) { return h.name; }).join(', '); }
-  
-  var systemPrompt = 'You are an AI controlling a beekeeping app. ' + navContext + ' Form fields visible: ' + (formFields.join('\n') || 'No form fields visible.') + ' The user said: "' + transcript + '". Actions you can take: 1. Navigate to a specific hive: { "action": "navigate", "target": "hive", "apiary_name": "Name", "hive_name": "Name" } 2. Add a new apiary: { "action": "navigate", "target": "add_apiary" } 3. Add a new hive: { "action": "navigate", "target": "add_hive" } 4. Go back: { "action": "navigate", "target": "go_back" } 5. Save: { "action": "navigate", "target": "save" } 6. Fill form fields (use IDs from above): { "action": "fill_form", "data": { "id": "value" } } Return ONLY valid raw JSON. No markdown.';
+  else if (currentView === 'hive-visits') navContext = "User is viewing the visit history.";
+  else if (currentView === 'account') navContext = "User is on the account page.";
+
+  // 4. Le prompt ultime
+  var systemPrompt = 'You are an AI controlling a beekeeping app. ' + navContext + 
+    ' Form fields visible: ' + (formFields.join('\n') || 'None') + 
+    ' Clickable buttons: ' + (buttons.join('\n') || 'None') + 
+    ' The user said: "' + transcript + '".' +
+    ' Actions you can take: ' +
+    '1. Click a button: { "action": "click", "id": "button_id_here" } ' +
+    '2. Navigate to a specific hive: { "action": "navigate", "target": "hive", "apiary_name": "Name", "hive_name": "Name" } ' +
+    '3. Go back: { "action": "navigate", "target": "go_back" } ' +
+    '4. Fill form fields (use IDs from above): { "action": "fill_form", "data": { "id": "value" } } ' +
+    'Return ONLY valid raw JSON. No markdown.';
 
   try {
-    // Envoi du prompt à l'Edge Function
     var llmResponse = await fetch('https://hdhoctahsnqlvqsmwrsf.supabase.co/functions/v1/groq-ai', { 
       method: 'POST', 
       headers: { 
@@ -525,6 +547,8 @@ async function screenReaderAI(transcript) {
     
     var llmResult = await llmResponse.json();
     var rawContent = llmResult.choices[0].message.content;
+    
+    // Nettoyage extrême du JSON
     rawContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
     var firstBrace = rawContent.indexOf('{');
     var lastBrace = rawContent.lastIndexOf('}');
@@ -533,12 +557,119 @@ async function screenReaderAI(transcript) {
     var parsed = JSON.parse(rawContent);
     console.log("AI Action:", parsed);
     await executeAIAction(parsed);
+    
   } catch (err) {
     console.error("LLM Error:", err);
     showVoiceStatus("⚠️ AI failed to read screen.");
   }
 }
-    async function executeAIAction(data) { if (data.action === "navigate" && data.target === "hive") { if (data.apiary_name) { var apiary = appData.apiaries.find(function(a) { return a.name.toLowerCase().includes(data.apiary_name.toLowerCase()); }); if (apiary) { activeApiaryId = apiary.id; currentView = 'hive-list'; render(); await new Promise(function(r) { return setTimeout(r, 400); }); } else { showVoiceStatus("⚠️ Apiary not found"); return; } } if (data.hive_name && activeApiaryId) { var apiary = findApiary(activeApiaryId); var hive = apiary.hives.find(function(h) { return h.name.toLowerCase().includes(data.hive_name.toLowerCase()); }); if (hive) { activeHiveId = hive.id; editHiveData = { name: hive.name, maleFrames: hive.maleFrames || '', honeyFrames: hive.honeyFrames || '', broodFrames: hive.broodFrames || '', swarmRisk: hive.swarmRisk, queenColor: hive.queenColor, varroaCount: hive.varroaCount || '', remarks: hive.remarks || '' }; currentView = 'edit-hive'; render(); showVoiceStatus("✅ Opened " + hive.name); } else { showVoiceStatus("⚠️ Hive not found"); return; } } return; } if (data.action === "navigate") { if (data.target === "add_apiary") { currentView = 'add-apiary'; editApiaryData = { name: '', orientation: '', coordinates: '' }; render(); return; } if (data.target === "add_hive") { if (!activeApiaryId) { showVoiceStatus("⚠️ Open an apiary first"); return; } currentView = 'add-hive'; editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; render(); return; } if (data.target === "go_back") { if (currentView === 'hive-visits') { currentView = 'hive-list'; activeHiveId = null; } else { currentView = 'apiary-list'; activeApiaryId = null; } render(); return; } if (data.target === "save") { var btn = document.getElementById('saveHiveBtn') || document.getElementById('saveApiaryBtn'); if (btn) { btn.click(); showVoiceStatus("✅ Saved"); } else { showVoiceStatus("⚠️ No form to save"); } return; } } if (data.action === "fill_form" && data.data) { showVoiceStatus('✅ Filled: ' + Object.keys(data.data).length + ' fields', 4000); setTimeout(function() { var _loop_1 = function(id, val) { var el = document.getElementById(id); if (el && val != null && val !== '') { if (el.type === 'checkbox') el.checked = Boolean(val); else if (el.tagName === 'SELECT') { for (var _i = 0, _a = el.options; _i < _a.length; _i++) { var opt = _a[_i]; if (opt.value.toLowerCase() === String(val).toLowerCase() || opt.text.toLowerCase() === String(val).toLowerCase()) { el.value = opt.value; break; } } } else { el.value = val; } el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); } }; for (var _i = 0, _a = Object.entries(data.data); _i < _a.length; _i++) { var _b = _a[_i], id = _b[0], val = _b[1]; _loop_1(id, val); } }, 100); } }
+    async function executeAIAction(data) {
+  
+  // --- 1. CLIC SUR UN BOUTON SPÉCIFIQUE ---
+  if (data.action === "click" && data.id) {
+    var btn = document.getElementById(data.id);
+    if (btn) {
+      btn.click();
+      showVoiceStatus("✅ Clicked: " + (btn.textContent.trim() || data.id), 3000);
+    } else {
+      showVoiceStatus("⚠️ Button not found: " + data.id);
+    }
+    return;
+  }
+
+  // --- 2. NAVIGATION VERS UNE RUCHE SPÉCIFIQUE ---
+  if (data.action === "navigate" && data.target === "hive") {
+    if (data.apiary_name) {
+      var apiary = appData.apiaries.find(function(a) { return a.name.toLowerCase().includes(data.apiary_name.toLowerCase()); });
+      if (apiary) {
+        activeApiaryId = apiary.id;
+        currentView = 'hive-list';
+        render();
+        await new Promise(function(r) { return setTimeout(r, 400); });
+      } else {
+        showVoiceStatus("⚠️ Apiary not found"); return;
+      }
+    }
+    if (data.hive_name && activeApiaryId) {
+      var apiary = findApiary(activeApiaryId);
+      var hive = apiary.hives.find(function(h) { return h.name.toLowerCase().includes(data.hive_name.toLowerCase()); });
+      if (hive) {
+        activeHiveId = hive.id;
+        editHiveData = { name: hive.name, maleFrames: hive.maleFrames || '', honeyFrames: hive.honeyFrames || '', broodFrames: hive.broodFrames || '', swarmRisk: hive.swarmRisk, queenColor: hive.queenColor, varroaCount: hive.varroaCount || '', remarks: hive.remarks || '' };
+        currentView = 'edit-hive';
+        render();
+        showVoiceStatus("✅ Opened " + hive.name);
+      } else {
+        showVoiceStatus("⚠️ Hive not found"); return;
+      }
+    }
+    return;
+  }
+
+  // --- 3. AUTRES COMMANDES DE NAVIGATION (Retour, Ajouter, etc.) ---
+  if (data.action === "navigate") {
+    if (data.target === "add_apiary") { 
+      currentView = 'add-apiary'; 
+      editApiaryData = { name: '', orientation: '', coordinates: '' }; 
+      render(); 
+      return; 
+    }
+    if (data.target === "add_hive") { 
+      if (!activeApiaryId) { showVoiceStatus("⚠️ Open an apiary first"); return; } 
+      currentView = 'add-hive'; 
+      editHiveData = { name: '', maleFrames: '', honeyFrames: '', broodFrames: '', swarmRisk: false, queenColor: 'blue', varroaCount: '', remarks: '' }; 
+      render(); 
+      return; 
+    }
+    if (data.target === "go_back") { 
+      if (currentView === 'hive-visits') { currentView = 'hive-list'; activeHiveId = null; } 
+      else { currentView = 'apiary-list'; activeApiaryId = null; } 
+      render(); 
+      return; 
+    }
+    if (data.target === "save") { 
+      var btn = document.getElementById('saveHiveBtn') || document.getElementById('saveApiaryBtn'); 
+      if (btn) { 
+        btn.click(); 
+        showVoiceStatus("✅ Saved"); 
+      } else { 
+        showVoiceStatus("⚠️ No form to save"); 
+      } 
+      return; 
+    }
+  }
+
+  // --- 4. REMPLISSAGE DES CHAMPS DU FORMULAIRE ---
+  if (data.action === "fill_form" && data.data) {
+    showVoiceStatus('✅ Filled: ' + Object.keys(data.data).length + ' fields', 4000);
+    setTimeout(function() {
+      var _loop_1 = function(id, val) {
+        var el = document.getElementById(id);
+        if (el && val != null && val !== '') {
+          if (el.type === 'checkbox') {
+            el.checked = Boolean(val);
+          } else if (el.tagName === 'SELECT') {
+            for (var _i = 0, _a = el.options; _i < _a.length; _i++) {
+              var opt = _a[_i];
+              if (opt.value.toLowerCase() === String(val).toLowerCase() || opt.text.toLowerCase() === String(val).toLowerCase()) {
+                el.value = opt.value;
+                break;
+              }
+            }
+          } else {
+            el.value = val;
+          }
+          el.dispatchEvent(new Event('input', { bubbles: true }));
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      };
+      for (var _i = 0, _a = Object.entries(data.data); _i < _a.length; _i++) {
+        var _b = _a[_i], id = _b[0], val = _b[1];
+        _loop_1(id, val);
+      }
+    }, 100);
+  }
+                        }
     var voiceBtnEl = document.getElementById('voiceBtn'); if (voiceBtnEl) { voiceBtnEl.onclick = startHandsFreeDictation; voiceBtnEl.title = "AI Dictaphone"; }
 
     // --- PWA (INSTALLATION & SERVICE WORKER) ---
