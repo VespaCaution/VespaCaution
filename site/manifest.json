@@ -16,5 +16,28 @@
       "sizes": "512x512",
       "type": "image/png"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "VespaTimer",
+      "short_name": "VespaTimer",
+      "description": "Ouvrir VespaTimer",
+      "url": "./index.html#vespatimer",
+      "icons": [{ "src": "../apps/vespatimer/icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "ApiGuide",
+      "short_name": "ApiGuide",
+      "description": "Ouvrir ApiGuide",
+      "url": "./index.html#apiguide",
+      "icons": [{ "src": "../apps/apiguide/icon.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "AlvearCheck",
+      "short_name": "AlvearCheck",
+      "description": "Ouvrir AlvearCheck",
+      "url": "./index.html#alvearcheck",
+      "icons": [{ "src": "../apps/alvearcheck/icon.png", "sizes": "192x192" }]
+    }
   ]
 }
