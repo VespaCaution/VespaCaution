@@ -547,11 +547,7 @@ async function screenReaderAI(transcript) {
   // ==========================================
   // 1. NAVIGATION VERS UN RUCHER OU UNE RUCHE PAR NOM
   // ==========================================
-  
-  // Chercher si on veut ouvrir un rucher
   if (text.includes('ouvre') || text.includes('ouvrir') || text.includes('open')) {
-    
-    // On cherche d'abord dans les ruchers
     if (currentView === 'apiary-list') {
       var apiary = appData.apiaries.find(function(a) { return text.includes(a.name.toLowerCase()); });
       if (apiary) {
@@ -562,8 +558,6 @@ async function screenReaderAI(transcript) {
         return;
       }
     }
-
-    // On cherche ensuite dans les ruches
     if (currentView === 'hive-list' && activeApiaryId) {
       var currentApiary = findApiary(activeApiaryId);
       var hive = currentApiary.hives.find(function(h) { return text.includes(h.name.toLowerCase()); });
@@ -614,10 +608,11 @@ async function screenReaderAI(transcript) {
   }
 
   // ==========================================
-  // 3. GESTION DES DONNÉES (Avec l'IA)
+  // 3. GESTION DES DONNÉES (Avec l'IA pour remplir)
   // ==========================================
-  showVoiceStatus("🤖 Remplissage du formulaire...");
+  showVoiceStatus("🤖 Analyse des données...");
   
+  // On récupère TOUS les champs présents sur l'écran
   var formFields = [];
   document.querySelectorAll('.field').forEach(function(field) {
     var labelEl = field.querySelector('label');
@@ -626,10 +621,17 @@ async function screenReaderAI(transcript) {
     if (label && input) formFields.push('Field: "' + label + '" (ID: ' + input.id + ')');
   });
 
-  var systemPrompt = 'Available Fields:\n' + (formFields.join('\n') || 'None') + 
+  // Si on n'est pas sur un formulaire, on ne fait rien
+  if (formFields.length === 0) {
+    showVoiceStatus("⚠️ Aucun champ à remplir ici.");
+    return;
+  }
+
+  // Le prompt est très direct : "Voici les champs, voici ce que j'ai dit, remplis-les"
+  var systemPrompt = 'Available Fields:\n' + formFields.join('\n') + 
     '\n\nUser said: "' + transcript + '"' +
-    '\n\nReturn exactly: { "action": "fill_form", "data": { "field_id": "value" } }.' +
-    '\nDo not add any text.';
+    '\n\nYou must return a JSON object like this: { "action": "fill_form", "data": { "field_id": "value" } }.' +
+    '\nOnly include fields that the user actually mentioned. Do not invent data.';
 
   try {
     var llmResponse = await fetch('https://hdhoctahsnqlvqsmwrsf.supabase.co/functions/v1/groq-ai', { 
@@ -639,7 +641,7 @@ async function screenReaderAI(transcript) {
         'Content-Type': 'application/json'
       }, 
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'llama-3.1-8b-instant', // 8B est suffisant et plus obéissant
         messages: [
           { role: 'system', content: 'You are a JSON API. Output ONLY valid JSON.' },
           { role: 'user', content: systemPrompt }
@@ -649,18 +651,29 @@ async function screenReaderAI(transcript) {
       })
     });
 
+    if (!llmResponse.ok) throw new Error("LLM API failed");
+    
     var llmResult = await llmResponse.json();
     var rawContent = llmResult.choices[0].message.content;
     
+    // Nettoyage
+    rawContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
     var firstBrace = rawContent.indexOf('{');
     var lastBrace = rawContent.lastIndexOf('}');
     if (firstBrace !== -1 && lastBrace !== -1) rawContent = rawContent.substring(firstBrace, lastBrace + 1);
     
     var parsed = JSON.parse(rawContent);
-    await executeAIAction(parsed);
+    console.log("AI parsed:", parsed);
+    
+    if (parsed.action === "fill_form" && parsed.data) {
+      await executeAIAction(parsed);
+    } else {
+      showVoiceStatus("⚠️ Je n'ai pas compris les données.");
+    }
     
   } catch (err) {
-    showVoiceStatus("⚠️ Erreur de compréhension.");
+    console.error(err);
+    showVoiceStatus("⚠️ Erreur de compréhension : " + err.message);
   }
 }
 // --- EXÉCUTION DES ACTIONS ---
