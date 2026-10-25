@@ -42,19 +42,9 @@
   footer { margin-top: auto; text-align: center; font-size: 0.75rem; color: #b08968; padding: 1.5rem 0 0.5rem 0; border-top: 1px dashed #e6ccb2; }
   .editor-hint { background: #fff4d6; border-left: 4px solid #d4a373; padding: 0.6rem 0.8rem; border-radius: 8px; font-size: 0.82rem; color: #7f5539; margin-bottom: 0.75rem; }
   .hidden-flag { opacity: 0.4; }
-  .apipedia-wrap { text-align: center; padding: 1rem 0 0.5rem 0; display: flex; justify-content: center; gap: 0.5rem; flex-wrap: wrap; }
-  .apipedia-btn { background: #7f5539; color: white; border: none; padding: 0.8rem 1.6rem; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 3px 0 #5e3a1c; letter-spacing: 0.5px; }
-  .apipedia-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #5e3a1c; }
-  .install-btn { background: #4a7c2e; box-shadow: 0 3px 0 #2f5419; }
+  .install-wrap { text-align: center; padding: 1rem 0 0.5rem 0; }
+  .install-btn { background: #4a7c2e; color: white; border: none; padding: 0.8rem 1.6rem; border-radius: 30px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 3px 0 #2f5419; letter-spacing: 0.5px; }
   .install-btn:active { transform: translateY(2px); box-shadow: 0 1px 0 #2f5419; }
-  .apipedia-panel { background: #fffdf7; border: 2px solid #d4a373; border-radius: 24px; padding: 1.5rem; margin-top: 1rem; position: relative; }
-  .apipedia-contact-corner { position: absolute; top: 0.75rem; right: 0.75rem; }
-  .apipedia-contact-corner .btn { font-size: 0.78rem; padding: 0.4rem 0.8rem; }
-  .apipedia-panel h2 { color: #7f5539; font-size: 1.3rem; margin-bottom: 0.75rem; }
-  .apipedia-panel p { margin-bottom: 1rem; color: #4a2e1b; }
-  .contact-card { background: #fffdf7; border: 2px solid #d4a373; border-radius: 24px; padding: 1.5rem; margin-top: 1rem; }
-  .contact-card h2 { color: #7f5539; margin-bottom: 1rem; }
-  .contact-card p { margin-bottom: 1rem; }
   @media (max-width: 480px) { .grid-container { grid-template-columns: repeat(2, 1fr); } .app-title { font-size: 1.3rem; } }
 </style>
 </head>
@@ -65,9 +55,8 @@
 </div>
 <main id="app"></main>
 
-<div class="apipedia-wrap" id="apipediaWrap">
-  <button class="apipedia-btn" id="apipediaBtn">📖 Apipedia</button>
-  <button class="apipedia-btn install-btn" id="installBtn">⬇ Installer l'application</button>
+<div class="install-wrap" id="installWrap">
+  <button class="install-btn" id="installBtn">⬇ Installer l'application</button>
 </div>
 
 <footer>ApiGuide v1.0</footer>
@@ -86,6 +75,7 @@
     <button class="btn" id="iosClose" style="margin-top:1rem; width:100%;">Fermer</button>
   </div>
 </div>
+
 <script>
 /* ================================================================
    BUILD CONFIG
@@ -93,22 +83,24 @@
 const FINAL_MODE = false;
 const LANGS = ['en','fr','it','de','rm'];
 const LANG_LABELS = { en:'English', fr:'Français', it:'Italiano', de:'Deutsch', rm:'Rumantsch' };
-const VESPA_CONTACT_URL = 'https://vespacaution.github.io/VespaCaution/#contact';
 
 /* ================================================================
    CONTENT
+   Structure per language:
+     season  : 4 titles
+     level1  : 4 seasons × 10 titles           (button 1)
+     level2  : 4 seasons × 10 × 10 titles      (button 2)
+     text    : 4 seasons × 10 × 10 strings     (final text)
    ================================================================ */
 const E10  = () => ['', '', '', '', '', '', '', '', '', ''];
 const E100 = () => Array.from({ length: 10 }, E10);
-const E1000 = () => Array.from({ length: 10 }, E100);
 
 function blankLang() {
   return {
     season: ['', '', '', ''],
     level1: Array.from({ length: 4 }, E10),
     level2: Array.from({ length: 4 }, E100),
-    level3: Array.from({ length: 4 }, E1000),
-    text:   Array.from({ length: 4 }, E1000)
+    text:   Array.from({ length: 4 }, E100)
   };
 }
 
@@ -136,16 +128,11 @@ function saveContent() {
 /* ================================================================
    NAVIGATION STATE
    ================================================================ */
-let s = null, l1 = null, l2 = null, l3 = null;
-let showApipedia = false;
-let showContact = false;
+let s = null, l1 = null, l2 = null;
 
-function resetNav() { s = l1 = l2 = l3 = null; showApipedia = false; showContact = false; }
+function resetNav() { s = l1 = l2 = null; }
 function back() {
-  if (showContact) { showContact = false; render(); return; }
-  if (showApipedia) { showApipedia = false; render(); return; }
-  if (l3 !== null) l3 = null;
-  else if (l2 !== null) l2 = null;
+  if (l2 !== null) l2 = null;
   else if (l1 !== null) l1 = null;
   else if (s !== null) s = null;
   render();
@@ -163,7 +150,6 @@ function currentTitles(level) {
   if (level === 'season') return C.season;
   if (level === 'level1') return C.level1[s];
   if (level === 'level2') return C.level2[s][l1];
-  if (level === 'level3') return C.level3[s][l1][l2];
   return [];
 }
 
@@ -172,15 +158,10 @@ function ensureChildBranch(level, parentIdx) {
   if (level === 'season') {
     while (C.level1.length <= parentIdx) C.level1.push(E10());
     while (C.level2.length <= parentIdx) C.level2.push(E100());
-    while (C.level3.length <= parentIdx) C.level3.push(E1000());
-    while (C.text.length   <= parentIdx) C.text.push(E1000());
+    while (C.text.length   <= parentIdx) C.text.push(E100());
   } else if (level === 'level1') {
     while (C.level2[s].length <= parentIdx) C.level2[s].push(E10());
-    while (C.level3[s].length <= parentIdx) C.level3[s].push(E100());
-    while (C.text[s].length   <= parentIdx) C.text[s].push(E100());
-  } else if (level === 'level2') {
-    while (C.level3[s][l1].length <= parentIdx) C.level3[s][l1].push(E10());
-    while (C.text[s][l1].length   <= parentIdx) C.text[s][l1].push(E10());
+    while (C.text[s].length   <= parentIdx) C.text[s].push(E10());
   }
 }
 
@@ -192,51 +173,13 @@ function render() {
   const app = document.getElementById('app');
   const isEditor = !FINAL_MODE;
 
-  /* Apipedia panel */
-  if (showApipedia && !showContact) {
-    document.getElementById('apipediaWrap').style.display = 'none';
-    app.innerHTML = `
-      <div class="row">
-        <button class="back-btn" id="backBtn">← Back</button>
-      </div>
-      <div class="apipedia-panel">
-        <a class="btn apipedia-contact-corner" href="${VESPA_CONTACT_URL}" target="_blank" rel="noopener">📬 Contact</a>
-        <h2>📖 Apipedia</h2>
-        <p>Apipedia is the community encyclopedia of beekeeping knowledge.</p>
-        <p><strong>Want to add a page here?</strong> Please contact <strong>VespaCaution</strong> and send the text of your page for review.</p>
-      </div>
-    `;
-    document.getElementById('backBtn').onclick = back;
-    return;
-  }
-
-  /* Contact page */
-  if (showContact) {
-    document.getElementById('apipediaWrap').style.display = 'none';
-    app.innerHTML = `
-      <div class="row">
-        <button class="back-btn" id="backBtn">← Back</button>
-      </div>
-      <div class="contact-card">
-        <h2>📬 Contact VespaCaution</h2>
-        <p>For Apipedia submissions, corrections, or general questions, please use the contact form:</p>
-        <p><a class="btn btn-success" href="${VESPA_CONTACT_URL}" target="_blank" rel="noopener">Open contact form</a></p>
-        <p class="empty-note">${VESPA_CONTACT_URL}</p>
-      </div>
-    `;
-    document.getElementById('backBtn').onclick = back;
-    return;
-  }
-
-  document.getElementById('apipediaWrap').style.display = '';
-
   /* ---------- FINAL TEXT VIEW ---------- */
-  if (s !== null && l1 !== null && l2 !== null && l3 !== null) {
-    const text = CONTENT[currentLang].text[s][l1][l2][l3];
+  if (s !== null && l1 !== null && l2 !== null) {
+    const text = CONTENT[currentLang].text[s][l1][l2];
     app.innerHTML = `
       <div class="row">
         <button class="back-btn" id="backBtn">← Back</button>
-        <span class="breadcrumb">${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1}.${l2+1}.${l3+1}</span>
+        <span class="breadcrumb">${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1}.${l2+1}</span>
       </div>
       <div class="textbox-container">
         <h2>📝 Notes</h2>
@@ -252,7 +195,7 @@ function render() {
     if (isEditor) {
       const ta = document.getElementById('editText');
       ta.addEventListener('input', () => {
-        CONTENT[currentLang].text[s][l1][l2][l3] = ta.value;
+        CONTENT[currentLang].text[s][l1][l2] = ta.value;
         saveContent();
       });
     }
@@ -261,16 +204,14 @@ function render() {
 
   /* Determine level */
   let level;
-  if (s !== null && l1 !== null && l2 !== null) level = 'level3';
-  else if (s !== null && l1 !== null) level = 'level2';
+  if (s !== null && l1 !== null) level = 'level2';
   else if (s !== null) level = 'level1';
   else level = 'season';
 
   const crumbText = {
     season: `${esc(LANG_LABELS[currentLang])} · choose a season`,
     level1: `${esc(LANG_LABELS[currentLang])} · S${s+1} → activity`,
-    level2: `${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1} → group`,
-    level3: `${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1}.${l2+1} → item`
+    level2: `${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1} → item`
   }[level];
 
   app.innerHTML = `
@@ -287,7 +228,7 @@ function render() {
 }
 
 function editorHint(level) {
-  return `<div class="editor-hint">✏️ Pencil to edit · × to hide · ＋ to add (adds a button with its own text page)</div>`;
+  return `<div class="editor-hint">✏️ Pencil to edit · × to hide · ＋ to add a button that opens a text page</div>`;
 }
 
 /* ================================================================
@@ -323,10 +264,9 @@ function fillGrid(level) {
     btn.onclick = () => {
       const i = +btn.dataset.open;
       if (titles[i] === null) return;
-      if (level === 'season') { s = i; l1 = l2 = l3 = null; }
-      else if (level === 'level1') { l1 = i; l2 = l3 = null; }
-      else if (level === 'level2') { l2 = i; l3 = null; }
-      else { l3 = i; }
+      if (level === 'season') { s = i; l1 = l2 = null; }
+      else if (level === 'level1') { l1 = i; l2 = null; }
+      else { l2 = i; }
       render();
     };
   });
@@ -439,21 +379,14 @@ function buildFinalHtml(bakedContentJson, startingLang) {
 const FINAL_MODE = true;
 const LANGS = ['en','fr','it','de','rm'];
 const LANG_LABELS = { en:'English', fr:'Français', it:'Italiano', de:'Deutsch', rm:'Rumantsch' };
-const VESPA_CONTACT_URL = '${VESPA_CONTACT_URL}';
 
 const CONTENT = ${bakedContentJson};
 let currentLang = '${startingLang}';
 
-let s = null, l1 = null, l2 = null, l3 = null;
-let showApipedia = false;
-let showContact = false;
+let s = null, l1 = null, l2 = null;
 
-function resetNav(){ s=l1=l2=l3=null; showApipedia=false; showContact=false; }
-function back(){
-  if (showContact){ showContact=false; render(); return; }
-  if (showApipedia){ showApipedia=false; render(); return; }
-  if(l3!==null)l3=null; else if(l2!==null)l2=null; else if(l1!==null)l1=null; else if(s!==null)s=null; render();
-}
+function resetNav(){ s=l1=l2=null; }
+function back(){ if(l2!==null)l2=null; else if(l1!==null)l1=null; else if(s!==null)s=null; render(); }
 
 function esc(str){ return String(str==null?'':str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -462,53 +395,18 @@ function currentTitles(level){
   if (level==='season') return C.season;
   if (level==='level1') return C.level1[s];
   if (level==='level2') return C.level2[s][l1];
-  if (level==='level3') return C.level3[s][l1][l2];
   return [];
 }
 
 function render(){
   const app = document.getElementById('app');
 
-  if (showApipedia && !showContact){
-    document.getElementById('apipediaWrap').style.display = 'none';
+  if (s!==null && l1!==null && l2!==null){
+    const t = CONTENT[currentLang].text[s][l1][l2];
     app.innerHTML = \`
       <div class="row">
         <button class="back-btn" id="backBtn">← Back</button>
-      </div>
-      <div class="apipedia-panel">
-        <a class="btn apipedia-contact-corner" href="\${VESPA_CONTACT_URL}" target="_blank" rel="noopener">📬 Contact</a>
-        <h2>📖 Apipedia</h2>
-        <p>Apipedia is the community encyclopedia of beekeeping knowledge.</p>
-        <p><strong>Want to add a page here?</strong> Please contact <strong>VespaCaution</strong> and send the text of your page for review.</p>
-      </div>\`;
-    document.getElementById('backBtn').onclick = back;
-    return;
-  }
-
-  if (showContact){
-    document.getElementById('apipediaWrap').style.display = 'none';
-    app.innerHTML = \`
-      <div class="row">
-        <button class="back-btn" id="backBtn">← Back</button>
-      </div>
-      <div class="contact-card">
-        <h2>📬 Contact VespaCaution</h2>
-        <p>For Apipedia submissions, corrections, or general questions, please use the contact form:</p>
-        <p><a class="btn btn-success" href="\${VESPA_CONTACT_URL}" target="_blank" rel="noopener">Open contact form</a></p>
-        <p class="empty-note">\${VESPA_CONTACT_URL}</p>
-      </div>\`;
-    document.getElementById('backBtn').onclick = back;
-    return;
-  }
-
-  document.getElementById('apipediaWrap').style.display = '';
-
-  if (s!==null && l1!==null && l2!==null && l3!==null){
-    const t = CONTENT[currentLang].text[s][l1][l2][l3];
-    app.innerHTML = \`
-      <div class="row">
-        <button class="back-btn" id="backBtn">← Back</button>
-        <span class="breadcrumb">\${esc(LANG_LABELS[currentLang])} · S\${s+1} · \${l1+1}.\${l2+1}.\${l3+1}</span>
+        <span class="breadcrumb">\${esc(LANG_LABELS[currentLang])} · S\${s+1} · \${l1+1}.\${l2+1}</span>
       </div>
       <div class="textbox-container">
         <h2>📝 Notes</h2>
@@ -519,16 +417,14 @@ function render(){
   }
 
   let level;
-  if (s!==null && l1!==null && l2!==null) level='level3';
-  else if (s!==null && l1!==null) level='level2';
+  if (s!==null && l1!==null) level='level2';
   else if (s!==null) level='level1';
   else level='season';
 
   const crumbText = {
     season: esc(LANG_LABELS[currentLang]) + ' · choose a season',
     level1: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' → activity',
-    level2: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' · ' + (l1+1) + ' → group',
-    level3: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' · ' + (l1+1) + '.' + (l2+1) + ' → item'
+    level2: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' · ' + (l1+1) + ' → item'
   }[level];
 
   const titles = currentTitles(level);
@@ -551,10 +447,9 @@ function render(){
   document.querySelectorAll('[data-i]').forEach(b=>{
     b.onclick = ()=>{
       const i = +b.dataset.i;
-      if (level==='season'){ s=i; l1=l2=l3=null; }
-      else if (level==='level1'){ l1=i; l2=l3=null; }
-      else if (level==='level2'){ l2=i; l3=null; }
-      else { l3=i; }
+      if (level==='season'){ s=i; l1=l2=null; }
+      else if (level==='level1'){ l1=i; l2=null; }
+      else { l2=i; }
       render();
     };
   });
@@ -573,12 +468,6 @@ function renderLangSwitcher(){
     render();
   };
 }
-
-document.getElementById('apipediaBtn').onclick = ()=>{
-  showApipedia = true;
-  showContact = false;
-  render();
-};
 
 /* ---------- service worker + install ---------- */
 let deferredInstallPrompt = null;
@@ -635,9 +524,8 @@ render();
 </div>
 <main id="app"></main>
 
-<div class="apipedia-wrap" id="apipediaWrap">
-  <button class="apipedia-btn" id="apipediaBtn">📖 Apipedia</button>
-  <button class="apipedia-btn install-btn" id="installBtn">⬇ Installer l'application</button>
+<div class="install-wrap" id="installWrap">
+  <button class="install-btn" id="installBtn">⬇ Installer l'application</button>
 </div>
 
 <footer>ApiGuide v1.0</footer>
@@ -660,15 +548,6 @@ render();
 </body>
 </html>`;
 }
-
-/* ================================================================
-   APIPEDIA BUTTON (editor)
-   ================================================================ */
-document.getElementById('apipediaBtn').onclick = () => {
-  showApipedia = true;
-  showContact = false;
-  render();
-};
 
 /* ================================================================
    SERVICE WORKER + INSTALL BUTTON (editor)
