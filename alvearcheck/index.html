@@ -548,6 +548,8 @@ async function screenReaderAI(transcript) {
   // 1. NAVIGATION VERS UN RUCHER OU UNE RUCHE PAR NOM
   // ==========================================
   if (text.includes('ouvre') || text.includes('ouvrir') || text.includes('open')) {
+    
+    // Ouvrir un rucher
     if (currentView === 'apiary-list') {
       var apiary = appData.apiaries.find(function(a) { return text.includes(a.name.toLowerCase()); });
       if (apiary) {
@@ -558,6 +560,8 @@ async function screenReaderAI(transcript) {
         return;
       }
     }
+
+    // Ouvrir une ruche
     if (currentView === 'hive-list' && activeApiaryId) {
       var currentApiary = findApiary(activeApiaryId);
       var hive = currentApiary.hives.find(function(h) { return text.includes(h.name.toLowerCase()); });
@@ -591,6 +595,7 @@ async function screenReaderAI(transcript) {
   }
 
   if (foundId) {
+    // Boutons dynamiques (liés à la ruche active)
     if (foundId === 'visit-history-btn' && activeHiveId) {
       var btn = document.querySelector('.visit-history-btn[data-hive-id="' + activeHiveId + '"]');
       if (btn) { btn.click(); showVoiceStatus("✅ Visites ouvertes"); return; }
@@ -599,6 +604,8 @@ async function screenReaderAI(transcript) {
       var btn = document.querySelector('.edit-hive-btn[data-hive-id="' + activeHiveId + '"]');
       if (btn) { btn.click(); showVoiceStatus("✅ Modification ouverte"); return; }
     }
+    
+    // Boutons standards (par ID)
     var btn = document.getElementById(foundId);
     if (btn) {
       btn.click();
@@ -608,11 +615,10 @@ async function screenReaderAI(transcript) {
   }
 
   // ==========================================
-  // 3. GESTION DES DONNÉES (Avec l'IA pour remplir)
+  // 3. GESTION DES DONNÉES (Avec l'IA)
   // ==========================================
   showVoiceStatus("🤖 Analyse des données...");
   
-  // On récupère TOUS les champs présents sur l'écran
   var formFields = [];
   document.querySelectorAll('.field').forEach(function(field) {
     var labelEl = field.querySelector('label');
@@ -621,13 +627,11 @@ async function screenReaderAI(transcript) {
     if (label && input) formFields.push('Field: "' + label + '" (ID: ' + input.id + ')');
   });
 
-  // Si on n'est pas sur un formulaire, on ne fait rien
   if (formFields.length === 0) {
     showVoiceStatus("⚠️ Aucun champ à remplir ici.");
     return;
   }
 
-  // Le prompt est très direct : "Voici les champs, voici ce que j'ai dit, remplis-les"
   var systemPrompt = 'Available Fields:\n' + formFields.join('\n') + 
     '\n\nUser said: "' + transcript + '"' +
     '\n\nYou must return a JSON object like this: { "action": "fill_form", "data": { "field_id": "value" } }.' +
@@ -641,7 +645,7 @@ async function screenReaderAI(transcript) {
         'Content-Type': 'application/json'
       }, 
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant', // 8B est suffisant et plus obéissant
+        model: 'llama-3.1-8b-instant',
         messages: [
           { role: 'system', content: 'You are a JSON API. Output ONLY valid JSON.' },
           { role: 'user', content: systemPrompt }
@@ -651,19 +655,31 @@ async function screenReaderAI(transcript) {
       })
     });
 
-    if (!llmResponse.ok) throw new Error("LLM API failed");
+    // Vérification des erreurs HTTP (ex: quota dépassé)
+    if (!llmResponse.ok) {
+      var errData = await llmResponse.json();
+      var errMsg = errData.error ? errData.error.message : "Erreur serveur";
+      showVoiceStatus("⚠️ " + errMsg);
+      return;
+    }
     
     var llmResult = await llmResponse.json();
+    
+    // Vérification anti-crash
+    if (!llmResult.choices || !llmResult.choices[0] || !llmResult.choices[0].message) {
+      showVoiceStatus("⚠️ Réponse IA invalide. Réessayez.");
+      return;
+    }
+    
     var rawContent = llmResult.choices[0].message.content;
     
-    // Nettoyage
+    // Nettoyage du JSON
     rawContent = rawContent.replace(/```json/g, '').replace(/```/g, '').trim();
     var firstBrace = rawContent.indexOf('{');
     var lastBrace = rawContent.lastIndexOf('}');
     if (firstBrace !== -1 && lastBrace !== -1) rawContent = rawContent.substring(firstBrace, lastBrace + 1);
     
     var parsed = JSON.parse(rawContent);
-    console.log("AI parsed:", parsed);
     
     if (parsed.action === "fill_form" && parsed.data) {
       await executeAIAction(parsed);
@@ -673,9 +689,9 @@ async function screenReaderAI(transcript) {
     
   } catch (err) {
     console.error(err);
-    showVoiceStatus("⚠️ Erreur de compréhension : " + err.message);
+    showVoiceStatus("⚠️ Erreur : " + err.message);
   }
-}
+      }
 // --- EXÉCUTION DES ACTIONS ---
 async function executeAIAction(data) { 
   if (data.action === "click" && data.id) { 
