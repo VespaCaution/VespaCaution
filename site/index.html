@@ -676,124 +676,109 @@ const appsConfig = {
             </div>`; }
         }
     },
-    'apiguide': {
-        title: 'ApiGuide',
-        icon: '📖',
-        shortDesc: {
-            en: "Guide to seasons and beekeeping activities",
-            fr: "Guide des saisons et activités apicoles",
-            de: "Leitfaden für Jahreszeiten und Imkerei",
-            it: "Guida alle stagioni e attività apistiche",
-            rm: "Cudesch da las stagiuns e activitats da las avieuls"
-        },
-        html: {
-            en: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.en}</p></div>
-            <div class="app-content-box">
-                <p>ApiGuide is a PWA designed to accompany beekeepers throughout the year, organizing activities by season.</p>
-                <h3>Structure de navigation</h3>
-                <ul><li><strong>Seasons:</strong> Spring, Summer, Autumn, Winter.</li><li><strong>Activities:</strong> 10 main activities per season.</li><li><strong>Sub-activities:</strong> Detailed breakdown.</li><li><strong>Sheets:</strong> Read-only text sheets with advice.</li></ul>
-                <h3>📖 Apipedia</h3>
-                <p>At the bottom of the page, a button opens a community space dedicated to the beekeeping encyclopedia. Learn how to submit new pages directly to Vespacaution for review.</p>
-                <h3>🌍 Multilingual & Offline</h3>
-                <p>Available in 5 independent languages (FR, EN, DE, IT, RM) and works 100% offline.</p>
-                <div style="text-align:center"><a href="../apps/apiguide/" class="btn main-open-btn">${t('btn_open')}</a></div>
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
-                    <div class="accordion-content">
-                        <div class="instruction-step"><h4>1. Navigation</h4><p>Select a season, then choose an activity. Read the detailed text sheets.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
-                        <div class="instruction-step"><h4>2. Apipedia</h4><p>Open Apipedia at the bottom to read articles or submit your own.</p><img src="../apps/apiguide/2.png" alt="Apipedia"></div>
-                        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
-                    </div>
+'apiguide': {
+    title: 'ApiGuide',
+    icon: '📖',
+    shortDesc: {
+        en: "Guide to seasons and beekeeping activities",
+        fr: "Guide des saisons et activités apicoles",
+        de: "Leitfaden für Jahreszeiten und Imkerei",
+        it: "Guida alle stagioni e attività apistiche",
+        rm: "Cudesch da las stagiuns e activitats da las avieuls"
+    },
+    html: {
+        en: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.en}</p></div>
+        <div class="app-content-box">
+            <p>ApiGuide is a PWA designed to accompany beekeepers throughout the year, organizing activities by season.</p>
+            <h3>Structure de navigation</h3>
+            <ul><li><strong>Seasons:</strong> Spring, Summer, Autumn, Winter.</li><li><strong>Activities:</strong> 10 main activities per season.</li><li><strong>Sub-activities:</strong> Detailed breakdown.</li><li><strong>Sheets:</strong> Read-only text sheets with advice.</li></ul>
+            <h3>🌍 Multilingual & Offline</h3>
+            <p>Available in 5 independent languages (FR, EN, DE, IT, RM) and works 100% offline.</p>
+            <div style="text-align:center"><a href="../apps/apiguide/index.html" class="btn main-open-btn">${t('btn_open')}</a></div>
+            <div class="accordion">
+                <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
+                <div class="accordion-content">
+                    <div class="instruction-step"><h4>1. Navigation</h4><p>Select a season, then choose an activity. Read the detailed text sheets.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
+                    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
+                    <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
+                    <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                 </div>
-            </div>`; },
-            fr: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.fr}</p></div>
-            <div class="app-content-box">
-                <p>ApiGuide est une application web (PWA) conçue pour accompagner les apiculteurs tout au long de l'année, en organisant les activités selon les quatre saisons.</p>
-                <h3>Structure de navigation</h3>
-                <ul><li><strong>Saisons :</strong> Printemps, Été, Automne, Hiver.</li><li><strong>Activités :</strong> 10 activités principales par saison.</li><li><strong>Sous-activités :</strong> Affinage des sujets.</li><li><strong>Fiches :</strong> Textes de conseils en lecture seule.</li></ul>
-                <h3>📖 Apipedia</h3>
-                <p>En bas de page, un bouton ouvre un espace communautaire dédié à l'encyclopédie apicole. Découvrez comment proposer de nouvelles pages en envoyant le texte à Vespacaution pour relecture.</p>
-                <h3>🌍 Multilingue & Hors ligne</h3>
-                <p>Disponible en 5 langues indépendantes (FR, EN, DE, IT, RM) et fonctionne 100% hors ligne.</p>
-                <div style="text-align:center"><a href="../apps/apiguide/" class="btn main-open-btn">${t('btn_open')}</a></div>
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
-                    <div class="accordion-content">
-                        <div class="instruction-step"><h4>1. Navigation</h4><p>Sélectionnez une saison, puis une activité pour lire les fiches détaillées.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
-                        <div class="instruction-step"><h4>2. Apipedia</h4><p>Ouvrez Apipedia en bas de page pour lire ou proposer des articles.</p><img src="../apps/apiguide/2.png" alt="Apipedia"></div>
-                        <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
-                    </div>
+            </div>
+        </div>`; },
+        fr: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.fr}</p></div>
+        <div class="app-content-box">
+            <p>ApiGuide est une application web (PWA) conçue pour accompagner les apiculteurs tout au long de l'année, en organisant les activités selon les quatre saisons.</p>
+            <h3>Structure de navigation</h3>
+            <ul><li><strong>Saisons :</strong> Printemps, Été, Automne, Hiver.</li><li><strong>Activités :</strong> 10 activités principales par saison.</li><li><strong>Sous-activités :</strong> Affinage des sujets.</li><li><strong>Fiches :</strong> Textes de conseils en lecture seule.</li></ul>
+            <h3>🌍 Multilingue & Hors ligne</h3>
+            <p>Disponible en 5 langues indépendantes (FR, EN, DE, IT, RM) et fonctionne 100% hors ligne.</p>
+            <div style="text-align:center"><a href="../apps/apiguide/index.html" class="btn main-open-btn">${t('btn_open')}</a></div>
+            <div class="accordion">
+                <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
+                <div class="accordion-content">
+                    <div class="instruction-step"><h4>1. Navigation</h4><p>Sélectionnez une saison, puis une activité pour lire les fiches détaillées.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
+                    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
+                    <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
+                    <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                 </div>
-            </div>`; },
-            de: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.de}</p></div>
-            <div class="app-content-box">
-                <p>ApiGuide ist eine PWA, die Imker das ganze Jahr über begleiten soll und die Aktivitäten nach Jahreszeiten organisiert.</p>
-                <h3>Navigationsstruktur</h3>
-                <ul><li><strong>Jahreszeiten:</strong> Frühling, Sommer, Herbst, Winter.</li><li><strong>Aktivitäten:</strong> 10 Hauptaktivitäten pro Jahreszeit.</li><li><strong>Unteraktivitäten:</strong> Detaillierte Aufschlüsselung.</li><li><strong>Textblätter:</strong> Read-only Textblätter mit Ratschlägen.</li></ul>
-                <h3>📖 Apipedia</h3>
-                <p>Am Ende der Seite öffnet eine Schaltfläche einen Community-Bereich, der der Imkerei-Enzyklopädie gewidmet ist. Erfahren Sie, wie Sie neue Seiten direkt zur Überprüfung an Vespacaution senden können.</p>
-                               <h3>🌍 Mehrsprachig & Offline</h3>
-                        <p>Verfügbar in 5 unabhängigen Sprachen (FR, EN, DE, IT, RM) und funktioniert 100% offline.</p>
-                        <div style="text-align:center"><a href="../apps/apiguide/" class="btn main-open-btn">${t('btn_open')}</a></div>
-                        <div class="accordion">
-                            <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
-                            <div class="accordion-content">
-                                <div class="instruction-step"><h4>1. Navigation</h4><p>Wählen Sie eine Jahreszeit und dann eine Aktivität. Lesen Sie die detaillierten Textblätter.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
-                                <div class="instruction-step"><h4>2. Apipedia</h4><p>Öffnen Sie Apipedia am Ende der Seite, um Artikel zu lesen oder eigene einzureichen.</p><img src="../apps/apiguide/2.png" alt="Apipedia"></div>
-                                <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                                <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                                <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
-                            </div>
-                        </div>
-                    </div>`; },
-                    it: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.it}</p></div>
-                    <div class="app-content-box">
-                        <p>ApiGuide è una PWA progettata per accompagnare gli apicoltori durante tutto l'anno, organizzando le attività per stagione.</p>
-                        <h3>Struttura di navigazione</h3>
-                        <ul><li><strong>Stagioni:</strong> Primavera, Estate, Autunno, Inverno.</li><li><strong>Attività:</strong> 10 attività principali per stagione.</li><li><strong>Sotto-attività:</strong> Suddivisione dettagliata.</li><li><strong>Schede:</strong> Schede di testo in sola lettura con consigli.</li></ul>
-                        <h3>📖 Apipedia</h3>
-                        <p>In fondo alla pagina, un pulsante apre uno spazio comunitario dedicato all'enciclopedia dell'apicoltura. Scopri come inviare nuove pagine direttamente a Vespacaution per la revisione.</p>
-                        <h3>🌍 Multilingue e Offline</h3>
-                        <p>Disponibile in 5 lingue indipendenti (FR, EN, DE, IT, RM) e funziona 100% offline.</p>
-                        <div style="text-align:center"><a href="../apps/apiguide/" class="btn main-open-btn">${t('btn_open')}</a></div>
-                        <div class="accordion">
-                            <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
-                            <div class="accordion-content">
-                                <div class="instruction-step"><h4>1. Navigazione</h4><p>Seleziona una stagione, poi un'attività. Leggi le schede di testo dettagliate.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
-                                <div class="instruction-step"><h4>2. Apipedia</h4><p>Apri Apipedia in fondo alla pagina per leggere articoli o inviare i tuoi.</p><img src="../apps/apiguide/2.png" alt="Apipedia"></div>
-                                <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                                <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                                <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
-                            </div>
-                        </div>
-                    </div>`; },
-                    rm: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.rm}</p></div>
-                    <div class="app-content-box">
-                        <p>ApiGuide è ina PWA concepidà per accumpagnar ils apiculturs durant tut l'on, organisond las activitats per stagiun.</p>
-                        <h3>Structura da navigaziun</h3>
-                        <ul><li><strong>Stagiuns:</strong> Primavaira, Stad, Atun, Enviern.</li><li><strong>Activitats:</strong> 10 activitats principalas per stagiun.</li><li><strong>Sut-activitats:</strong> Detaglià.</li><li><strong>Fichas:</strong> Fichas da text cun cussegls.</li></ul>
-                        <h3>📖 Apipedia</h3>
-                        <p>En il fund da la pagina, in buttun avra in spazi da communitad dedicà a l'enciclopedia da l'apicultura. Scuvra co trametter novas paginas directamain a Vespacaution per la revisiun.</p>
-                        <h3>🌍 Multilingua & Offline</h3>
-                        <p>Disponibel en 5 linguas independentas (FR, EN, DE, IT, RM) e funcziunescha 100% offline.</p>
-                        <div style="text-align:center"><a href="../apps/apiguide/" class="btn main-open-btn">${t('btn_open')}</a></div>
-                        <div class="accordion">
-                            <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
-                            <div class="accordion-content">
-                                <div class="instruction-step"><h4>1. Navigaziun</h4><p>Tscherna ina stagiun, lura in'activitad. Legia las fichas detagliadas.</p><img src="../apps/apiguide/1.png" alt="Navigaziun"></div>
-                                <div class="instruction-step"><h4>2. Apipedia</h4><p>Avra Apipedia en il fund da la pagina per legier artitgels u trametter tes.</p><img src="../apps/apiguide/2.png" alt="Apipedia"></div>
-                                <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                                <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                                <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
-                            </div>
-                        </div>
-                    </div>`; }
-                }
-            },
+            </div>
+        </div>`; },
+        de: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.de}</p></div>
+        <div class="app-content-box">
+            <p>ApiGuide ist eine PWA, die Imker das ganze Jahr über begleiten soll und die Aktivitäten nach Jahreszeiten organisiert.</p>
+            <h3>Navigationsstruktur</h3>
+            <ul><li><strong>Jahreszeiten:</strong> Frühling, Sommer, Herbst, Winter.</li><li><strong>Aktivitäten:</strong> 10 Hauptaktivitäten pro Jahreszeit.</li><li><strong>Unteraktivitäten:</strong> Detaillierte Aufschlüsselung.</li><li><strong>Textblätter:</strong> Read-only Textblätter mit Ratschlägen.</li></ul>
+            <h3>🌍 Mehrsprachig & Offline</h3>
+            <p>Verfügbar in 5 unabhängigen Sprachen (FR, EN, DE, IT, RM) und funktioniert 100% offline.</p>
+            <div style="text-align:center"><a href="../apps/apiguide/index.html" class="btn main-open-btn">${t('btn_open')}</a></div>
+            <div class="accordion">
+                <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
+                <div class="accordion-content">
+                    <div class="instruction-step"><h4>1. Navigation</h4><p>Wählen Sie eine Jahreszeit und dann eine Aktivität. Lesen Sie die detaillierten Textblätter.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
+                    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
+                    <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
+                    <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                </div>
+            </div>
+        </div>`; },
+        it: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.it}</p></div>
+        <div class="app-content-box">
+            <p>ApiGuide è una PWA progettata per accompagnare gli apicoltori durante tutto l'anno, organizzando le attività per stagione.</p>
+            <h3>Struttura di navigazione</h3>
+            <ul><li><strong>Stagioni:</strong> Primavera, Estate, Autunno, Inverno.</li><li><strong>Attività:</strong> 10 attività principali per stagione.</li><li><strong>Sotto-attività:</strong> Suddivisione dettagliata.</li><li><strong>Schede:</strong> Schede di testo in sola lettura con consigli.</li></ul>
+            <h3>🌍 Multilingue e Offline</h3>
+            <p>Disponibile in 5 lingue indipendenti (FR, EN, DE, IT, RM) e funziona 100% offline.</p>
+            <div style="text-align:center"><a href="../apps/apiguide/index.html" class="btn main-open-btn">${t('btn_open')}</a></div>
+            <div class="accordion">
+                <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
+                <div class="accordion-content">
+                    <div class="instruction-step"><h4>1. Navigazione</h4><p>Seleziona una stagione, poi un'attività. Leggi le schede di testo dettagliate.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
+                    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
+                    <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
+                    <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                </div>
+            </div>
+        </div>`; },
+        rm: function() { return `<div class="app-header"><h1>📖 ApiGuide</h1><p>${appsConfig['apiguide'].shortDesc.rm}</p></div>
+        <div class="app-content-box">
+            <p>ApiGuide è ina PWA concepidà per accumpagnar ils apiculturs durant tut l'on, organisond las activitats per stagiun.</p>
+            <h3>Structura da navigaziun</h3>
+            <ul><li><strong>Stagiuns:</strong> Primavaira, Stad, Atun, Enviern.</li><li><strong>Activitats:</strong> 10 activitats principalas per stagiun.</li><li><strong>Sut-activitats:</strong> Detaglià.</li><li><strong>Fichas:</strong> Fichas da text cun cussegls.</li></ul>
+            <h3>🌍 Multilingua & Offline</h3>
+            <p>Disponibel en 5 linguas independentas (FR, EN, DE, IT, RM) e funcziunescha 100% offline.</p>
+            <div style="text-align:center"><a href="../apps/apiguide/index.html" class="btn main-open-btn">${t('btn_open')}</a></div>
+            <div class="accordion">
+                <div class="accordion-header" onclick="toggleAccordion(this)">${t('btn_instructions')} <span class="accordion-icon">+</span></div>
+                <div class="accordion-content">
+                    <div class="instruction-step"><h4>1. Navigaziun</h4><p>Tscherna ina stagiun, lura in'activitad. Legia las fichas detagliadas.</p><img src="../apps/apiguide/1.png" alt="Navigaziun"></div>
+                    <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
+                    <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
+                    <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                </div>
+            </div>
+        </div>`; }
+    }
+},
             'alvearcheck': {
                 title: 'AlvearCheck',
                 icon: '📋',
