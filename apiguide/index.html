@@ -87,20 +87,17 @@ const LANG_LABELS = { en:'English', fr:'Français', it:'Italiano', de:'Deutsch',
 /* ================================================================
    CONTENT
    Structure per language:
-     season  : 4 titles
-     level1  : 4 seasons × 10 titles           (button 1)
-     level2  : 4 seasons × 10 × 10 titles      (button 2)
-     text    : 4 seasons × 10 × 10 strings     (final text)
+     season : 4 titles
+     level1 : 4 seasons × 10 activity titles    (activity buttons)
+     text   : 4 seasons × 10 strings            (final text per activity)
    ================================================================ */
-const E10  = () => ['', '', '', '', '', '', '', '', '', ''];
-const E100 = () => Array.from({ length: 10 }, E10);
+const E10 = () => ['', '', '', '', '', '', '', '', '', ''];
 
 function blankLang() {
   return {
     season: ['', '', '', ''],
     level1: Array.from({ length: 4 }, E10),
-    level2: Array.from({ length: 4 }, E100),
-    text:   Array.from({ length: 4 }, E100)
+    text:   Array.from({ length: 4 }, E10)
   };
 }
 
@@ -128,12 +125,11 @@ function saveContent() {
 /* ================================================================
    NAVIGATION STATE
    ================================================================ */
-let s = null, l1 = null, l2 = null;
+let s = null, l1 = null;
 
-function resetNav() { s = l1 = l2 = null; }
+function resetNav() { s = l1 = null; }
 function back() {
-  if (l2 !== null) l2 = null;
-  else if (l1 !== null) l1 = null;
+  if (l1 !== null) l1 = null;
   else if (s !== null) s = null;
   render();
 }
@@ -149,7 +145,6 @@ function currentTitles(level) {
   const C = CONTENT[currentLang];
   if (level === 'season') return C.season;
   if (level === 'level1') return C.level1[s];
-  if (level === 'level2') return C.level2[s][l1];
   return [];
 }
 
@@ -157,11 +152,7 @@ function ensureChildBranch(level, parentIdx) {
   const C = CONTENT[currentLang];
   if (level === 'season') {
     while (C.level1.length <= parentIdx) C.level1.push(E10());
-    while (C.level2.length <= parentIdx) C.level2.push(E100());
-    while (C.text.length   <= parentIdx) C.text.push(E100());
-  } else if (level === 'level1') {
-    while (C.level2[s].length <= parentIdx) C.level2[s].push(E10());
-    while (C.text[s].length   <= parentIdx) C.text[s].push(E10());
+    while (C.text.length   <= parentIdx) C.text.push(E10());
   }
 }
 
@@ -174,12 +165,12 @@ function render() {
   const isEditor = !FINAL_MODE;
 
   /* ---------- FINAL TEXT VIEW ---------- */
-  if (s !== null && l1 !== null && l2 !== null) {
-    const text = CONTENT[currentLang].text[s][l1][l2];
+  if (s !== null && l1 !== null) {
+    const text = CONTENT[currentLang].text[s][l1];
     app.innerHTML = `
       <div class="row">
         <button class="back-btn" id="backBtn">← Back</button>
-        <span class="breadcrumb">${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1}.${l2+1}</span>
+        <span class="breadcrumb">${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1}</span>
       </div>
       <div class="textbox-container">
         <h2>📝 Notes</h2>
@@ -195,7 +186,7 @@ function render() {
     if (isEditor) {
       const ta = document.getElementById('editText');
       ta.addEventListener('input', () => {
-        CONTENT[currentLang].text[s][l1][l2] = ta.value;
+        CONTENT[currentLang].text[s][l1] = ta.value;
         saveContent();
       });
     }
@@ -204,14 +195,12 @@ function render() {
 
   /* Determine level */
   let level;
-  if (s !== null && l1 !== null) level = 'level2';
-  else if (s !== null) level = 'level1';
+  if (s !== null) level = 'level1';
   else level = 'season';
 
   const crumbText = {
     season: `${esc(LANG_LABELS[currentLang])} · choose a season`,
-    level1: `${esc(LANG_LABELS[currentLang])} · S${s+1} → activity`,
-    level2: `${esc(LANG_LABELS[currentLang])} · S${s+1} · ${l1+1} → item`
+    level1: `${esc(LANG_LABELS[currentLang])} · S${s+1} → activity`
   }[level];
 
   app.innerHTML = `
@@ -228,7 +217,7 @@ function render() {
 }
 
 function editorHint(level) {
-  return `<div class="editor-hint">✏️ Pencil to edit · × to hide · ＋ to add a button that opens a text page</div>`;
+  return `<div class="editor-hint">✏️ Pencil to edit · × to hide · ＋ to add an activity button that opens its own text page</div>`;
 }
 
 /* ================================================================
@@ -264,9 +253,8 @@ function fillGrid(level) {
     btn.onclick = () => {
       const i = +btn.dataset.open;
       if (titles[i] === null) return;
-      if (level === 'season') { s = i; l1 = l2 = null; }
-      else if (level === 'level1') { l1 = i; l2 = null; }
-      else { l2 = i; }
+      if (level === 'season') { s = i; l1 = null; }
+      else { l1 = i; }
       render();
     };
   });
@@ -383,10 +371,10 @@ const LANG_LABELS = { en:'English', fr:'Français', it:'Italiano', de:'Deutsch',
 const CONTENT = ${bakedContentJson};
 let currentLang = '${startingLang}';
 
-let s = null, l1 = null, l2 = null;
+let s = null, l1 = null;
 
-function resetNav(){ s=l1=l2=null; }
-function back(){ if(l2!==null)l2=null; else if(l1!==null)l1=null; else if(s!==null)s=null; render(); }
+function resetNav(){ s=l1=null; }
+function back(){ if(l1!==null)l1=null; else if(s!==null)s=null; render(); }
 
 function esc(str){ return String(str==null?'':str).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -394,19 +382,18 @@ function currentTitles(level){
   const C = CONTENT[currentLang];
   if (level==='season') return C.season;
   if (level==='level1') return C.level1[s];
-  if (level==='level2') return C.level2[s][l1];
   return [];
 }
 
 function render(){
   const app = document.getElementById('app');
 
-  if (s!==null && l1!==null && l2!==null){
-    const t = CONTENT[currentLang].text[s][l1][l2];
+  if (s!==null && l1!==null){
+    const t = CONTENT[currentLang].text[s][l1];
     app.innerHTML = \`
       <div class="row">
         <button class="back-btn" id="backBtn">← Back</button>
-        <span class="breadcrumb">\${esc(LANG_LABELS[currentLang])} · S\${s+1} · \${l1+1}.\${l2+1}</span>
+        <span class="breadcrumb">\${esc(LANG_LABELS[currentLang])} · S\${s+1} · \${l1+1}</span>
       </div>
       <div class="textbox-container">
         <h2>📝 Notes</h2>
@@ -417,14 +404,12 @@ function render(){
   }
 
   let level;
-  if (s!==null && l1!==null) level='level2';
-  else if (s!==null) level='level1';
+  if (s!==null) level='level1';
   else level='season';
 
   const crumbText = {
     season: esc(LANG_LABELS[currentLang]) + ' · choose a season',
-    level1: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' → activity',
-    level2: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' · ' + (l1+1) + ' → item'
+    level1: esc(LANG_LABELS[currentLang]) + ' · S' + (s+1) + ' → activity'
   }[level];
 
   const titles = currentTitles(level);
@@ -447,9 +432,8 @@ function render(){
   document.querySelectorAll('[data-i]').forEach(b=>{
     b.onclick = ()=>{
       const i = +b.dataset.i;
-      if (level==='season'){ s=i; l1=l2=null; }
-      else if (level==='level1'){ l1=i; l2=null; }
-      else { l2=i; }
+      if (level==='season'){ s=i; l1=null; }
+      else { l1=i; }
       render();
     };
   });
