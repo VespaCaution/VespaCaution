@@ -637,108 +637,114 @@ function exportHistory() { closeModal('exportModal'); var hist = getHist(); var 
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 async function exporterAbeilleVC(appName, dataObject) {
-    // 1. Préparer et crypter les données
-    let rawString = "";
-    for (const key in dataObject) {
-        if (typeof dataObject[key] === 'object') {
-            rawString += key + "={" + JSON.stringify(dataObject[key]) + "}|";
-        } else {
-            rawString += key + "=" + dataObject[key] + "|";
+    try {
+        // 1. Préparer les données (on utilise un séparateur unique et on encode en URI pour éviter les bugs)
+        let rawString = encodeURIComponent(JSON.stringify(dataObject));
+
+        // 2. Alphabet
+        let alphabet = [
+            "🐝", "🍯", "🌸", "🌷", "🚫", "🌳", "💧", 
+            ")", "(", "/", "?", "!", ";", ":", "-", "&", "+", "^", "°", "}", "∆", "§",
+            "[", "]", ".", ",", "*"
+        ];
+        let shuffledAlphabet = [...alphabet].sort(() => Math.random() - 0.5);
+
+        // 3. Encoder les données en symboles
+        let encodedText = "";
+        for (let i = 0; i < rawString.length; i++) {
+            let charCode = rawString.charCodeAt(i);
+            let index1 = Math.floor(charCode / shuffledAlphabet.length);
+            let index2 = charCode % shuffledAlphabet.length;
+            // On ajoute un "bruit" aléatoire pour le style
+            let randomNoise = shuffledAlphabet[Math.floor(Math.random() * shuffledAlphabet.length)];
+            encodedText += randomNoise + shuffledAlphabet[index1] + shuffledAlphabet[index2];
         }
-    }
 
-    let alphabet = [
-        "🐝", "🍯", "🌸", "🌷", "🚫", "🌳", "💧", 
-        ")", "(", "/", "?", "!", ";", ":", "-", "&", "+", "^", "°", "}", "∆", "§",
-        "[", "]", ".", ",", "*"
-    ];
-    let shuffledAlphabet = [...alphabet].sort(() => Math.random() - 0.5);
+        // 4. Le Masque de l'Abeille (taille augmentée pour contenir plus de données)
+        const beeMask = [
+            "                           🌸🌸🌸🌸🌸      🌷🌷🌷🌷🌷",
+            "                        🌸🌸🌸🌸🌸🌸🌸🌸    🌷🌷🌷🌷🌷🌷🌷",
+            "                      🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸  🌷🌷🌷🌷🌷🌷🌷🌷",
+            "                      🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸  🌷🌷🌷🌷🌷🌷🌷🌷",
+            "                        🌸🌸🌸🌸🌸🌸🌸🌸    🌷🌷🌷🌷🌷🌷🌷",
+            "                           🌸🌸🌸🌸🌸      🌷🌷🌷🌷🌷",
+            "",
+            "               🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
+            "              🚫🚫  🚫🚫🍯🍯🍯🚫🚫🚫🚫🚫🍯🍯🍯🚫🚫🚫  🚫🚫",
+            "             🚫🚫  🚫🚫🍯🍯🍯🚫🚫🚫🚫🚫🍯🍯🍯🚫🚫🚫  🚫🚫",
+            "            🚫🚫  🚫🚫🍯🍯🍯🚫🚫🚫🚫🚫🍯🍯🍯🚫🚫🚫  🚫🚫",
+            "           🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
+            "           🚫🚫  🚫🚫🐝🐝🐝🚫🚫🚫🚫🚫🐝🐝🐝🚫🚫🚫  🚫🚫",
+            "           🚫🚫  🚫🚫🐝🐝🐝🚫🚫🚫🚫🚫🐝🐝🐝🚫🚫🚫  🚫🚫",
+            "            🚫🚫  🚫🚫🐝🐝🐝🚫🚫🚫🚫🚫🐝🐝🐝🚫🚫🚫  🚫🚫",
+            "             🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
+            "              🚫🚫  🚫🚫🌳🌳🌳🚫🚫🚫🚫🚫🌳🌳🌳🚫🚫🚫  🚫🚫",
+            "               🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
+            "                 🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫",
+            "                    🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫",
+            "                        🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
+        ];
 
-    let encodedText = "";
-    for (let i = 0; i < rawString.length; i++) {
-        let charCode = rawString.charCodeAt(i);
-        let index1 = Math.floor(charCode / shuffledAlphabet.length);
-        let index2 = charCode % shuffledAlphabet.length;
-        let randomNoise = shuffledAlphabet[Math.floor(Math.random() * shuffledAlphabet.length)];
-        encodedText += randomNoise + shuffledAlphabet[index1] + shuffledAlphabet[index2];
-    }
+        // 5. Génération du fichier
+        let header = "🐝🍯∆§🐝🍯:" + btoa(shuffledAlphabet.join(',')) + "\n\n";
+        let finalFileContent = header;
 
-    // 2. L'abeille EXACTE que tu as validée (symétrique)
-    const beeMask = [
-        "                           🌸🌸🌸🌸🌸      🌷🌷🌷🌷🌷",
-        "                        🌸🌸🌸🌸🌸🌸🌸🌸    🌷🌷🌷🌷🌷🌷🌷",
-        "                      🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸  🌷🌷🌷🌷🌷🌷🌷🌷",
-        "                      🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸  🌷🌷🌷🌷🌷🌷🌷🌷",
-        "                        🌸🌸🌸🌸🌸🌸🌸🌸    🌷🌷🌷🌷🌷🌷🌷",
-        "                           🌸🌸🌸🌸🌸      🌷🌷🌷🌷🌷",
-        "",
-        "               🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
-        "              🚫🚫  🚫🚫🍯🍯🍯🚫🚫🚫🚫🚫🍯🍯🍯🚫🚫🚫  🚫🚫",
-        "             🚫🚫  🚫🚫🍯🍯🍯🚫🚫🚫🚫🚫🍯🍯🍯🚫🚫🚫  🚫🚫",
-        "            🚫🚫  🚫🚫🍯🍯🍯🚫🚫🚫🚫🚫🍯🍯🍯🚫🚫🚫  🚫🚫",
-        "           🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
-        "           🚫🚫  🚫🚫🐝🐝🐝🚫🚫🚫🚫🚫🐝🐝🐝🚫🚫🚫  🚫🚫",
-        "           🚫🚫  🚫🚫🐝🐝🐝🚫🚫🚫🚫🚫🐝🐝🐝🚫🚫🚫  🚫🚫",
-        "            🚫🚫  🚫🚫🐝🐝🐝🚫🚫🚫🚫🚫🐝🐝🐝🚫🚫🚫  🚫🚫",
-        "             🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
-        "              🚫🚫  🚫🚫🌳🌳🌳🚫🚫🚫🚫🚫🌳🌳🌳🚫🚫🚫  🚫🚫",
-        "               🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
-        "                 🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫",
-        "                    🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫",
-        "                        🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
-    ];
+        let dataIndex = 0;
+        const encodedSymbols = Array.from(encodedText);
 
-    // 3. Génération du fichier
-    let header = "🐝🍯∆§🐝🍯:" + btoa(shuffledAlphabet.join(',')) + "\n\n";
-    let finalFileContent = header;
-
-    let dataIndex = 0;
-    const encodedSymbols = Array.from(encodedText);
-
-    // 4. Remplissage de l'abeille (ou avec du bruit si pas assez de données)
-    for (let r = 0; r < beeMask.length; r++) {
-        let line = "";
-        for (let c = 0; c < beeMask[r].length; c++) {
-            let char = beeMask[r][c];
-            
-            // Si c'est un espace ou un emoji d'aile, on le garde tel quel
-            if (char === " " || char === "🌸" || char === "🌷") {
-                line += char;
-            } 
-            // Si c'est un symbole du corps, on met une donnée
-            else {
-                if (dataIndex < encodedSymbols.length) {
-                    // On met la vraie donnée
-                    line += encodedSymbols[dataIndex];
-                    dataIndex++;
-                } else {
-                    // On met un symbole "inutile" (bruit) pour garder la forme
-                    line += alphabet[Math.floor(Math.random() * alphabet.length)];
+        // 6. Remplissage de l'abeille
+        for (let r = 0; r < beeMask.length; r++) {
+            let line = "";
+            for (let c = 0; c < beeMask[r].length; c++) {
+                let char = beeMask[r][c];
+                
+                // On garde les ailes et les espaces tels quels
+                if (char === " " || char === "🌸" || char === "🌷" || char === "\n") {
+                    line += char;
+                } 
+                // On remplit le corps avec les données
+                else {
+                    if (dataIndex < encodedSymbols.length) {
+                        line += encodedSymbols[dataIndex];
+                        dataIndex++;
+                    } else {
+                        // Bruit aléatoire pour garder la forme
+                        line += alphabet[Math.floor(Math.random() * alphabet.length)];
+                    }
                 }
             }
+            finalFileContent += line + "\n";
         }
-        finalFileContent += line + "\n";
-    }
 
-    // 5. S'il reste VRAIMENT trop de données, on les met en dessous
-    if (dataIndex < encodedSymbols.length) {
-        finalFileContent += "\n--- SUITE DES DONNÉES ---\n";
-        let remainingData = encodedSymbols.slice(dataIndex).join('');
-        for (let i = 0; i < remainingData.length; i += 60) {
-            finalFileContent += remainingData.substring(i, i + 60) + "\n";
+        // 7. S'il reste des données (le corps de l'abeille est plein)
+        if (dataIndex < encodedSymbols.length) {
+            finalFileContent += "\n--- SUITE DES DONNÉES ---\n";
+            let remainingData = encodedSymbols.slice(dataIndex).join('');
+            // On écrit le reste par bloc de 80 symboles
+            for (let i = 0; i < remainingData.length; i += 80) {
+                finalFileContent += remainingData.substring(i, i + 80) + "\n";
+            }
         }
-    }
 
-    finalFileContent += "\n∆§🐝🍯∆§";
+        finalFileContent += "\n∆§🐝🍯∆§";
 
-    // 6. Télécharger
-    const blob = new Blob([finalFileContent], { type: 'application/x-vespacaution' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${appName}_${new Date().toISOString().split('T')[0]}.vc`;
-    a.click();
+        // 8. Télécharger
+        const blob = new Blob([finalFileContent], { type: 'application/x-vespacaution' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${appName}_${new Date().toISOString().split('T')[0]}.vc`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        alert("✅ Fichier .vc exporté avec succès !");
+        
+    } catch (e) {
+        console.error(e);
+        alert("❌ Erreur lors de l'exportation : " + e.message);
     }
+}
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
