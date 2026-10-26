@@ -27,6 +27,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+       <!-- Bibliothèques pour créer le fichier PDF du .vc -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+</head>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
         <style>
@@ -180,7 +183,9 @@
 <div id="updateBanner"></div>
 <div class="modal-overlay" id="optionsModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">⚙️ <span data-lang="options">Options</span></h2><button class="modal-close" onclick="closeModal('optionsModal')" style="position:static;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"><p><strong data-lang="language">Langue:</strong> <button class="btn-gold btn-sm" onclick="openLangModal()">🌍 <span data-lang="language">Langue</span></button></p><button onclick="toggleNotifications()">🔔 <span id="notifBtnLabel">Notifications</span></button><button onclick="closeModal('optionsModal');openModal('aboutModal')">ℹ️ <span data-lang="about_btn">À propos</span></button><button class="btn-gold" id="installBtn2" style="display:none;" onclick="installPWA()">📲 <span data-lang="install_app">Installer l'app</span></button><button onclick="closeModal('optionsModal');openAccountModal()">👤 <span data-lang="account_title">Compte</span> <span style="font-size:0.75rem;color:#888;">(<span data-lang="account_optional">optionnel</span>)</span></button></div></div></div>
 
-<div class="modal-overlay" id="exportModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">📤 <span data-lang="export_import">Export / Import</span></h2><button class="modal-close" onclick="closeModal('exportModal')" style="position:static;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"><button onclick="exportPDF()">📄 PDF</button><button onclick="exportHistory()">📋 <span data-lang="export_history">Exporter historique</span></button><button onclick="exportJSON()">📤 JSON</button><button onclick="exportGPX()">📍 GPX</button><button onclick="exportKML()">🌍 KML</button><hr><button class="btn-gold" onclick="document.getElementById('importFile').click()">📥 <span data-lang="import_btn">Importer</span> (JSON)</button><button class="btn-gold" onclick="document.getElementById('importHistFile').click()">📋 <span data-lang="import_history">Importer historique</span></button><button class="btn-gold" onclick="openVespafinderModal()">🔗 <span data-lang="import_vespafinder">Importer Vespafinder</span></button><input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)"><input type="file" id="importHistFile" accept=".json" style="display:none;" onchange="importHistory(event)"><hr><button class="btn-red" onclick="resetAll()">🔄 <span data-lang="reset_btn">Nouveau / Sauvegarder</span></button></div></div></div>
+<div class="modal-overlay" id="exportModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">📤 <span data-lang="export_import">Export / Import</span></h2><button class="modal-close" onclick="closeModal('exportModal')" style="position:static;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"><button onclick="exportPDF()">📄 PDF</button><button onclick="exportHistory()">📋 <span data-lang="export_history">Exporter historique</span></button><button onclick="exportJSON()">📤 JSON</button><button class="btn-gold" onclick="exporterFichierVC()">💾 Exporter la sauvegarde (.vc)</button>
+<input type="file" id="importVCInput" accept=".vc" style="display:none;" onchange="importerFichierVC(event)">
+<button class="btn-gold" onclick="document.getElementById('importVCInput').click()">📂 Importer une sauvegarde (.vc)</button><button onclick="exportGPX()">📍 GPX</button><button onclick="exportKML()">🌍 KML</button><hr><button class="btn-gold" onclick="document.getElementById('importFile').click()">📥 <span data-lang="import_btn">Importer</span> (JSON)</button><button class="btn-gold" onclick="document.getElementById('importHistFile').click()">📋 <span data-lang="import_history">Importer historique</span></button><button class="btn-gold" onclick="openVespafinderModal()">🔗 <span data-lang="import_vespafinder">Importer Vespafinder</span></button><input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)"><input type="file" id="importHistFile" accept=".json" style="display:none;" onchange="importHistory(event)"><hr><button class="btn-red" onclick="resetAll()">🔄 <span data-lang="reset_btn">Nouveau / Sauvegarder</span></button></div></div></div>
 <div class="modal-overlay" id="aboutModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">ℹ️ <span data-lang="about_title_full">À propos de VespaTimer</span></h2><button class="modal-close" onclick="closeAbout()" style="position:static;">✕</button></div><div style="font-size:0.9rem;line-height:1.7;margin-top:10px;"><p data-lang="about_text">Bienvenue sur VespaTimer</p><p>⚠️ <span data-lang="about_report">N'oubliez pas de signaler vos observations sur :</span> <a href="https://frelonasiatique.ch" target="_blank">frelonasiatique.ch</a></p><p data-lang="about_instructions_detail">Instructions</p><hr style="border:1px dashed #e0cfaa;margin:10px 0;"><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">🧭 <span data-lang="compass_calibration_title">Calibration de la boussole</span></summary><p style="margin-top:8px;"><strong data-lang="compass_calibration_when">QUAND :</strong><br><span data-lang="compass_calibration_when_text"></span></p><p style="margin-top:8px;"><strong data-lang="compass_calibration_how">COMMENT :</strong><br><span data-lang="compass_calibration_how_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">🎨 <span data-lang="color_change_title">Changer la couleur d'un frelon</span></summary><p style="margin-top:8px;"><strong data-lang="color_change_method">Méthode :</strong><br><span data-lang="color_change_method_text"></span></p><p style="margin-top:8px;"><strong data-lang="color_change_tip">Astuce :</strong><br><span data-lang="color_change_tip_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">📄 <span data-lang="format_explanation_title">Formats d'export</span></summary><p style="margin-top:8px;"><span data-lang="format_explanation_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">📥 <span data-lang="import_explanation_title">Formats d'import</span></summary><p style="margin-top:8px;"><span data-lang="import_explanation_text"></span></p></details><hr style="border:1px dashed #e0cfaa;margin:10px 0;"><p data-lang="about_happy">🐝 Bonne chasse ! 🙂</p><p style="font-size:0.78rem;color:#888;margin-top:10px;"><span data-lang="about_footer1">Requiert une connexion Internet</span><br><span data-lang="about_footer2">Trouvez de plus amples informations sur : <a href="https://stopfrelons.ch" target="_blank">stopfrelons.ch</a></span></p></div></div></div>
 
 <div class="modal-overlay" id="compassModal"><div class="modal" style="text-align:center;background:#1a1a2e;color:white;border-radius:20px;width:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:20px;"><button class="modal-close" onclick="closeModal('compassModal');stopCompass()" style="color:white;position:absolute;top:10px;right:14px;z-index:10;">✕</button><h3 style="color:#d4a853;margin-bottom:10px;">🧭 Boussole</h3><div id="compassContainer" style="position:relative;width:300px;height:300px;"><svg viewBox="0 0 300 300" style="width:100%;height:100%;position:absolute;top:0;left:0;"><circle cx="150" cy="150" r="145" fill="#1a1a2e" stroke="#d4a853" stroke-width="3"/><circle cx="150" cy="150" r="125" fill="none" stroke="rgba(255,255,255,0.1)"/><circle cx="150" cy="150" r="105" fill="none" stroke="rgba(255,255,255,0.05)"/><g id="compassGraduations"></g><text x="150" y="22" fill="white" font-size="18" text-anchor="middle" font-weight="bold">N</text><text x="150" y="288" fill="white" font-size="14" text-anchor="middle">S</text><text x="278" y="155" fill="white" font-size="14" text-anchor="middle">E</text><text x="22" y="155" fill="white" font-size="14" text-anchor="middle">O</text></svg><div id="compassNeedle" style="position:absolute;top:5px;left:50%;width:4px;height:140px;margin-left:-2px;transform-origin:bottom center;transition:transform 0.3s;z-index:5;"><div style="width:4px;height:70px;background:linear-gradient(to top,#c47b6b,#d4a853);border-radius:2px 2px 0 0;"></div><div style="width:4px;height:70px;background:linear-gradient(to bottom,#666,#333);border-radius:0 0 2px 2px;"></div></div><div style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px;background:#d4a853;border-radius:50%;border:3px solid white;z-index:10;"></div></div><div id="compassDirection" style="margin-top:15px;font-size:1.5rem;font-weight:bold;color:#d4a853;">--°</div></div></div>
@@ -633,7 +638,107 @@ function exportJSON() { closeModal('exportModal'); var data = { version: '2.0', 
 function exportHistory() { closeModal('exportModal'); var hist = getHist(); var blob = new Blob([JSON.stringify(hist, null, 2)], { type: 'application/json' }); var filename = 'vespatimer_history_' + new Date().toISOString().slice(0, 10) + '.json'; showExportReadyModal(blob, filename, 'application/json'); }
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
+// ==========================================
+// EXPORTATION EN FICHIER .VC (VESPATIMER)
+// ==========================================
+async function exporterFichierVC() {
+    try {
+        // 1. RÉCUPÉRATION DES DONNÉES
+        // On récupère les données comme le fait ta fonction saveAll()
+        const currentPot = JSON.parse(localStorage.getItem('vd')) || null;
+        const history = JSON.parse(localStorage.getItem('vh')) || [];
+        const language = localStorage.getItem('vl') || 'fr';
 
+        const dataComplete = {
+            version: "1.0",
+            app: "VespaTimer",
+            date: new Date().toISOString(),
+            current_pot: currentPot,
+            history: history,
+            language: language
+        };
+
+        // 2. CRÉATION DU PDF VISUEL (Optionnel mais recommandé pour que ce soit un vrai PDF)
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        doc.setFontSize(22);
+        doc.setTextColor(212, 168, 83); // Couleur Or de VespaTimer
+        doc.text("Rapport VespaTimer", 20, 20);
+        doc.setFontSize(12);
+        doc.setTextColor(50, 50, 50);
+        doc.text(`Pot actuel : ${currentPot ? currentPot.surveyLocation.name : 'Aucun'}`, 20, 30);
+        doc.text(`Date d'export : ${new Date().toLocaleDateString()}`, 20, 38);
+        
+        // 3. ASSEMBLAGE
+        const pdfString = doc.output('datauristring').split(',')[1]; 
+        const pdfBytes = atob(pdfString); 
+        const eofIndex = pdfBytes.lastIndexOf('%%EOF');
+        const pdfStart = pdfBytes.substring(0, eofIndex);
+        const pdfEnd = pdfBytes.substring(eofIndex);
+
+        let hiddenData = `\n% ==========================================\n`;
+        hiddenData += `% VC_JSON_START\n% ${JSON.stringify(dataComplete)}\n% VC_JSON_END\n`;
+        hiddenData += `% ==========================================\n\n`;
+
+        const finalFileContent = pdfStart + hiddenData + pdfEnd;
+
+        // 4. TÉLÉCHARGEMENT
+        const blob = new Blob([finalFileContent], { type: 'application/octet-stream' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Vespacaution_VespaTimer_${new Date().toISOString().split('T')[0]}.vc`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+    } catch (error) {
+        console.error("Erreur:", error);
+        alert("Une erreur est survenue lors de la création du fichier .vc");
+    }
+}
+
+// ==========================================
+// IMPORTATION DU FICHIER .VC (VESPATIMER)
+// ==========================================
+function importerFichierVC(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const content = e.target.result;
+        const jsonMatch = content.match(/% VC_JSON_START\n% (.*)\n% VC_JSON_END/);
+        
+        if (jsonMatch && jsonMatch[1]) {
+            try {
+                const parsedData = JSON.parse(jsonMatch[1]);
+                
+                // Vérification de sécurité
+                if (parsedData.app !== "VespaTimer") {
+                    if(!confirm(`Attention, ce fichier a été créé avec ${parsedData.app}. Voulez-vous quand même l'importer ?`)) return;
+                }
+
+                // RESTAURATION DES DONNÉES
+                if(parsedData.current_pot) localStorage.setItem('vd', JSON.stringify(parsedData.current_pot));
+                if(parsedData.history) localStorage.setItem('vh', JSON.stringify(parsedData.history));
+                if(parsedData.language) localStorage.setItem('vl', parsedData.language);
+
+                alert("✅ Données VespaTimer importées avec succès !");
+                location.reload(); // Recharge l'app pour tout afficher
+                
+            } catch (err) {
+                console.error(err);
+                alert("❌ Erreur lors de la lecture des données du fichier.");
+            }
+        } else {
+            alert("❌ Fichier .vc invalide ou corrompu.");
+        }
+    };
+    reader.readAsText(file);
+}
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
