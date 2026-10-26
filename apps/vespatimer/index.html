@@ -923,47 +923,42 @@ function importerAbeilleVC(event, expectedApp, onSuccess) {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            // 1. Lire le contenu et normaliser les sauts de ligne Windows (\r\n) en Mac/Linux (\n)
-            let content = e.target.result.replace(/\r\n/g, '\n');
-            let lines = content.split('\n');
-
-            // 2. Vérifier le titre
-            if (!lines[0] || lines[0].trim() !== "🐝🍯 VespaCaution 🍯🐝") {
-                alert("❌ Ce n'est pas un fichier Vespacaution valide (titre manquant).");
+            // 1. On lit tout le fichier
+            let content = e.target.result;
+            
+            // 2. On vérifie la présence du titre
+            if (!content.includes("VespaCaution")) {
+                alert("❌ Ce n'est pas un fichier Vespacaution.");
                 return;
             }
 
-            // 3. L'alphabet fixe
             const ALPHABET = [
                 "🐝", "🍯", "🌸", "🌷", "🚫", "🌳", "💧", 
                 ")", "(", "/", "?", "!", ";", ":", "-", "&", "+", "^", "°", "}", "∆", "§",
                 "[", "]", ".", ",", "*"
             ];
 
-            // 4. Extraire tous les symboles (on ignore la ligne 0 qui est le titre)
-            // Array.from() est CRUCIAL ici pour ne pas couper les emojis en deux
+            // 3. La méthode magique : On transforme tout le fichier en tableau de caractères
+            // Cela évite les bugs de découpage d'emojis de certains téléphones.
             let allChars = Array.from(content);
             let encodedSymbols = [];
-            
-            // On commence après le titre
-            let startIdx = content.indexOf("\n\n") + 2;
-            if (startIdx < 2) startIdx = 0; // au cas où le titre n'a pas 2 sauts de ligne
 
-            for (let i = startIdx; i < allChars.length; i++) {
-                let c = allChars[i];
-                if (ALPHABET.indexOf(c) !== -1) {
-                    encodedSymbols.push(c);
+            // 4. On extrait TOUS les caractères qui font partie de notre alphabet secret
+            // Peu importe s'il y a des espaces, des sauts de ligne, ou le titre.
+            for (let i = 0; i < allChars.length; i++) {
+                if (ALPHABET.indexOf(allChars[i]) !== -1) {
+                    encodedSymbols.push(allChars[i]);
                 }
             }
 
-            if (encodedSymbols.length === 0) {
-                alert("❌ Aucune donnée trouvée dans l'abeille.");
+            if (encodedSymbols.length < 3) {
+                alert("❌ Le fichier ne contient pas assez de données.");
                 return;
             }
 
-            // 5. Décoder (Groupes de 3 : [Bruit][Caractère1][Caractère2])
+            // 5. Décodage (Groupes de 3 : [Bruit][Caractère1][Caractère2])
             let rawString = "";
-            for (let i = 0; i + 2 < encodedSymbols.length; i += 3) {
+            for (let i = 0; i < encodedSymbols.length - 2; i += 3) {
                 let char1 = encodedSymbols[i + 1];
                 let char2 = encodedSymbols[i + 2];
 
@@ -972,20 +967,20 @@ function importerAbeilleVC(event, expectedApp, onSuccess) {
 
                 if (index1 !== -1 && index2 !== -1) {
                     let charCode = (index1 * 27) + index2;
-                    // 0xFFFF est la limite des caractères normaux (et du premier bloc d'emojis)
+                    // On ne garde que les caractères valides
                     if (charCode > 0 && charCode <= 0xFFFF) {
                         rawString += String.fromCharCode(charCode);
                     }
                 }
             }
 
-            // 6. Reconstruire le JSON
+            // 6. Reconstruction du JSON
             let parsedData;
             try {
                 parsedData = JSON.parse(decodeURIComponent(rawString));
             } catch (err) {
-                console.error("Texte décodé brut (pour debug) :", rawString);
-                alert("❌ Le fichier est corrompu. Les données n'ont pas pu être lues.");
+                // Si ça plante ici, c'est que l'alphabet utilisé n'était pas le bon (fichier exporté avant une mise à jour)
+                alert("❌ Le fichier est corrompu. (Erreur de décodage)");
                 return;
             }
 
@@ -994,11 +989,11 @@ function importerAbeilleVC(event, expectedApp, onSuccess) {
             
         } catch (err) {
             console.error(err);
-            alert("❌ Erreur lors de la lecture : " + err.message);
+            alert("❌ Erreur : " + err.message);
         }
     };
     reader.readAsText(file);
-    event.target.value = ''; // Permet de réimporter le même fichier
+    event.target.value = '';
 }
 function showVespafinderChoice(data){document.getElementById('confirmAlertMessage').textContent=t('vespafinder_coords_mismatch');document.getElementById('confirmAlertIcon').textContent='📍';var btnContainer=document.getElementById('confirmAlertButtons');btnContainer.innerHTML='<button class="custom-alert-button" onclick="closeVespafinderChoice(false)" style="background:#888;">'+t('vespafinder_dont_import')+'</button><button class="custom-alert-button" onclick="closeVespafinderChoice(true)">'+t('vespafinder_replace')+'</button>';document.getElementById('confirmAlertOverlay').style.display='flex';window.closeVespafinderChoice=function(replace){document.getElementById('confirmAlertOverlay').style.display='none';btnContainer.innerHTML='<button class="custom-alert-button" onclick="closeConfirmAlert(false)" style="background:#888;">'+t('cancel_btn')+'</button><button class="custom-alert-button" onclick="closeConfirmAlert(true)">'+t('confirm_btn')+'</button>';if(replace){saveHist();resumedFromIndex=-1;localStorage.setItem('resumed_idx',resumedFromIndex);surveyLocation={lat:data.lat,lng:data.lng,name:data.name||'Vespafinder'};document.getElementById('locationInput').value=surveyLocation.name;document.getElementById('locationDisplay').textContent=surveyLocation.name;var nh=createHornet(data.name);if(data.direction!==undefined)nh.direction=data.direction;if(data.color){var colorMap={red:'#e63946',blue:'#457b9d',green:'#2b9348',yellow:'#ffb703',orange:'#f77f00',purple:'#9b5de5',pink:'#ef476f',black:'#1a1a1a'};nh.color=colorMap[data.color]||nh.color;}if(data.time>0)nh.flights.push(data.time);hornets=[nh];updatePotMarker();if(map)map.setView([surveyLocation.lat,surveyLocation.lng],16);renderAll();saveAll();showToast(t('vespafinder_imported'));}};}
 
