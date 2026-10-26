@@ -180,7 +180,10 @@
 <div id="updateBanner"></div>
 <div class="modal-overlay" id="optionsModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">⚙️ <span data-lang="options">Options</span></h2><button class="modal-close" onclick="closeModal('optionsModal')" style="position:static;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"><p><strong data-lang="language">Langue:</strong> <button class="btn-gold btn-sm" onclick="openLangModal()">🌍 <span data-lang="language">Langue</span></button></p><button onclick="toggleNotifications()">🔔 <span id="notifBtnLabel">Notifications</span></button><button onclick="closeModal('optionsModal');openModal('aboutModal')">ℹ️ <span data-lang="about_btn">À propos</span></button><button class="btn-gold" id="installBtn2" style="display:none;" onclick="installPWA()">📲 <span data-lang="install_app">Installer l'app</span></button><button onclick="closeModal('optionsModal');openAccountModal()">👤 <span data-lang="account_title">Compte</span> <span style="font-size:0.75rem;color:#888;">(<span data-lang="account_optional">optionnel</span>)</span></button></div></div></div>
 
-<div class="modal-overlay" id="exportModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">📤 <span data-lang="export_import">Export / Import</span></h2><button class="modal-close" onclick="closeModal('exportModal')" style="position:static;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"><button onclick="exportPDF()">📄 PDF</button><button onclick="exportHistory()">📋 <span data-lang="export_history">Exporter historique</span></button><button onclick="exportJSON()">📤 JSON</button><button onclick="exportGPX()">📍 GPX</button><button onclick="exportKML()">🌍 KML</button><hr><button class="btn-gold" onclick="document.getElementById('importFile').click()">📥 <span data-lang="import_btn">Importer</span> (JSON)</button><button class="btn-gold" onclick="document.getElementById('importHistFile').click()">📋 <span data-lang="import_history">Importer historique</span></button><button class="btn-gold" onclick="openVespafinderModal()">🔗 <span data-lang="import_vespafinder">Importer Vespafinder</span></button><input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)"><input type="file" id="importHistFile" accept=".json" style="display:none;" onchange="importHistory(event)"><hr><button class="btn-red" onclick="resetAll()">🔄 <span data-lang="reset_btn">Nouveau / Sauvegarder</span></button></div></div></div>
+<div class="modal-overlay" id="exportModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">📤 <span data-lang="export_import">Export / Import</span></h2><button class="modal-close" onclick="closeModal('exportModal')" style="position:static;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"><button onclick="exportPDF()">📄 PDF</button><!-- Boutons pour le format .vc -->
+<button class="btn-gold" onclick="exporterAbeilleVC('VespaTimer', {currentPot: JSON.parse(localStorage.getItem('vd')), history: JSON.parse(localStorage.getItem('vh'))})">🐝 Exporter en .vc</button>
+<input type="file" id="importVCInput" accept=".vc" style="display:none;" onchange="importerAbeilleVC(event, 'VespaTimer', function(data) { localStorage.setItem('vd', JSON.stringify(data.currentPot)); localStorage.setItem('vh', JSON.stringify(data.history)); location.reload(); })">
+<button class="btn-gold" onclick="document.getElementById('importVCInput').click()">📂 Importer un .vc</button><button onclick="exportHistory()">📋 <span data-lang="export_history">Exporter historique</span></button><button onclick="exportJSON()">📤 JSON</button><button onclick="exportGPX()">📍 GPX</button><button onclick="exportKML()">🌍 KML</button><hr><button class="btn-gold" onclick="document.getElementById('importFile').click()">📥 <span data-lang="import_btn">Importer</span> (JSON)</button><button class="btn-gold" onclick="document.getElementById('importHistFile').click()">📋 <span data-lang="import_history">Importer historique</span></button><button class="btn-gold" onclick="openVespafinderModal()">🔗 <span data-lang="import_vespafinder">Importer Vespafinder</span></button><input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)"><input type="file" id="importHistFile" accept=".json" style="display:none;" onchange="importHistory(event)"><hr><button class="btn-red" onclick="resetAll()">🔄 <span data-lang="reset_btn">Nouveau / Sauvegarder</span></button></div></div></div>
 <div class="modal-overlay" id="aboutModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">ℹ️ <span data-lang="about_title_full">À propos de VespaTimer</span></h2><button class="modal-close" onclick="closeAbout()" style="position:static;">✕</button></div><div style="font-size:0.9rem;line-height:1.7;margin-top:10px;"><p data-lang="about_text">Bienvenue sur VespaTimer</p><p>⚠️ <span data-lang="about_report">N'oubliez pas de signaler vos observations sur :</span> <a href="https://frelonasiatique.ch" target="_blank">frelonasiatique.ch</a></p><p data-lang="about_instructions_detail">Instructions</p><hr style="border:1px dashed #e0cfaa;margin:10px 0;"><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">🧭 <span data-lang="compass_calibration_title">Calibration de la boussole</span></summary><p style="margin-top:8px;"><strong data-lang="compass_calibration_when">QUAND :</strong><br><span data-lang="compass_calibration_when_text"></span></p><p style="margin-top:8px;"><strong data-lang="compass_calibration_how">COMMENT :</strong><br><span data-lang="compass_calibration_how_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">🎨 <span data-lang="color_change_title">Changer la couleur d'un frelon</span></summary><p style="margin-top:8px;"><strong data-lang="color_change_method">Méthode :</strong><br><span data-lang="color_change_method_text"></span></p><p style="margin-top:8px;"><strong data-lang="color_change_tip">Astuce :</strong><br><span data-lang="color_change_tip_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">📄 <span data-lang="format_explanation_title">Formats d'export</span></summary><p style="margin-top:8px;"><span data-lang="format_explanation_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">📥 <span data-lang="import_explanation_title">Formats d'import</span></summary><p style="margin-top:8px;"><span data-lang="import_explanation_text"></span></p></details><hr style="border:1px dashed #e0cfaa;margin:10px 0;"><p data-lang="about_happy">🐝 Bonne chasse ! 🙂</p><p style="font-size:0.78rem;color:#888;margin-top:10px;"><span data-lang="about_footer1">Requiert une connexion Internet</span><br><span data-lang="about_footer2">Trouvez de plus amples informations sur : <a href="https://stopfrelons.ch" target="_blank">stopfrelons.ch</a></span></p></div></div></div>
 
 <div class="modal-overlay" id="compassModal"><div class="modal" style="text-align:center;background:#1a1a2e;color:white;border-radius:20px;width:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:20px;"><button class="modal-close" onclick="closeModal('compassModal');stopCompass()" style="color:white;position:absolute;top:10px;right:14px;z-index:10;">✕</button><h3 style="color:#d4a853;margin-bottom:10px;">🧭 Boussole</h3><div id="compassContainer" style="position:relative;width:300px;height:300px;"><svg viewBox="0 0 300 300" style="width:100%;height:100%;position:absolute;top:0;left:0;"><circle cx="150" cy="150" r="145" fill="#1a1a2e" stroke="#d4a853" stroke-width="3"/><circle cx="150" cy="150" r="125" fill="none" stroke="rgba(255,255,255,0.1)"/><circle cx="150" cy="150" r="105" fill="none" stroke="rgba(255,255,255,0.05)"/><g id="compassGraduations"></g><text x="150" y="22" fill="white" font-size="18" text-anchor="middle" font-weight="bold">N</text><text x="150" y="288" fill="white" font-size="14" text-anchor="middle">S</text><text x="278" y="155" fill="white" font-size="14" text-anchor="middle">E</text><text x="22" y="155" fill="white" font-size="14" text-anchor="middle">O</text></svg><div id="compassNeedle" style="position:absolute;top:5px;left:50%;width:4px;height:140px;margin-left:-2px;transform-origin:bottom center;transition:transform 0.3s;z-index:5;"><div style="width:4px;height:70px;background:linear-gradient(to top,#c47b6b,#d4a853);border-radius:2px 2px 0 0;"></div><div style="width:4px;height:70px;background:linear-gradient(to bottom,#666,#333);border-radius:0 0 2px 2px;"></div></div><div style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px;background:#d4a853;border-radius:50%;border:3px solid white;z-index:10;"></div></div><div id="compassDirection" style="margin-top:15px;font-size:1.5rem;font-weight:bold;color:#d4a853;">--°</div></div></div>
@@ -633,7 +636,109 @@ function exportJSON() { closeModal('exportModal'); var data = { version: '2.0', 
 function exportHistory() { closeModal('exportModal'); var hist = getHist(); var blob = new Blob([JSON.stringify(hist, null, 2)], { type: 'application/json' }); var filename = 'vespatimer_history_' + new Date().toISOString().slice(0, 10) + '.json'; showExportReadyModal(blob, filename, 'application/json'); }
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
+async function exporterAbeilleVC(appName, dataObject) {
+    // 1. Préparer et crypter les données
+    let rawString = "";
+    for (const key in dataObject) {
+        if (typeof dataObject[key] === 'object') {
+            rawString += key + "={" + JSON.stringify(dataObject[key]) + "}|";
+        } else {
+            rawString += key + "=" + dataObject[key] + "|";
+        }
+    }
 
+    let alphabet = [
+        "🐝", "🍯", "🌸", "🌷", "🚫", "🌳", "💧", 
+        ")", "(", "/", "?", "!", ";", ":", "-", "&", "+", "^", "°", "}", "∆", "§",
+        "[", "]", ".", ",", "*"
+    ];
+    let shuffledAlphabet = [...alphabet].sort(() => Math.random() - 0.5);
+
+    let encodedText = "";
+    for (let i = 0; i < rawString.length; i++) {
+        let charCode = rawString.charCodeAt(i);
+        let index1 = Math.floor(charCode / shuffledAlphabet.length);
+        let index2 = charCode % shuffledAlphabet.length;
+        let randomNoise = shuffledAlphabet[Math.floor(Math.random() * shuffledAlphabet.length)];
+        encodedText += randomNoise + shuffledAlphabet[index1] + shuffledAlphabet[index2];
+    }
+
+    // 2. L'abeille EXACTE que tu as validée (symétrique)
+    const beeMask = [
+        "                           🌸🌸🌸🌸🌸      🌷🌷🌷🌷🌷",
+        "                        🌸🌸🌸🌸🌸🌸🌸🌸    🌷🌷🌷🌷🌷🌷🌷",
+        "                      🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸  🌷🌷🌷🌷🌷🌷🌷🌷",
+        "                      🌸🌸🌸🌸🌸🌸🌸🌸🌸🌸  🌷🌷🌷🌷🌷🌷🌷🌷",
+        "                        🌸🌸🌸🌸🌸🌸🌸🌸    🌷🌷🌷🌷🌷🌷🌷",
+        "                           🌸🌸🌸🌸🌸      🌷🌷🌷🌷🌷",
+        "",
+        "               🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
+        "              🚫🚫  🚫🚫🍯🍯🍯🚫🚫🚫🚫🚫🍯🍯🍯🚫🚫🚫  🚫🚫",
+        "             🚫🚫  🚫🚫🍯🍯🍯🚫🚫🚫🚫🚫🍯🍯🍯🚫🚫🚫  🚫🚫",
+        "            🚫🚫  🚫🚫🍯🍯🍯🚫🚫🚫🚫🚫🍯🍯🍯🚫🚫🚫  🚫🚫",
+        "           🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
+        "           🚫🚫  🚫🚫🐝🐝🐝🚫🚫🚫🚫🚫🐝🐝🐝🚫🚫🚫  🚫🚫",
+        "           🚫🚫  🚫🚫🐝🐝🐝🚫🚫🚫🚫🚫🐝🐝🐝🚫🚫🚫  🚫🚫",
+        "            🚫🚫  🚫🚫🐝🐝🐝🚫🚫🚫🚫🚫🐝🐝🐝🚫🚫🚫  🚫🚫",
+        "             🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
+        "              🚫🚫  🚫🚫🌳🌳🌳🚫🚫🚫🚫🚫🌳🌳🌳🚫🚫🚫  🚫🚫",
+        "               🚫🚫  🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫  🚫🚫",
+        "                 🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫",
+        "                    🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫",
+        "                        🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
+    ];
+
+    // 3. Génération du fichier
+    let header = "🐝🍯∆§🐝🍯:" + btoa(shuffledAlphabet.join(',')) + "\n\n";
+    let finalFileContent = header;
+
+    let dataIndex = 0;
+    const encodedSymbols = Array.from(encodedText);
+
+    // 4. Remplissage de l'abeille (ou avec du bruit si pas assez de données)
+    for (let r = 0; r < beeMask.length; r++) {
+        let line = "";
+        for (let c = 0; c < beeMask[r].length; c++) {
+            let char = beeMask[r][c];
+            
+            // Si c'est un espace ou un emoji d'aile, on le garde tel quel
+            if (char === " " || char === "🌸" || char === "🌷") {
+                line += char;
+            } 
+            // Si c'est un symbole du corps, on met une donnée
+            else {
+                if (dataIndex < encodedSymbols.length) {
+                    // On met la vraie donnée
+                    line += encodedSymbols[dataIndex];
+                    dataIndex++;
+                } else {
+                    // On met un symbole "inutile" (bruit) pour garder la forme
+                    line += alphabet[Math.floor(Math.random() * alphabet.length)];
+                }
+            }
+        }
+        finalFileContent += line + "\n";
+    }
+
+    // 5. S'il reste VRAIMENT trop de données, on les met en dessous
+    if (dataIndex < encodedSymbols.length) {
+        finalFileContent += "\n--- SUITE DES DONNÉES ---\n";
+        let remainingData = encodedSymbols.slice(dataIndex).join('');
+        for (let i = 0; i < remainingData.length; i += 60) {
+            finalFileContent += remainingData.substring(i, i + 60) + "\n";
+        }
+    }
+
+    finalFileContent += "\n∆§🐝🍯∆§";
+
+    // 6. Télécharger
+    const blob = new Blob([finalFileContent], { type: 'application/x-vespacaution' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${appName}_${new Date().toISOString().split('T')[0]}.vc`;
+    a.click();
+    }
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
@@ -717,6 +822,71 @@ function importHistory(e){var f=e.target.files[0];if(!f)return;var reader=new Fi
 function openVespafinderModal(){document.getElementById('vespafinderUrl').value='';openModal('vespafinderModal');}
 function parseVespafinderLink(url){try{var match=url.match(/[?&]id=([A-Za-z0-9+/=_-]+)/);if(!match)return null;var base64=match[1].replace(/-/g,'+').replace(/_/g,'/');while(base64.length%4)base64+='=';var json=decodeURIComponent(escape(atob(base64)));var data=JSON.parse(json);return{name:data.n||'Vespafinder',color:data.c||null,lat:data.a,lng:data.o,distance:data.d||0,time:data.t||0,direction:data.r||0,temperature:data.tc||null};}catch(e){return null;}}
 function importFromVespafinder(){var url=document.getElementById('vespafinderUrl').value.trim();if(!url){showAlert(t('vespafinder_invalid'),'❌');return;}var data=parseVespafinderLink(url);if(!data){showAlert(t('vespafinder_invalid'),'❌');return;}closeModal('vespafinderModal');var coordsMatch=Math.abs(data.lat-surveyLocation.lat)<0.001&&Math.abs(data.lng-surveyLocation.lng)<0.001;if(!coordsMatch){showVespafinderChoice(data);return;}var existing=hornets.find(function(h){return h.name.toLowerCase()===data.name.toLowerCase()&&h.direction===data.direction;});if(existing){if(data.time>0){existing.flights.push(data.time);if(existing.flights.length>5)existing.flights.shift();}showToast(t('vespafinder_added')+' '+existing.name);}else{if(hornets.length>=MAX_HORNETS){showAlert(t('max_hornets'),'⚠️');return;}var nh=createHornet(data.name);if(data.direction!==undefined)nh.direction=data.direction;if(data.color){var colorMap={red:'#e63946',blue:'#457b9d',green:'#2b9348',yellow:'#ffb703',orange:'#f77f00',purple:'#9b5de5',pink:'#ef476f',black:'#1a1a1a'};nh.color=colorMap[data.color]||nh.color;}if(data.time>0)nh.flights.push(data.time);hornets.push(nh);showToast(t('vespafinder_created'));}renderAll();saveAll();if(map)drawAnalysis();}
+function importerAbeilleVC(event, expectedApp, onSuccess) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        let content = e.target.result;
+        let parts = content.split("\n");
+        let header = parts[0];
+        
+        if (!header.startsWith("🐝🍯∆§🐝🍯:")) {
+            alert("❌ Ce n'est pas un fichier Vespacaution.");
+            return;
+        }
+
+        // 1. Récupérer la clé
+        let base64Alphabet = header.replace("🐝🍯∆§🐝🍯:", "");
+        let shuffledAlphabet = atob(base64Alphabet).split(",");
+
+        // 2. Nettoyer pour ne garder QUE les symboles de données
+        // L'importation ignore les fleurs (ailes) et les espaces (forme)
+        let fullContent = content.replace(header, "").replace("∆§🐝🍯∆§", "").replace("--- SUITE DES DONNÉES ---", "");
+        
+        let allChars = Array.from(fullContent);
+        
+        // On garde uniquement les caractères qui sont dans notre alphabet (donc les données + le bruit)
+        let encodedSymbols = allChars.filter(char => shuffledAlphabet.includes(char));
+
+        // 3. Décoder (en ignorant le bruit qui n'est pas un multiple de 3 valide)
+        let rawString = "";
+        
+        for (let i = 0; i < encodedSymbols.length; i += 3) {
+            let char1 = encodedSymbols[i+1];
+            let char2 = encodedSymbols[i+2];
+            
+            if (!char2) break; 
+
+            let index1 = shuffledAlphabet.indexOf(char1);
+            let index2 = shuffledAlphabet.indexOf(char2);
+            
+            if (index1 !== -1 && index2 !== -1) {
+                let charCode = (index1 * shuffledAlphabet.length) + index2;
+                rawString += String.fromCharCode(charCode);
+            }
+        }
+
+        // 4. Reconstruire
+        let parsedData = {};
+        let pairs = rawString.split("|");
+        for (let pair of pairs) {
+            if (pair.includes("=")) {
+                let [key, value] = pair.split("=");
+                if (value.startsWith("{")) {
+                    parsedData[key] = JSON.parse(value);
+                } else {
+                    parsedData[key] = value;
+                }
+            }
+        }
+
+        alert("✅ Fichier Vespacaution décodé avec succès !");
+        onSuccess(parsedData);
+    };
+    reader.readAsText(file);
+}
 function showVespafinderChoice(data){document.getElementById('confirmAlertMessage').textContent=t('vespafinder_coords_mismatch');document.getElementById('confirmAlertIcon').textContent='📍';var btnContainer=document.getElementById('confirmAlertButtons');btnContainer.innerHTML='<button class="custom-alert-button" onclick="closeVespafinderChoice(false)" style="background:#888;">'+t('vespafinder_dont_import')+'</button><button class="custom-alert-button" onclick="closeVespafinderChoice(true)">'+t('vespafinder_replace')+'</button>';document.getElementById('confirmAlertOverlay').style.display='flex';window.closeVespafinderChoice=function(replace){document.getElementById('confirmAlertOverlay').style.display='none';btnContainer.innerHTML='<button class="custom-alert-button" onclick="closeConfirmAlert(false)" style="background:#888;">'+t('cancel_btn')+'</button><button class="custom-alert-button" onclick="closeConfirmAlert(true)">'+t('confirm_btn')+'</button>';if(replace){saveHist();resumedFromIndex=-1;localStorage.setItem('resumed_idx',resumedFromIndex);surveyLocation={lat:data.lat,lng:data.lng,name:data.name||'Vespafinder'};document.getElementById('locationInput').value=surveyLocation.name;document.getElementById('locationDisplay').textContent=surveyLocation.name;var nh=createHornet(data.name);if(data.direction!==undefined)nh.direction=data.direction;if(data.color){var colorMap={red:'#e63946',blue:'#457b9d',green:'#2b9348',yellow:'#ffb703',orange:'#f77f00',purple:'#9b5de5',pink:'#ef476f',black:'#1a1a1a'};nh.color=colorMap[data.color]||nh.color;}if(data.time>0)nh.flights.push(data.time);hornets=[nh];updatePotMarker();if(map)map.setView([surveyLocation.lat,surveyLocation.lng],16);renderAll();saveAll();showToast(t('vespafinder_imported'));}};}
 
 function resetAll(){showConfirmAlert(t('confirm_reset'),'🔄',function(){saveHist();resumedFromIndex=-1;localStorage.removeItem('resumed_idx');hornets=[createHornet('Frelon 1')];surveyLocation={lat:46.8,lng:6.8,name:''};inspectorName='';notes='';personalInfo={firstName:'',lastName:'',phone:''};collapsedCards={};document.getElementById('locationInput').value='';document.getElementById('locationDisplay').textContent='';document.getElementById('inspectorInput').value='';document.getElementById('notesField').value='';document.getElementById('firstName').value='';document.getElementById('lastName').value='';document.getElementById('phone').value='';localStorage.removeItem('vd');if(map){map.setView([46.8,6.8],16);}updatePotMarker();renderAll();saveAll();showToast(t('new_pot_created'));});}
