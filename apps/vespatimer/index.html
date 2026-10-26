@@ -732,15 +732,40 @@ function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?>
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 async function exporterAbeilleVC(appName, dataObject) {
     try {
-        let rawString = encodeURIComponent(JSON.stringify(dataObject));
+        // 1. On prépare une "phrase" avec les données, séparées par des symboles
+        // Format : Prénom|Nom|Téléphone|Inspecteur|Notes|Lat|Lng|NomLieu|NbFrelons|Frelon1_Nom,Frelon1_Dir,Frelon1_Vols,Frelon1_Couleur|Frelon2...
         
-        // Alphabet fixe de 27 symboles
+        let p = dataObject.personalInfo || {};
+        let loc = dataObject.surveyLocation || {};
+        
+        let rawString = "";
+        rawString += (p.firstName || "") + "|";
+        rawString += (p.lastName || "") + "|";
+        rawString += (p.phone || "") + "|";
+        rawString += (dataObject.inspectorName || "") + "|";
+        rawString += (dataObject.notes || "") + "|";
+        rawString += (loc.lat || 0) + "|";
+        rawString += (loc.lng || 0) + "|";
+        rawString += (loc.name || "") + "|";
+        rawString += (dataObject.hornets ? dataObject.hornets.length : 0) + "|";
+
+        if (dataObject.hornets) {
+            for (let i = 0; i < dataObject.hornets.length; i++) {
+                let h = dataObject.hornets[i];
+                let flightsStr = h.flights ? h.flights.join(",") : "";
+                // On sépare les infos du frelon par des points-virgules pour ne pas confondre avec les vols
+                rawString += (h.name || "") + ";" + (h.direction || 0) + ";" + flightsStr + ";" + (h.color || "") + "|";
+            }
+        }
+
+        // ALPHABET 100% SYMBOLES
         const ALPHABET = [
             "🐝", "🍯", "🌸", "🌷", "🚫", "🌳", "💧", 
             ")", "(", "/", "?", "!", ";", ":", "-", "&", "+", "^", "°", "}", "∆", "§",
             "[", "]", ".", ",", "*"
         ];
 
+        // 2. Encodage en emojis
         let encodedText = "";
         let chars = Array.from(rawString); 
         
@@ -778,20 +803,18 @@ async function exporterAbeilleVC(appName, dataObject) {
             "                        🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
         ];
 
-        // Le seul texte autorisé (pour la signature)
+        // Le SEUL texte autorisé
         let finalFileContent = "🐝🍯 VespaCaution 🍯🐝\n\n";
 
         let dataIndex = 0;
         const encodedSymbols = Array.from(encodedText);
 
-        // Remplissage de l'abeille
         for (let r = 0; r < beeMask.length; r++) {
             let line = "";
             let maskChars = Array.from(beeMask[r]); 
             
             for (let c = 0; c < maskChars.length; c++) {
                 let char = maskChars[c];
-                
                 if (char === " " || char === "🌸" || char === "🌷") {
                     line += char;
                 } else {
@@ -799,7 +822,6 @@ async function exporterAbeilleVC(appName, dataObject) {
                         line += encodedSymbols[dataIndex];
                         dataIndex++;
                     } else {
-                        // Si plus de données, on remplit avec du bruit pour garder la forme
                         line += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
                     }
                 }
@@ -807,10 +829,8 @@ async function exporterAbeilleVC(appName, dataObject) {
             finalFileContent += line + "\n";
         }
 
-        // S'il y a BEAUCOUP de données (plus que l'abeille), on continue à la suite
         if (dataIndex < encodedSymbols.length) {
-            finalFileContent += "\n"; // Une ligne vide pour la séparation visuelle
-            // On ajoute les symboles restants par blocs de 80, sans AUCUN autre texte.
+            finalFileContent += "\n"; 
             let remainingData = encodedSymbols.slice(dataIndex).join('');
             for (let i = 0; i < remainingData.length; i += 80) {
                 finalFileContent += remainingData.substring(i, i + 80) + "\n";
@@ -826,13 +846,12 @@ async function exporterAbeilleVC(appName, dataObject) {
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        alert("✅ Fichier .vespacaution exporté avec succès !");
-        
+        alert("✅ Fichier exporté avec succès !");
     } catch (e) {
         console.error(e);
-        alert("❌ Erreur lors de l'exportation : " + e.message);
+        alert("❌ Erreur : " + e.message);
     }
-            }
+}
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
@@ -923,12 +942,9 @@ function importerAbeilleVC(event, expectedApp, onSuccess) {
     const reader = new FileReader();
     reader.onload = function(e) {
         try {
-            // 1. On lit tout le fichier
-            let content = e.target.result;
-            
-            // 2. On vérifie la présence du titre
+            let content = e.target.result.replace(/\r/g, "");
             if (!content.includes("VespaCaution")) {
-                alert("❌ Ce n'est pas un fichier Vespacaution.");
+                alert("❌ Fichier non reconnu.");
                 return;
             }
 
@@ -938,58 +954,73 @@ function importerAbeilleVC(event, expectedApp, onSuccess) {
                 "[", "]", ".", ",", "*"
             ];
 
-            // 3. La méthode magique : On transforme tout le fichier en tableau de caractères
-            // Cela évite les bugs de découpage d'emojis de certains téléphones.
             let allChars = Array.from(content);
             let encodedSymbols = [];
+            let startReading = false;
 
-            // 4. On extrait TOUS les caractères qui font partie de notre alphabet secret
-            // Peu importe s'il y a des espaces, des sauts de ligne, ou le titre.
             for (let i = 0; i < allChars.length; i++) {
-                if (ALPHABET.indexOf(allChars[i]) !== -1) {
+                if (startReading && ALPHABET.indexOf(allChars[i]) !== -1) {
                     encodedSymbols.push(allChars[i]);
+                }
+                if (allChars[i] === '\n' && allChars[i-1] === '\n') {
+                    startReading = true;
                 }
             }
 
-            if (encodedSymbols.length < 3) {
-                alert("❌ Le fichier ne contient pas assez de données.");
-                return;
-            }
-
-            // 5. Décodage (Groupes de 3 : [Bruit][Caractère1][Caractère2])
+            // 1. Décodage des emojis vers notre "phrase" (sans JSON)
             let rawString = "";
             for (let i = 0; i < encodedSymbols.length - 2; i += 3) {
                 let char1 = encodedSymbols[i + 1];
                 let char2 = encodedSymbols[i + 2];
-
                 let index1 = ALPHABET.indexOf(char1);
                 let index2 = ALPHABET.indexOf(char2);
 
                 if (index1 !== -1 && index2 !== -1) {
                     let charCode = (index1 * 27) + index2;
-                    // On ne garde que les caractères valides
                     if (charCode > 0 && charCode <= 0xFFFF) {
                         rawString += String.fromCharCode(charCode);
                     }
                 }
             }
 
-            // 6. Reconstruction du JSON
-            let parsedData;
-            try {
-                parsedData = JSON.parse(decodeURIComponent(rawString));
-            } catch (err) {
-                // Si ça plante ici, c'est que l'alphabet utilisé n'était pas le bon (fichier exporté avant une mise à jour)
-                alert("❌ Le fichier est corrompu. (Erreur de décodage)");
+            // 2. Reconstruction des données depuis notre format maison
+            let parts = rawString.split("|");
+            if (parts.length < 9) {
+                alert("❌ Le fichier est incomplet ou illisible.");
                 return;
             }
 
-            alert("✅ Fichier .vespacaution importé avec succès !");
+            let parsedData = {
+                personalInfo: { firstName: parts[0], lastName: parts[1], phone: parts[2] },
+                inspectorName: parts[3],
+                notes: parts[4],
+                surveyLocation: { lat: parseFloat(parts[5]), lng: parseFloat(parts[6]), name: parts[7] },
+                hornets: []
+            };
+
+            let hornetCount = parseInt(parts[8]) || 0;
+
+            // On parcourt les frelons
+            for (let i = 0; i < hornetCount; i++) {
+                // Les infos du frelon sont dans parts[9 + i]
+                let hData = parts[9 + i];
+                if (hData) {
+                    let hParts = hData.split(";");
+                    parsedData.hornets.push({
+                        name: hParts[0] || "Frelon",
+                        direction: parseInt(hParts[1]) || 0,
+                        flights: hParts[2] ? hParts[2].split(",").map(Number) : [],
+                        color: hParts[3] || null
+                    });
+                }
+            }
+
+            alert("✅ Fichier importé avec succès !");
             onSuccess(parsedData);
             
         } catch (err) {
             console.error(err);
-            alert("❌ Erreur : " + err.message);
+            alert("❌ Erreur de lecture.");
         }
     };
     reader.readAsText(file);
