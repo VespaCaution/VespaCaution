@@ -638,29 +638,40 @@ function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?>
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 async function exporterAbeilleVC(appName, dataObject) {
     try {
-        // 1. Préparer les données (on utilise un séparateur unique et on encode en URI pour éviter les bugs)
-        let rawString = encodeURIComponent(JSON.stringify(dataObject));
-
-        // 2. Alphabet
+        // 1. Prepare data
+        let jsonStr = JSON.stringify(dataObject);
+        let rawString = encodeURIComponent(jsonStr); 
+        
+        // 2. Alphabet (27 symbols)
         let alphabet = [
             "🐝", "🍯", "🌸", "🌷", "🚫", "🌳", "💧", 
             ")", "(", "/", "?", "!", ";", ":", "-", "&", "+", "^", "°", "}", "∆", "§",
             "[", "]", ".", ",", "*"
         ];
+        // Shuffle alphabet
         let shuffledAlphabet = [...alphabet].sort(() => Math.random() - 0.5);
 
-        // 3. Encoder les données en symboles
+        // 3. Encode data using Base-27 logic
         let encodedText = "";
-        for (let i = 0; i < rawString.length; i++) {
-            let charCode = rawString.charCodeAt(i);
-            let index1 = Math.floor(charCode / shuffledAlphabet.length);
-            let index2 = charCode % shuffledAlphabet.length;
-            // On ajoute un "bruit" aléatoire pour le style
-            let randomNoise = shuffledAlphabet[Math.floor(Math.random() * shuffledAlphabet.length)];
+        // Note: Array.from handles Emojis correctly (fixes Bug 1)
+        let chars = Array.from(rawString); 
+        
+        for (let i = 0; i < chars.length; i++) {
+            let charCode = chars[i].charCodeAt(0); 
+            // charCode is between 0 and 65535.
+            // Base-27 conversion: 
+            let index1 = Math.floor(charCode / 27);
+            let index2 = charCode % 27;
+            
+            // Safety check to prevent "undefined" (fixes Bug 3)
+            if (index1 >= 27) index1 = 26; 
+
+            // Add random noise for style
+            let randomNoise = shuffledAlphabet[Math.floor(Math.random() * 27)];
             encodedText += randomNoise + shuffledAlphabet[index1] + shuffledAlphabet[index2];
         }
 
-        // 4. Le Masque de l'Abeille (taille augmentée pour contenir plus de données)
+        // 4. The Bee Mask
         const beeMask = [
             "                           🌸🌸🌸🌸🌸      🌷🌷🌷🌷🌷",
             "                        🌸🌸🌸🌸🌸🌸🌸🌸    🌷🌷🌷🌷🌷🌷🌷",
@@ -685,30 +696,35 @@ async function exporterAbeilleVC(appName, dataObject) {
             "                        🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫🚫"
         ];
 
-        // 5. Génération du fichier
-        let header = "🐝🍯∆§🐝🍯:" + btoa(shuffledAlphabet.join(',')) + "\n\n";
+        // 5. Generate File Header
+        // We must save the shuffled alphabet so the importer knows how to decode it.
+        // Using JSON stringify handles emojis safely (fixes Bug 4)
+        let header = "🐝🍯∆§🐝🍯\n" + JSON.stringify(shuffledAlphabet) + "\n\n";
         let finalFileContent = header;
 
         let dataIndex = 0;
         const encodedSymbols = Array.from(encodedText);
 
-        // 6. Remplissage de l'abeille
+        // 6. Fill the Bee
         for (let r = 0; r < beeMask.length; r++) {
             let line = "";
-            for (let c = 0; c < beeMask[r].length; c++) {
-                let char = beeMask[r][c];
+            // Array.from here again handles the emojis in the mask correctly
+            let maskChars = Array.from(beeMask[r]); 
+            
+            for (let c = 0; c < maskChars.length; c++) {
+                let char = maskChars[c];
                 
-                // On garde les ailes et les espaces tels quels
-                if (char === " " || char === "🌸" || char === "🌷" || char === "\n") {
+                // Keep wings and spaces
+                if (char === " " || char === "🌸" || char === "🌷") {
                     line += char;
                 } 
-                // On remplit le corps avec les données
+                // Fill body
                 else {
                     if (dataIndex < encodedSymbols.length) {
                         line += encodedSymbols[dataIndex];
                         dataIndex++;
                     } else {
-                        // Bruit aléatoire pour garder la forme
+                        // Random noise to keep shape
                         line += alphabet[Math.floor(Math.random() * alphabet.length)];
                     }
                 }
@@ -716,11 +732,10 @@ async function exporterAbeilleVC(appName, dataObject) {
             finalFileContent += line + "\n";
         }
 
-        // 7. S'il reste des données (le corps de l'abeille est plein)
+        // 7. If data overflows
         if (dataIndex < encodedSymbols.length) {
             finalFileContent += "\n--- SUITE DES DONNÉES ---\n";
             let remainingData = encodedSymbols.slice(dataIndex).join('');
-            // On écrit le reste par bloc de 80 symboles
             for (let i = 0; i < remainingData.length; i += 80) {
                 finalFileContent += remainingData.substring(i, i + 80) + "\n";
             }
@@ -728,7 +743,7 @@ async function exporterAbeilleVC(appName, dataObject) {
 
         finalFileContent += "\n∆§🐝🍯∆§";
 
-        // 8. Télécharger
+        // 8. Download
         const blob = new Blob([finalFileContent], { type: 'application/x-vespacaution' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
