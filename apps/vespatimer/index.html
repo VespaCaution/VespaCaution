@@ -958,6 +958,7 @@ function importerAbeilleVC(event, expectedApp, onSuccess) {
             let encodedSymbols = [];
             let startReading = false;
 
+            // On récupère tous les symboles après le titre
             for (let i = 0; i < allChars.length; i++) {
                 if (startReading && ALPHABET.indexOf(allChars[i]) !== -1) {
                     encodedSymbols.push(allChars[i]);
@@ -967,56 +968,68 @@ function importerAbeilleVC(event, expectedApp, onSuccess) {
                 }
             }
 
-            // 1. Décodage des emojis vers notre "phrase" (sans JSON)
-            let rawString = "";
-            for (let i = 0; i < encodedSymbols.length - 2; i += 3) {
-                let char1 = encodedSymbols[i + 1];
-                let char2 = encodedSymbols[i + 2];
-                let index1 = ALPHABET.indexOf(char1);
-                let index2 = ALPHABET.indexOf(char2);
+            let parsedData = null;
 
-                if (index1 !== -1 && index2 !== -1) {
-                    let charCode = (index1 * 27) + index2;
-                    if (charCode > 0 && charCode <= 0xFFFF) {
-                        rawString += String.fromCharCode(charCode);
+            // MAGIE : On teste 3 décalages possibles (0, 1 ou 2)
+            // Si le téléphone a avalé un emoji au début, on le rattrape ici.
+            for (let offset = 0; offset < 3; offset++) {
+                let rawString = "";
+                
+                for (let i = offset; i < encodedSymbols.length - 2; i += 3) {
+                    let char1 = encodedSymbols[i + 1];
+                    let char2 = encodedSymbols[i + 2];
+                    let index1 = ALPHABET.indexOf(char1);
+                    let index2 = ALPHABET.indexOf(char2);
+
+                    if (index1 !== -1 && index2 !== -1) {
+                        let charCode = (index1 * 27) + index2;
+                        if (charCode > 0 && charCode <= 0xFFFF) {
+                            rawString += String.fromCharCode(charCode);
+                        }
+                    }
+                }
+
+                // On essaie de lire la phrase (Format maison)
+                let parts = rawString.split("|");
+                if (parts.length >= 9) {
+                    try {
+                        let tempData = {
+                            personalInfo: { firstName: parts[0], lastName: parts[1], phone: parts[2] },
+                            inspectorName: parts[3],
+                            notes: parts[4],
+                            surveyLocation: { lat: parseFloat(parts[5]), lng: parseFloat(parts[6]), name: parts[7] },
+                            hornets: []
+                        };
+
+                        let hornetCount = parseInt(parts[8]) || 0;
+                        for (let i = 0; i < hornetCount; i++) {
+                            let hData = parts[9 + i];
+                            if (hData) {
+                                let hParts = hData.split(";");
+                                tempData.hornets.push({
+                                    name: hParts[0] || "Frelon",
+                                    direction: parseInt(hParts[1]) || 0,
+                                    flights: hParts[2] ? hParts[2].split(",").map(Number) : [],
+                                    color: hParts[3] || null
+                                });
+                            }
+                        }
+                        
+                        // Si on arrive ici sans erreur, c'est qu'on a trouvé le bon décalage !
+                        parsedData = tempData;
+                        break; 
+                    } catch(err) {
+                        // On ignore et on teste le décalage suivant
                     }
                 }
             }
 
-            // 2. Reconstruction des données depuis notre format maison
-            let parts = rawString.split("|");
-            if (parts.length < 9) {
-                alert("❌ Le fichier est incomplet ou illisible.");
-                return;
+            if (parsedData) {
+                alert("✅ Fichier importé avec succès !");
+                onSuccess(parsedData);
+            } else {
+                alert("❌ Le fichier est incomplet ou a été altéré lors du téléchargement.");
             }
-
-            let parsedData = {
-                personalInfo: { firstName: parts[0], lastName: parts[1], phone: parts[2] },
-                inspectorName: parts[3],
-                notes: parts[4],
-                surveyLocation: { lat: parseFloat(parts[5]), lng: parseFloat(parts[6]), name: parts[7] },
-                hornets: []
-            };
-
-            let hornetCount = parseInt(parts[8]) || 0;
-
-            // On parcourt les frelons
-            for (let i = 0; i < hornetCount; i++) {
-                // Les infos du frelon sont dans parts[9 + i]
-                let hData = parts[9 + i];
-                if (hData) {
-                    let hParts = hData.split(";");
-                    parsedData.hornets.push({
-                        name: hParts[0] || "Frelon",
-                        direction: parseInt(hParts[1]) || 0,
-                        flights: hParts[2] ? hParts[2].split(",").map(Number) : [],
-                        color: hParts[3] || null
-                    });
-                }
-            }
-
-            alert("✅ Fichier importé avec succès !");
-            onSuccess(parsedData);
             
         } catch (err) {
             console.error(err);
