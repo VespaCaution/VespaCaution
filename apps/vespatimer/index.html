@@ -181,9 +181,37 @@
 <div id="updateBanner"></div>
 <div class="modal-overlay" id="optionsModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">⚙️ <span data-lang="options">Options</span></h2><button class="modal-close" onclick="closeModal('optionsModal')" style="position:static;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"><p><strong data-lang="language">Langue:</strong> <button class="btn-gold btn-sm" onclick="openLangModal()">🌍 <span data-lang="language">Langue</span></button></p><button onclick="toggleNotifications()">🔔 <span id="notifBtnLabel">Notifications</span></button><button onclick="closeModal('optionsModal');openModal('aboutModal')">ℹ️ <span data-lang="about_btn">À propos</span></button><button class="btn-gold" id="installBtn2" style="display:none;" onclick="installPWA()">📲 <span data-lang="install_app">Installer l'app</span></button><button onclick="closeModal('optionsModal');openAccountModal()">👤 <span data-lang="account_title">Compte</span> <span style="font-size:0.75rem;color:#888;">(<span data-lang="account_optional">optionnel</span>)</span></button></div></div></div>
 
-<div class="modal-overlay" id="exportModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">📤 <span data-lang="export_import">Export / Import</span></h2><button class="modal-close" onclick="closeModal('exportModal')" style="position:static;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"><button onclick="exportPDF()">📄 PDF</button><button class="btn-gold" onclick="closeModal('exportModal'); exportVCFLASH();">⚡ Générer un VCFLASH</button>
-<button class="btn-gold" onclick="closeModal('exportModal'); importVCFLASHModal();">⚡ Coller un VCFLASH</button>
-<button class="btn-gold" onclick="closeModal('exportModal'); startCameraScanner();">📷 Scanner un VCFLASH</button><button onclick="exportHistory()">📋 <span data-lang="export_history">Exporter historique</span></button><button onclick="exportJSON()">📤 JSON</button><button onclick="exportGPX()">📍 GPX</button><button onclick="exportKML()">🌍 KML</button><hr><button class="btn-gold" onclick="document.getElementById('importFile').click()">📥 <span data-lang="import_btn">Importer</span> (JSON)</button><button class="btn-gold" onclick="document.getElementById('importHistFile').click()">📋 <span data-lang="import_history">Importer historique</span></button><button class="btn-gold" onclick="openVespafinderModal()">🔗 <span data-lang="import_vespafinder">Importer Vespafinder</span></button><input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)"><input type="file" id="importHistFile" accept=".json" style="display:none;" onchange="importHistory(event)"><hr><button class="btn-red" onclick="resetAll()">🔄 <span data-lang="reset_btn">Nouveau / Sauvegarder</span></button></div></div></div>
+<div class="modal-overlay" id="exportModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">📤 <span data-lang="export_import">Export / Import</span></h2><button class="modal-close" onclick="closeModal('exportModal')" style="position:static;">✕</button></div>
+<div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
+  
+  <!-- BLOC EXPORT -->
+  <p style="font-size:0.75rem;color:#888;font-weight:bold;margin:4px 0 -4px 4px;">EXPORTER</p>
+  <button onclick="exportPDF()">📄 PDF</button>
+  <button onclick="exportHistory()">📋 <span data-lang="export_history">Exporter historique</span></button>
+  <button onclick="exportJSON()">📤 JSON</button>
+  <button onclick="exportGPX()">📍 GPX</button>
+  <button onclick="exportKML()">🌍 KML</button>
+  <button class="btn-gold" onclick="closeModal('exportModal'); exportVCFLASH();">⚡ <span data-lang="export_vc">Exporter en VCFLASH</span></button>
+
+  <hr style="border:0;border-top:1px dashed #e0cfaa;margin:8px 0;">
+
+  <!-- BLOC IMPORT -->
+  <p style="font-size:0.75rem;color:#888;font-weight:bold;margin:4px 0 -4px 4px;">IMPORTER</p>
+  <button class="btn-gold" onclick="document.getElementById('importFile').click()">📥 <span data-lang="import_btn">Importer JSON</span></button>
+  <button class="btn-gold" onclick="document.getElementById('importHistFile').click()">📋 <span data-lang="import_history">Importer historique</span></button>
+  <button class="btn-gold" onclick="openVespafinderModal()">🔗 <span data-lang="import_vespafinder">Importer Vespafinder</span></button>
+  <button class="btn-gold" onclick="closeModal('exportModal'); openVCFLASHModal();">⚡ <span data-lang="import_vc">Importer un VCFLASH</span></button>
+  
+  <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+  <input type="file" id="importHistFile" accept=".json" style="display:none;" onchange="importHistory(event)">
+  
+  <hr style="border:0;border-top:1px dashed #e0cfaa;margin:8px 0;">
+  
+  <!-- BLOC RESET -->
+  <button class="btn-red" onclick="resetAll()">🔄 <span data-lang="reset_btn">Nouveau / Sauvegarder</span></button>
+  
+</div></div></div>
+
 <div class="modal-overlay" id="aboutModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">ℹ️ <span data-lang="about_title_full">À propos de VespaTimer</span></h2><button class="modal-close" onclick="closeAbout()" style="position:static;">✕</button></div><div style="font-size:0.9rem;line-height:1.7;margin-top:10px;"><p data-lang="about_text">Bienvenue sur VespaTimer</p><p>⚠️ <span data-lang="about_report">N'oubliez pas de signaler vos observations sur :</span> <a href="https://frelonasiatique.ch" target="_blank">frelonasiatique.ch</a></p><p data-lang="about_instructions_detail">Instructions</p><hr style="border:1px dashed #e0cfaa;margin:10px 0;"><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">🧭 <span data-lang="compass_calibration_title">Calibration de la boussole</span></summary><p style="margin-top:8px;"><strong data-lang="compass_calibration_when">QUAND :</strong><br><span data-lang="compass_calibration_when_text"></span></p><p style="margin-top:8px;"><strong data-lang="compass_calibration_how">COMMENT :</strong><br><span data-lang="compass_calibration_how_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">🎨 <span data-lang="color_change_title">Changer la couleur d'un frelon</span></summary><p style="margin-top:8px;"><strong data-lang="color_change_method">Méthode :</strong><br><span data-lang="color_change_method_text"></span></p><p style="margin-top:8px;"><strong data-lang="color_change_tip">Astuce :</strong><br><span data-lang="color_change_tip_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">📄 <span data-lang="format_explanation_title">Formats d'export</span></summary><p style="margin-top:8px;"><span data-lang="format_explanation_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">📥 <span data-lang="import_explanation_title">Formats d'import</span></summary><p style="margin-top:8px;"><span data-lang="import_explanation_text"></span></p></details><hr style="border:1px dashed #e0cfaa;margin:10px 0;"><p data-lang="about_happy">🐝 Bonne chasse ! 🙂</p><p style="font-size:0.78rem;color:#888;margin-top:10px;"><span data-lang="about_footer1">Requiert une connexion Internet</span><br><span data-lang="about_footer2">Trouvez de plus amples informations sur : <a href="https://stopfrelons.ch" target="_blank">stopfrelons.ch</a></span></p></div></div></div>
 
 <div class="modal-overlay" id="compassModal"><div class="modal" style="text-align:center;background:#1a1a2e;color:white;border-radius:20px;width:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:20px;"><button class="modal-close" onclick="closeModal('compassModal');stopCompass()" style="color:white;position:absolute;top:10px;right:14px;z-index:10;">✕</button><h3 style="color:#d4a853;margin-bottom:10px;">🧭 Boussole</h3><div id="compassContainer" style="position:relative;width:300px;height:300px;"><svg viewBox="0 0 300 300" style="width:100%;height:100%;position:absolute;top:0;left:0;"><circle cx="150" cy="150" r="145" fill="#1a1a2e" stroke="#d4a853" stroke-width="3"/><circle cx="150" cy="150" r="125" fill="none" stroke="rgba(255,255,255,0.1)"/><circle cx="150" cy="150" r="105" fill="none" stroke="rgba(255,255,255,0.05)"/><g id="compassGraduations"></g><text x="150" y="22" fill="white" font-size="18" text-anchor="middle" font-weight="bold">N</text><text x="150" y="288" fill="white" font-size="14" text-anchor="middle">S</text><text x="278" y="155" fill="white" font-size="14" text-anchor="middle">E</text><text x="22" y="155" fill="white" font-size="14" text-anchor="middle">O</text></svg><div id="compassNeedle" style="position:absolute;top:5px;left:50%;width:4px;height:140px;margin-left:-2px;transform-origin:bottom center;transition:transform 0.3s;z-index:5;"><div style="width:4px;height:70px;background:linear-gradient(to top,#c47b6b,#d4a853);border-radius:2px 2px 0 0;"></div><div style="width:4px;height:70px;background:linear-gradient(to bottom,#666,#333);border-radius:0 0 2px 2px;"></div></div><div style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px;background:#d4a853;border-radius:50%;border:3px solid white;z-index:10;"></div></div><div id="compassDirection" style="margin-top:15px;font-size:1.5rem;font-weight:bold;color:#d4a853;">--°</div></div></div>
@@ -637,7 +665,7 @@ function exportHistory() { closeModal('exportModal'); var hist = getHist(); var 
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 // ============================================================
-// VCFLASH - Code Emoji en Bloc + Scanner
+// VCFLASH - Export, Import (Onglets), et Caméra Stylisée
 // ============================================================
 
 var VCFLASH_EMOJIS = [
@@ -646,7 +674,7 @@ var VCFLASH_EMOJIS = [
     "[", "]", ".", ",", "*"
 ];
 
-// --- 1. EXPORTER (Génère le bloc carré) ---
+// --- 1. EXPORTER (Carré Parfait) ---
 function exportVCFLASH() {
     var dataToExport = { hornets: hornets, surveyLocation: surveyLocation, inspectorName: inspectorName, notes: notes, personalInfo: personalInfo };
     
@@ -654,7 +682,6 @@ function exportVCFLASH() {
     let loc = dataToExport.surveyLocation || {};
     let rawString = "";
     
-    // Format ultra-court
     rawString += (p.firstName || "").substring(0, 10) + "|";
     rawString += (p.lastName || "").substring(0, 10) + "|";
     rawString += (p.phone || "").substring(0, 15) + "|";
@@ -673,7 +700,6 @@ function exportVCFLASH() {
         }
     }
 
-    // Encodage en emojis
     let flashCode = "⚡";
     let chars = Array.from(rawString);
     for (let i = 0; i < chars.length; i++) {
@@ -686,23 +712,24 @@ function exportVCFLASH() {
 
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    // Création du bloc (on coupe tous les 16 caractères pour faire un carré)
-    let blockHtml = "";
+    // Calcul du carré
     let charsArray = Array.from(flashCode);
-    let blockSize = 16; // Modifie ce chiffre pour un carré plus ou moins large
-    
-    for (let i = 0; i < charsArray.length; i += blockSize) {
-        let line = charsArray.slice(i, i + blockSize).join('');
-        blockHtml += line + "<br>";
+    let totalChars = charsArray.length;
+    let blockSize = Math.ceil(Math.sqrt(totalChars));
+    let fontSize = Math.min(20, Math.floor(340 / blockSize)); 
+    if (fontSize < 7) fontSize = 7;
+
+    let blockHtml = "";
+    for (let i = 0; i < totalChars; i += blockSize) {
+        blockHtml += charsArray.slice(i, i + blockSize).join('') + "<br>";
     }
 
-    // Affichage dans le modal
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
             'VCFLASH généré !<br>' +
             '<span style="font-size:0.75rem;color:#888;">Copié dans le presse-papiers</span>' +
-            '<div style="font-size: 18px; line-height: 1.2; background: #f9f4e8; padding: 15px; border-radius: 16px; margin-top: 10px; font-family: monospace; text-align: center; letter-spacing: 2px;">' + blockHtml + '</div>' +
+            '<div style="font-size: ' + fontSize + 'px; line-height: 1.1; background: #f9f4e8; padding: 15px; border-radius: 16px; margin-top: 10px; font-family: sans-serif; text-align: center; word-break: break-all;">' + blockHtml + '</div>' +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
             '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + flashCode + '\')">📤 Partager le texte</button>' +
@@ -718,23 +745,34 @@ function exportVCFLASH() {
     document.body.appendChild(overlay);
 }
 
-// --- 2. PARTAGER ---
 function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
 }
 
-// --- 3. IMPORTER (Coller le texte) ---
-function importVCFLASHModal() {
-    var html = '<div class="custom-alert" style="max-width:400px;">' +
-        '<div class="custom-alert-icon">⚡</div>' +
-        '<div class="custom-alert-message">' +
-            'Importer un VCFLASH<br>' +
-            '<span style="font-size:0.85rem;color:#888;">Collez le code ci-dessous</span>' +
-            '<textarea id="vcflashInput" placeholder="⚡🐝🍯..." style="width:100%;height:80px;margin-top:10px;font-size:14px;padding:8px;border-radius:8px;border:1px solid #ccc;resize:none;"></textarea>' +
+// --- 2. MODAL D'IMPORT (Onglets Coller / Caméra) ---
+function openVCFLASHModal() {
+    var html = '<div class="custom-alert" style="max-width:400px; padding:15px; background:var(--bg);">' +
+        '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
+            '<h3 style="margin:0; color:var(--text);">⚡ Importer</h3>' +
+            '<button onclick="this.closest(\'.custom-alert-overlay\').remove();" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text);">✕</button>' +
         '</div>' +
-        '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
-            '<button class="custom-alert-button" onclick="processVCFLASHImport()">📥 Importer</button>' +
-            '<button class="custom-alert-button" style="background:#888;" onclick="this.closest(\'.custom-alert-overlay\').remove();">Annuler</button>' +
+        
+        // Onglets
+        '<div style="display:flex; border-bottom:2px solid var(--border); margin-bottom:15px;">' +
+            '<button id="tabBtnPaste" onclick="switchVCTab(\'paste\')" style="flex:1; padding:10px; border:none; background:none; font-weight:bold; border-bottom:3px solid var(--gold); color:var(--gold); cursor:pointer;">📋 Coller</button>' +
+            '<button id="tabBtnCamera" onclick="switchVCTab(\'camera\')" style="flex:1; padding:10px; border:none; background:none; font-weight:bold; border-bottom:3px solid transparent; color:#888; cursor:pointer;">📷 Caméra</button>' +
+        '</div>' +
+
+        // Contenu Coller
+        '<div id="vcTabPaste">' +
+            '<textarea id="vcflashInput" placeholder="⚡🐝🍯..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
+            '<button class="btn-gold" onclick="processVCFLASHImport()" style="width:100%; margin-top:10px; padding:12px; border-radius:25px; font-size:1rem;">📥 Importer</button>' +
+        '</div>' +
+
+        // Contenu Caméra
+        '<div id="vcTabCamera" style="display:none;">' +
+            '<div id="qr-reader" style="width:100%; border-radius:16px; overflow:hidden; border:2px solid var(--border); background:#1a1a2e;"></div>' +
+            '<button class="btn-red" onclick="switchVCTab(\'paste\')" style="width:100%; margin-top:10px; padding:12px; border-radius:25px; font-size:1rem;">Annuler</button>' +
         '</div>' +
     '</div>';
 
@@ -746,7 +784,62 @@ function importVCFLASHModal() {
     document.body.appendChild(overlay);
 }
 
-// --- 4. TRAITEMENT DE L'IMPORT ---
+// --- 3. GESTION DES ONGLETS ET CAMÉRA ---
+window.currentVCTab = 'paste';
+window.qrScannerInstance = null;
+
+function switchVCTab(tab) {
+    document.getElementById('vcTabPaste').style.display = (tab === 'paste') ? 'block' : 'none';
+    document.getElementById('vcTabCamera').style.display = (tab === 'camera') ? 'block' : 'none';
+    
+    // Mise à jour du style des boutons d'onglets
+    var btnPaste = document.getElementById('tabBtnPaste');
+    var btnCamera = document.getElementById('tabBtnCamera');
+    
+    if (tab === 'paste') {
+        btnPaste.style.borderBottomColor = 'var(--gold)';
+        btnPaste.style.color = 'var(--gold)';
+        btnCamera.style.borderBottomColor = 'transparent';
+        btnCamera.style.color = '#888';
+        stopQRScanner(); // On coupe la caméra si on change d'onglet
+    } else {
+        btnCamera.style.borderBottomColor = 'var(--gold)';
+        btnCamera.style.color = 'var(--gold)';
+        btnPaste.style.borderBottomColor = 'transparent';
+        btnPaste.style.color = '#888';
+        startCameraScanner(); // On allume la caméra
+    }
+}
+
+function startCameraScanner() {
+    window.qrScannerInstance = new Html5Qrcode("qr-reader");
+    
+    window.qrScannerInstance.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+            stopQRScanner();
+            if (decodedText.includes("⚡") || decodedText.includes("🐝") || decodedText.includes("🍯")) {
+                processVCFLASHImport(decodedText);
+            } else {
+                showAlert("❌ Ce n'est pas un VCFLASH.", "❌");
+            }
+        },
+        (errorMessage) => { /* Ignore */ }
+    ).catch(err => {
+        console.error(err);
+        showAlert("❌ Impossible d'accéder à la caméra.", "📷");
+    });
+}
+
+function stopQRScanner() {
+    if (window.qrScannerInstance) {
+        try { window.qrScannerInstance.stop().then(() => window.qrScannerInstance.clear()); } catch(e) {}
+        window.qrScannerInstance = null;
+    }
+}
+
+// --- 4. TRAITEMENT DES DONNÉES ---
 function processVCFLASHImport(codeOverride) {
     var code = codeOverride || document.getElementById('vcflashInput').value.trim();
     if (!code) return;
@@ -803,57 +896,7 @@ function processVCFLASHImport(codeOverride) {
         if (modal) modal.remove();
         showToast("✅ VCFLASH importé !");
     } catch(e) { showAlert("❌ Erreur d'import.", "❌"); }
-}
-
-// --- 5. SCANNER CAMÉRA ---
-function startCameraScanner() {
-    var html = '<div class="custom-alert" style="max-width:350px;padding:10px;">' +
-        '<div class="custom-alert-icon" style="margin-bottom:0;">📷</div>' +
-        '<div class="custom-alert-message" style="margin-bottom:10px;">Visez le bloc d\'emojis</div>' +
-        '<div id="qr-reader" style="width:100%;border-radius:12px;overflow:hidden;"></div>' +
-        '<button class="custom-alert-button" style="background:#888;width:100%;margin-top:10px;" onclick="stopQRScanner()">Annuler</button>' +
-    '</div>';
-
-    var overlay = document.createElement('div');
-    overlay.className = 'custom-alert-overlay';
-    overlay.style.display = 'flex';
-    overlay.innerHTML = html;
-    overlay.id = 'qrScannerModal';
-    document.body.appendChild(overlay);
-
-    window.qrScannerInstance = new Html5Qrcode("qr-reader");
-    
-    // On scanne les QR Codes ET le texte si possible
-    window.qrScannerInstance.start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => {
-            stopQRScanner();
-            // Si le texte lu contient nos symboles, on l'importe
-            if (decodedText.includes("⚡") || decodedText.includes("🐝") || decodedText.includes("🍯")) {
-                processVCFLASHImport(decodedText);
-            } else {
-                showAlert("❌ Ce n'est pas un VCFLASH.", "❌");
-            }
-        },
-        (errorMessage) => { /* On ignore les erreurs de frame */ }
-    ).catch(err => {
-        console.error(err);
-        stopQRScanner();
-        showAlert("❌ Impossible d'accéder à la caméra.", "📷");
-    });
-}
-
-function stopQRScanner() {
-    if (window.qrScannerInstance) {
-        window.qrScannerInstance.stop().then(() => {
-            window.qrScannerInstance.clear();
-            window.qrScannerInstance = null;
-        }).catch(e => {});
-    }
-    var modal = document.getElementById('qrScannerModal');
-    if (modal) modal.remove();
-}
+        }
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
