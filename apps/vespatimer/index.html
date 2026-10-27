@@ -711,16 +711,31 @@ function exportVCFLASH() {
         flashCode += VCFLASH_EMOJIS[idx1] + VCFLASH_EMOJIS[idx2];
     }
 
-    navigator.clipboard.writeText(flashCode).catch(function(){});
-
+    // --- AJOUT DE L'ENTÊTE MAGIQUE ---
     let charsArray = Array.from(flashCode);
+    // Si la longueur est impaire, on ajoute un emoji vide pour la rendre paire
+    if (charsArray.length % 2 !== 0) charsArray.push("🌸"); 
+
     let totalChars = charsArray.length;
     let blockSize = Math.ceil(Math.sqrt(totalChars));
+    
+    // L'ENTÊTE : On met le nombre de colonnes (blockSize) en haut du carré.
+    // On utilise l'alphabet pour écrire blockSize de manière invisible.
+    let sizeChar = VCFLASH_EMOJIS[blockSize % 27];
+    // On insère 4 emojis fixes au début pour repérer le début du code
+    charsArray.unshift("⚡", "🌸", sizeChar, "🍯");
+    
+    // On recalcule la taille du carré avec l'entête
+    totalChars = charsArray.length;
+    blockSize = Math.ceil(Math.sqrt(totalChars));
+
+    navigator.clipboard.writeText(flashCode).catch(function(){});
+
     let cellSize = Math.floor(300 / blockSize); 
     if (cellSize > 24) cellSize = 24;
     if (cellSize < 8) cellSize = 8;
 
-    let gridHtml = '<div style="display: grid; grid-template-columns: repeat(' + blockSize + ', ' + cellSize + 'px); width: ' + (blockSize * cellSize) + 'px; margin: 0 auto; background: #f9f4e8; padding: 10px; border-radius: 16px; border: 1px solid var(--border);">';
+    let gridHtml = '<div style="display: grid; grid-template-columns: repeat(' + blockSize + ', ' + cellSize + 'px); width: ' + (blockSize * cellSize) + 'px; margin: 0 auto; background: #f9f4e8; padding: 10px; border-radius: 16px;">';
     for (let i = 0; i < totalChars; i++) {
         gridHtml += '<div style="width: ' + cellSize + 'px; height: ' + cellSize + 'px; font-size: ' + (cellSize - 2) + 'px; line-height: ' + cellSize + 'px; text-align: center; overflow: hidden; display: flex; align-items: center; justify-content: center;">' + charsArray[i] + '</div>';
     }
@@ -745,8 +760,7 @@ function exportVCFLASH() {
     overlay.innerHTML = html;
     overlay.id = 'vcflashModal';
     document.body.appendChild(overlay);
-}
-
+    }
 function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
 }
@@ -938,13 +952,50 @@ function findClosestEmoji(r, g, b) {
 function processVCFLASHImport(codeOverride) {
     var code = codeOverride || document.getElementById('vcflashInput').value.trim();
     if (!code) return;
-    code = code.replace(/⚡/g, '');
-
-    let rawString = "";
+    
+    // On nettoie tout ce qui n'est pas un emoji (espaces, etc)
     let chars = Array.from(code);
-    for (let i = 0; i < chars.length; i += 2) {
-        let idx1 = VCFLASH_EMOJIS.indexOf(chars[i]);
-        let idx2 = VCFLASH_EMOJIS.indexOf(chars[i+1]);
+    
+    // 1. Trouver l'entête
+    let startIndex = -1;
+    for (let i = 0; i < chars.length; i++) {
+        if (chars[i] === "⚡" && chars[i+1] === "🌸" && chars[i+3] === "🍯") {
+            startIndex = i;
+            break;
+        }
+    }
+    
+    if (startIndex === -1) {
+        // Si pas d'entête, on suppose que c'est du texte brut collé depuis le presse-papiers
+        // On fait la méthode de décodage classique.
+        rawString = "";
+        for (let i = 0; i < chars.length; i += 2) {
+            let idx1 = VCFLASH_EMOJIS.indexOf(chars[i]);
+            let idx2 = VCFLASH_EMOJIS.indexOf(chars[i+1]);
+            if (idx1 !== -1 && idx2 !== -1) {
+                let charCode = (idx1 * 27) + idx2;
+                if (charCode > 0 && charCode <= 0xFFFF) rawString += String.fromCharCode(charCode);
+            }
+        }
+        applyVCFLASHData(rawString);
+        return;
+    }
+
+    // 2. Si on a trouvé l'entête (cas du scan photo)
+    // L'emoji à startIndex + 2 contient la taille du carré (blockSize)
+    let sizeChar = chars[startIndex + 2];
+    let expectedBlockSize = VCFLASH_EMOJIS.indexOf(sizeChar);
+    if(expectedBlockSize === -1) expectedBlockSize = 10; // Sécurité
+
+    // On extrait tous les caractères APRÈS l'entête
+    let dataChars = chars.slice(startIndex + 4);
+    let rawString = "";
+
+    // On lit les données (en ignorant les bruits éventuels de fin de ligne)
+    for (let i = 0; i < dataChars.length - 1; i += 2) {
+        let idx1 = VCFLASH_EMOJIS.indexOf(dataChars[i]);
+        let idx2 = VCFLASH_EMOJIS.indexOf(dataChars[i+1]);
+        
         if (idx1 !== -1 && idx2 !== -1) {
             let charCode = (idx1 * 27) + idx2;
             if (charCode > 0 && charCode <= 0xFFFF) {
@@ -953,8 +1004,13 @@ function processVCFLASHImport(codeOverride) {
         }
     }
 
+    applyVCFLASHData(rawString);
+}
+
+// --- FONCTION QUI APPLIQUE LES DONNÉES (Séparée pour la propreté) ---
+function applyVCFLASHData(rawString) {
     let parts = rawString.split("|");
-    if (parts.length < 8) { showAlert("❌ Code VCFLASH invalide.", "❌"); return; }
+    if (parts.length < 8) { showAlert("❌ Code VCFLASH invalide ou incomplet.", "❌"); return; }
 
     try {
         var hasCurrentData = hornets.some(function(h){ return h.flights.length > 0; }) || surveyLocation.name || inspectorName || notes;
@@ -991,7 +1047,7 @@ function processVCFLASHImport(codeOverride) {
         if (modal) modal.remove();
         showToast("✅ VCFLASH importé !");
     } catch(e) { showAlert("❌ Erreur d'import.", "❌"); }
-    }
+}
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
