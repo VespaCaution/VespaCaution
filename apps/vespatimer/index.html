@@ -31,6 +31,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode"></script> 
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <style>
         :root { --bg: #f5f2e6; --card: #ffffff; --text: #3b2e1e; --gold: #d4a853; --danger: #c47b6b; --border: #e7d7b8; }
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -185,34 +186,30 @@
 <div class="modal-overlay" id="exportModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">📤 <span data-lang="export_import">Export / Import</span></h2><button class="modal-close" onclick="closeModal('exportModal')" style="position:static;">✕</button></div>
 <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;">
   
-  <!-- BLOC EXPORT -->
   <p style="font-size:0.75rem;color:#888;font-weight:bold;margin:4px 0 -4px 4px;">EXPORTER</p>
   <button onclick="exportPDF()">📄 PDF</button>
   <button onclick="exportHistory()">📋 <span data-lang="export_history">Exporter historique</span></button>
   <button onclick="exportJSON()">📤 JSON</button>
   <button onclick="exportGPX()">📍 GPX</button>
   <button onclick="exportKML()">🌍 KML</button>
-  <button class="btn-gold" onclick="closeModal('exportModal'); exportVCFLASH();">⚡ <span data-lang="export_vc">Exporter en VCFLASH</span></button>
+  <button class="btn-gold" onclick="closeModal('exportModal'); exportVCFLASH();">⚡ Exporter en VCFLASH</button>
 
   <hr style="border:0;border-top:1px dashed #e0cfaa;margin:8px 0;">
 
-  <!-- BLOC IMPORT -->
   <p style="font-size:0.75rem;color:#888;font-weight:bold;margin:4px 0 -4px 4px;">IMPORTER</p>
-  <button class="btn-gold" onclick="document.getElementById('importFile').click()">📥 <span data-lang="import_btn">Importer JSON</span></button>
-  <button class="btn-gold" onclick="document.getElementById('importHistFile').click()">📋 <span data-lang="import_history">Importer historique</span></button>
-  <button class="btn-gold" onclick="openVespafinderModal()">🔗 <span data-lang="import_vespafinder">Importer Vespafinder</span></button>
-  <button class="btn-gold" onclick="closeModal('exportModal'); openVCFLASHModal();">⚡ <span data-lang="import_vc">Importer un VCFLASH</span></button>
+  <button class="btn-gold" onclick="document.getElementById('importFile').click()">📥 Importer JSON</button>
+  <button class="btn-gold" onclick="document.getElementById('importHistFile').click()">📋 Importer historique</button>
+  <button class="btn-gold" onclick="openVespafinderModal()">🔗 Importer Vespafinder</button>
+  <button class="btn-gold" onclick="closeModal('exportModal'); openVCFLASHModal();">⚡ Importer un VCFLASH</button>
   
   <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
   <input type="file" id="importHistFile" accept=".json" style="display:none;" onchange="importHistory(event)">
   
   <hr style="border:0;border-top:1px dashed #e0cfaa;margin:8px 0;">
   
-  <!-- BLOC RESET -->
   <button class="btn-red" onclick="resetAll()">🔄 <span data-lang="reset_btn">Nouveau / Sauvegarder</span></button>
   
 </div></div></div>
-
 <div class="modal-overlay" id="aboutModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">ℹ️ <span data-lang="about_title_full">À propos de VespaTimer</span></h2><button class="modal-close" onclick="closeAbout()" style="position:static;">✕</button></div><div style="font-size:0.9rem;line-height:1.7;margin-top:10px;"><p data-lang="about_text">Bienvenue sur VespaTimer</p><p>⚠️ <span data-lang="about_report">N'oubliez pas de signaler vos observations sur :</span> <a href="https://frelonasiatique.ch" target="_blank">frelonasiatique.ch</a></p><p data-lang="about_instructions_detail">Instructions</p><hr style="border:1px dashed #e0cfaa;margin:10px 0;"><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">🧭 <span data-lang="compass_calibration_title">Calibration de la boussole</span></summary><p style="margin-top:8px;"><strong data-lang="compass_calibration_when">QUAND :</strong><br><span data-lang="compass_calibration_when_text"></span></p><p style="margin-top:8px;"><strong data-lang="compass_calibration_how">COMMENT :</strong><br><span data-lang="compass_calibration_how_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">🎨 <span data-lang="color_change_title">Changer la couleur d'un frelon</span></summary><p style="margin-top:8px;"><strong data-lang="color_change_method">Méthode :</strong><br><span data-lang="color_change_method_text"></span></p><p style="margin-top:8px;"><strong data-lang="color_change_tip">Astuce :</strong><br><span data-lang="color_change_tip_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">📄 <span data-lang="format_explanation_title">Formats d'export</span></summary><p style="margin-top:8px;"><span data-lang="format_explanation_text"></span></p></details><details><summary style="cursor:pointer;font-weight:600;color:#d4a853;">📥 <span data-lang="import_explanation_title">Formats d'import</span></summary><p style="margin-top:8px;"><span data-lang="import_explanation_text"></span></p></details><hr style="border:1px dashed #e0cfaa;margin:10px 0;"><p data-lang="about_happy">🐝 Bonne chasse ! 🙂</p><p style="font-size:0.78rem;color:#888;margin-top:10px;"><span data-lang="about_footer1">Requiert une connexion Internet</span><br><span data-lang="about_footer2">Trouvez de plus amples informations sur : <a href="https://stopfrelons.ch" target="_blank">stopfrelons.ch</a></span></p></div></div></div>
 
 <div class="modal-overlay" id="compassModal"><div class="modal" style="text-align:center;background:#1a1a2e;color:white;border-radius:20px;width:340px;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;padding:20px;"><button class="modal-close" onclick="closeModal('compassModal');stopCompass()" style="color:white;position:absolute;top:10px;right:14px;z-index:10;">✕</button><h3 style="color:#d4a853;margin-bottom:10px;">🧭 Boussole</h3><div id="compassContainer" style="position:relative;width:300px;height:300px;"><svg viewBox="0 0 300 300" style="width:100%;height:100%;position:absolute;top:0;left:0;"><circle cx="150" cy="150" r="145" fill="#1a1a2e" stroke="#d4a853" stroke-width="3"/><circle cx="150" cy="150" r="125" fill="none" stroke="rgba(255,255,255,0.1)"/><circle cx="150" cy="150" r="105" fill="none" stroke="rgba(255,255,255,0.05)"/><g id="compassGraduations"></g><text x="150" y="22" fill="white" font-size="18" text-anchor="middle" font-weight="bold">N</text><text x="150" y="288" fill="white" font-size="14" text-anchor="middle">S</text><text x="278" y="155" fill="white" font-size="14" text-anchor="middle">E</text><text x="22" y="155" fill="white" font-size="14" text-anchor="middle">O</text></svg><div id="compassNeedle" style="position:absolute;top:5px;left:50%;width:4px;height:140px;margin-left:-2px;transform-origin:bottom center;transition:transform 0.3s;z-index:5;"><div style="width:4px;height:70px;background:linear-gradient(to top,#c47b6b,#d4a853);border-radius:2px 2px 0 0;"></div><div style="width:4px;height:70px;background:linear-gradient(to bottom,#666,#333);border-radius:0 0 2px 2px;"></div></div><div style="position:absolute;top:50%;left:50%;width:16px;height:16px;margin:-8px;background:#d4a853;border-radius:50%;border:3px solid white;z-index:10;"></div></div><div id="compassDirection" style="margin-top:15px;font-size:1.5rem;font-weight:bold;color:#d4a853;">--°</div></div></div>
@@ -666,7 +663,7 @@ function exportHistory() { closeModal('exportModal'); var hist = getHist(); var 
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 // ============================================================
-// VCFLASH - Full Logic (Export, Import, AI Photo)
+// VCFLASH - Génération de texte + QR Code en Emojis
 // ============================================================
 
 var VCFLASH_EMOJIS = [
@@ -675,7 +672,7 @@ var VCFLASH_EMOJIS = [
     "[", "]", ".", ",", "*"
 ];
 
-// --- 1. EXPORT (Perfect Square) ---
+// --- 1. EXPORTATION (Texte + QR en Emojis) ---
 function exportVCFLASH() {
     var dataToExport = { hornets: hornets, surveyLocation: surveyLocation, inspectorName: inspectorName, notes: notes, personalInfo: personalInfo };
     
@@ -701,6 +698,7 @@ function exportVCFLASH() {
         }
     }
 
+    // Encodage en symboles
     let flashCode = "⚡";
     let chars = Array.from(rawString);
     for (let i = 0; i < chars.length; i++) {
@@ -711,44 +709,54 @@ function exportVCFLASH() {
         flashCode += VCFLASH_EMOJIS[idx1] + VCFLASH_EMOJIS[idx2];
     }
 
-    // --- AJOUT DE L'ENTÊTE MAGIQUE ---
-    let charsArray = Array.from(flashCode);
-    // Si la longueur est impaire, on ajoute un emoji vide pour la rendre paire
-    if (charsArray.length % 2 !== 0) charsArray.push("🌸"); 
-
-    let totalChars = charsArray.length;
-    let blockSize = Math.ceil(Math.sqrt(totalChars));
-    
-    // L'ENTÊTE : On met le nombre de colonnes (blockSize) en haut du carré.
-    // On utilise l'alphabet pour écrire blockSize de manière invisible.
-    let sizeChar = VCFLASH_EMOJIS[blockSize % 27];
-    // On insère 4 emojis fixes au début pour repérer le début du code
-    charsArray.unshift("⚡", "🌸", sizeChar, "🍯");
-    
-    // On recalcule la taille du carré avec l'entête
-    totalChars = charsArray.length;
-    blockSize = Math.ceil(Math.sqrt(totalChars));
-
+    // Copie dans le presse-papiers
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    let cellSize = Math.floor(300 / blockSize); 
-    if (cellSize > 24) cellSize = 24;
-    if (cellSize < 8) cellSize = 8;
+    // Génération du QR Code avec la librairie
+    var qr = qrcode(0, 'M');
+    qr.addData(flashCode);
+    qr.make();
+    var moduleCount = qr.getModuleCount();
 
-    let gridHtml = '<div style="display: grid; grid-template-columns: repeat(' + blockSize + ', ' + cellSize + 'px); width: ' + (blockSize * cellSize) + 'px; margin: 0 auto; background: #f9f4e8; padding: 10px; border-radius: 16px;">';
-    for (let i = 0; i < totalChars; i++) {
-        gridHtml += '<div style="width: ' + cellSize + 'px; height: ' + cellSize + 'px; font-size: ' + (cellSize - 2) + 'px; line-height: ' + cellSize + 'px; text-align: center; overflow: hidden; display: flex; align-items: center; justify-content: center;">' + charsArray[i] + '</div>';
+    // On utilise des emojis contrastés (Foncé / Clair)
+    var emojiDark = "🚫";  
+    var emojiLight = "🌸"; 
+    // Pour les données, on peut varier un peu
+    var dataDark = ["🐝", "🍯", "🚫"];
+    var dataLight = ["🌸", "🌳", "💧"];
+
+    var qrEmojiHtml = '<div style="font-family: monospace; font-size: 7px; line-height: 7px; text-align: center; margin: 15px auto; display: inline-block; background: white; padding: 12px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">';
+    
+    for (var row = 0; row < moduleCount; row++) {
+        for (var col = 0; col < moduleCount; col++) {
+            var isDark = qr.isDark(row, col);
+            
+            // On garde les 3 yeux de repérage très stricts pour que la caméra lise
+            var isEye = (row < 7 && col < 7) || (row < 7 && col >= moduleCount - 7) || (row >= moduleCount - 7 && col < 7);
+            
+            if (isEye) {
+                qrEmojiHtml += isDark ? "🚫" : "🌸";
+            } else {
+                if (isDark) {
+                    qrEmojiHtml += dataDark[Math.floor(Math.random() * dataDark.length)];
+                } else {
+                    qrEmojiHtml += dataLight[Math.floor(Math.random() * dataLight.length)];
+                }
+            }
+        }
+        qrEmojiHtml += "<br>";
     }
-    gridHtml += '</div>';
+    qrEmojiHtml += '</div>';
 
+    // Affichage dans le modal
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
             'VCFLASH généré !<br>' +
             '<span style="font-size:0.75rem;color:#888;">Copié dans le presse-papiers</span>' +
-            '<div style="margin-top: 15px; margin-bottom: 15px;">' + gridHtml + '</div>' +
+            qrEmojiHtml +
         '</div>' +
-        '<div style="display:flex;flex-direction:column;gap:8px;">' +
+        '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
             '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + flashCode + '\')">📤 Partager le texte</button>' +
             '<button class="custom-alert-button" style="background:#888;" onclick="this.closest(\'.custom-alert-overlay\').remove();">Fermer</button>' +
         '</div>' +
@@ -760,22 +768,23 @@ function exportVCFLASH() {
     overlay.innerHTML = html;
     overlay.id = 'vcflashModal';
     document.body.appendChild(overlay);
-    }
+}
+
 function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
 }
 
-// --- 2. IMPORT MODAL (Tabs: Paste / Camera) ---
+// --- 2. MODAL D'IMPORTATION (Onglets) ---
 function openVCFLASHModal() {
     var html = '<div class="custom-alert" style="max-width:400px; padding:15px; background:var(--bg);">' +
         '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
-            '<h3 style="margin:0; color:var(--text);">⚡ Import VCFLASH</h3>' +
+            '<h3 style="margin:0; color:var(--text);">⚡ Importer</h3>' +
             '<button onclick="this.closest(\'.custom-alert-overlay\').remove();" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:var(--text);">✕</button>' +
         '</div>' +
         
         '<div style="display:flex; border-bottom:2px solid var(--border); margin-bottom:15px;">' +
             '<button id="tabBtnPaste" onclick="switchVCTab(\'paste\')" style="flex:1; padding:10px; border:none; background:none; font-weight:bold; border-bottom:3px solid var(--gold); color:var(--gold); cursor:pointer;">📋 Coller</button>' +
-            '<button id="tabBtnCamera" onclick="switchVCTab(\'camera\')" style="flex:1; padding:10px; border:none; background:none; font-weight:bold; border-bottom:3px solid transparent; color:#888; cursor:pointer;">📷 Caméra</button>' +
+            '<button id="tabBtnCamera" onclick="switchVCTab(\'camera\')" style="flex:1; padding:10px; border:none; background:none; font-weight:bold; border-bottom:3px solid transparent; color:#888; cursor:pointer;">📷 Scanner</button>' +
         '</div>' +
 
         '<div id="vcTabPaste">' +
@@ -784,9 +793,7 @@ function openVCFLASHModal() {
         '</div>' +
 
         '<div id="vcTabCamera" style="display:none; text-align:center;">' +
-            '<p style="font-size:0.9rem; color:var(--text); margin-bottom:15px;">Prenez une photo nette du bloc VCFLASH.</p>' +
-            '<input type="file" accept="image/*" capture="environment" id="vcflashPhotoInput" style="display:none;" onchange="processVCFLASHPhoto(event)">' +
-            '<button class="btn-gold" onclick="document.getElementById(\'vcflashPhotoInput\').click()" style="width:100%; padding:15px; border-radius:25px; font-size:1.1rem;">📸 Ouvrir la caméra</button>' +
+            '<div id="qr-reader" style="width:100%; border-radius:16px; overflow:hidden; border:2px solid var(--border); background:#1a1a2e;"></div>' +
         '</div>' +
     '</div>';
 
@@ -810,192 +817,59 @@ function switchVCTab(tab) {
         btnPaste.style.color = 'var(--gold)';
         btnCamera.style.borderBottomColor = 'transparent';
         btnCamera.style.color = '#888';
+        stopQRScanner();
     } else {
         btnCamera.style.borderBottomColor = 'var(--gold)';
         btnCamera.style.color = 'var(--gold)';
         btnPaste.style.borderBottomColor = 'transparent';
         btnPaste.style.color = '#888';
+        startCameraScanner();
     }
 }
 
-function processVCFLASHPhoto(event) {
-    var file = event.target.files[0];
-    if (!file) return;
-
-    showToast("⏳ Analyse pixel par pixel...");
-
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        var img = new Image();
-        img.onload = function() {
-            try {
-                // 1. On prépare un "canvas" (un écran virtuel) pour lire l'image
-                var canvas = document.createElement('canvas');
-                var ctx = canvas.getContext('2d');
-                
-                // On redimensionne l'image à une taille gérable (ex: 500x500 max)
-                // pour que l'analyse soit rapide
-                var maxSize = 500;
-                var scale = Math.min(maxSize / img.width, maxSize / img.height);
-                canvas.width = img.width * scale;
-                canvas.height = img.height * scale;
-                
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-                // 2. On demande à l'utilisateur de sélectionner la zone du VCFLASH
-                // (ou on centre l'analyse sur le milieu de l'image)
-                // Pour simplifier, on va analyser tout le centre de l'image
-                // Idéalement, le bloc d'emojis prend la majeure partie de la photo.
-                
-                // On va utiliser l'algorithme pour trouver le nombre de lignes/colonnes
-                // Mais comme on ne connait pas la taille exacte du carré sur la photo,
-                // on va utiliser une astuce : le fond du VCFLASH est beige (#f9f4e8).
-                
-                // --- ÉTAPE DÉLICATE : Trouver les limites du carré ---
-                // Pour ce prototype, on va supposer que l'utilisateur a cadré le carré au centre.
-                var startX = canvas.width * 0.15;
-                var startY = canvas.height * 0.15;
-                var size = Math.min(canvas.width, canvas.height) * 0.7; // On prend 70% du centre
-
-                // On estime le nombre de cases (basé sur la taille du code généré)
-                // C'est une approximation pour l'exemple.
-                var gridSize = 15; // On suppose une grille de 15x15 (à ajuster dynamiquement)
-                var cellSize = size / gridSize;
-
-                var resultText = "";
-
-                // 3. Analyse de chaque case
-                for (var row = 0; row < gridSize; row++) {
-                    for (var col = 0; col < gridSize; col++) {
-                        // Coordonnées du centre de la case
-                        var cx = startX + (col * cellSize) + (cellSize / 2);
-                        var cy = startY + (row * cellSize) + (cellSize / 2);
-
-                        // On lit la couleur de ce pixel
-                        var pixel = ctx.getImageData(cx, cy, 1, 1).data;
-                        var r = pixel[0], g = pixel[1], b = pixel[2];
-
-                        // 4. On compare cette couleur avec les couleurs de nos emojis
-                        var closestEmoji = findClosestEmoji(r, g, b);
-                        resultText += closestEmoji;
-                    }
-                }
-
-                // 5. On tente l'import
-                processVCFLASHImport("⚡" + resultText); // On ajoute l'éclair au début
-
-            } catch(err) {
-                console.error(err);
-                showAlert("❌ Erreur d'analyse de l'image.", "❌");
+// --- 3. SCANNER DE QR CODE ---
+function startCameraScanner() {
+    if (window.qrScannerInstance) return;
+    window.qrScannerInstance = new Html5Qrcode("qr-reader");
+    
+    window.qrScannerInstance.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (decodedText) => {
+            stopQRScanner();
+            if (decodedText.includes("⚡")) {
+                processVCFLASHImport(decodedText);
             }
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-    event.target.value = '';
+        },
+        (errorMessage) => { /* Ignore */ }
+    ).catch(err => {
+        console.error(err);
+        showAlert("❌ Impossible d'accéder à la caméra.", "📷");
+    });
 }
 
-// --- FONCTION POUR TROUVER L'EMOJI LE PLUS PROCHE SELON LA COULEUR ---
-function findClosestEmoji(r, g, b) {
-    // On définit les couleurs moyennes de nos emojis (Rouge, Vert, Bleu)
-    // Ces valeurs sont approximatives, tu peux les ajuster.
-    var emojiColors = {
-        "🐝": [255, 200, 0],   // Jaune abeille
-        "🍯": [255, 180, 50],  // Marron/Orange miel
-        "🌸": [255, 180, 200], // Rose fleur
-        "🌷": [255, 100, 150], // Rose foncé tulipe
-        "🚫": [255, 0, 0],     // Rouge vif
-        "🌳": [100, 150, 100], // Vert arbre
-        "💧": [100, 150, 255], // Bleu eau
-        ")": [0, 0, 0],        // Noir
-        "(": [0, 0, 0],
-        "/": [0, 0, 0],
-        "?": [0, 0, 0],
-        "!": [0, 0, 0],
-        ";": [0, 0, 0],
-        ":": [0, 0, 0],
-        "-": [0, 0, 0],
-        "&": [0, 0, 0],
-        "+": [0, 0, 0],
-        "^": [0, 0, 0],
-        "°": [0, 0, 0],
-        "}": [0, 0, 0],
-        "∆": [0, 0, 0],
-        "§": [0, 0, 0],
-        "[": [0, 0, 0],
-        "]": [0, 0, 0],
-        ".": [0, 0, 0],
-        ",": [0, 0, 0],
-        "*": [0, 0, 0]
-    };
-
-    var minDistance = Infinity;
-    var bestEmoji = "🐝"; // Par défaut
-
-    for (var emoji in emojiColors) {
-        var er = emojiColors[emoji][0];
-        var eg = emojiColors[emoji][1];
-        var eb = emojiColors[emoji][2];
-
-        // Distance euclidienne entre la couleur du pixel et la couleur de l'emoji
-        var dist = Math.sqrt(Math.pow(r - er, 2) + Math.pow(g - eg, 2) + Math.pow(b - eb, 2));
-
-        if (dist < minDistance) {
-            minDistance = dist;
-            bestEmoji = emoji;
-        }
+function stopQRScanner() {
+    if (window.qrScannerInstance) {
+        try { 
+            window.qrScannerInstance.stop().then(() => {
+                window.qrScannerInstance.clear();
+                window.qrScannerInstance = null;
+            }); 
+        } catch(e) {}
     }
-    return bestEmoji;
-            }
+}
 
-// --- 4. DATA PROCESSING ---
+// --- 4. TRAITEMENT DES DONNÉES (Décodage et application) ---
 function processVCFLASHImport(codeOverride) {
     var code = codeOverride || document.getElementById('vcflashInput').value.trim();
     if (!code) return;
-    
-    // On nettoie tout ce qui n'est pas un emoji (espaces, etc)
-    let chars = Array.from(code);
-    
-    // 1. Trouver l'entête
-    let startIndex = -1;
-    for (let i = 0; i < chars.length; i++) {
-        if (chars[i] === "⚡" && chars[i+1] === "🌸" && chars[i+3] === "🍯") {
-            startIndex = i;
-            break;
-        }
-    }
-    
-    if (startIndex === -1) {
-        // Si pas d'entête, on suppose que c'est du texte brut collé depuis le presse-papiers
-        // On fait la méthode de décodage classique.
-        rawString = "";
-        for (let i = 0; i < chars.length; i += 2) {
-            let idx1 = VCFLASH_EMOJIS.indexOf(chars[i]);
-            let idx2 = VCFLASH_EMOJIS.indexOf(chars[i+1]);
-            if (idx1 !== -1 && idx2 !== -1) {
-                let charCode = (idx1 * 27) + idx2;
-                if (charCode > 0 && charCode <= 0xFFFF) rawString += String.fromCharCode(charCode);
-            }
-        }
-        applyVCFLASHData(rawString);
-        return;
-    }
+    code = code.replace(/⚡/g, '');
 
-    // 2. Si on a trouvé l'entête (cas du scan photo)
-    // L'emoji à startIndex + 2 contient la taille du carré (blockSize)
-    let sizeChar = chars[startIndex + 2];
-    let expectedBlockSize = VCFLASH_EMOJIS.indexOf(sizeChar);
-    if(expectedBlockSize === -1) expectedBlockSize = 10; // Sécurité
-
-    // On extrait tous les caractères APRÈS l'entête
-    let dataChars = chars.slice(startIndex + 4);
     let rawString = "";
-
-    // On lit les données (en ignorant les bruits éventuels de fin de ligne)
-    for (let i = 0; i < dataChars.length - 1; i += 2) {
-        let idx1 = VCFLASH_EMOJIS.indexOf(dataChars[i]);
-        let idx2 = VCFLASH_EMOJIS.indexOf(dataChars[i+1]);
-        
+    let chars = Array.from(code);
+    for (let i = 0; i < chars.length; i += 2) {
+        let idx1 = VCFLASH_EMOJIS.indexOf(chars[i]);
+        let idx2 = VCFLASH_EMOJIS.indexOf(chars[i+1]);
         if (idx1 !== -1 && idx2 !== -1) {
             let charCode = (idx1 * 27) + idx2;
             if (charCode > 0 && charCode <= 0xFFFF) {
@@ -1004,11 +878,6 @@ function processVCFLASHImport(codeOverride) {
         }
     }
 
-    applyVCFLASHData(rawString);
-}
-
-// --- FONCTION QUI APPLIQUE LES DONNÉES (Séparée pour la propreté) ---
-function applyVCFLASHData(rawString) {
     let parts = rawString.split("|");
     if (parts.length < 8) { showAlert("❌ Code VCFLASH invalide ou incomplet.", "❌"); return; }
 
@@ -1047,7 +916,7 @@ function applyVCFLASHData(rawString) {
         if (modal) modal.remove();
         showToast("✅ VCFLASH importé !");
     } catch(e) { showAlert("❌ Erreur d'import.", "❌"); }
-}
+                                                                      }
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
