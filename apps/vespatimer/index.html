@@ -30,6 +30,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://unpkg.com/html5-qrcode"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <style>
         :root { --bg: #f5f2e6; --card: #ffffff; --text: #3b2e1e; --gold: #d4a853; --danger: #c47b6b; --border: #e7d7b8; }
         * { margin:0; padding:0; box-sizing:border-box; }
@@ -808,42 +809,29 @@ function processVCFLASHPhoto(event) {
     var file = event.target.files[0];
     if (!file) return;
 
-    showToast("⏳ Analyse de la photo...");
+    showToast("⏳ Analyse de la photo en cours...");
 
-    var reader = new FileReader();
-    reader.onload = function(e) {
-        var img = new Image();
-        img.onload = async function() {
-            try {
-                if ('TextDetector' in window) {
-                    var detector = new TextDetector();
-                    var barcodes = await detector.detect(img);
-                    
-                    var found = false;
-                    for (let i = 0; i < barcodes.length; i++) {
-                        let text = barcodes[i].rawValue.replace(/\s+/g, '');
-                        if (text.includes("⚡") || text.includes("🐝") || text.includes("🍯")) {
-                            processVCFLASHImport(text);
-                            found = true;
-                            break;
-                        }
-                    }
-                    if (!found) {
-                        showAlert("❌ Aucun VCFLASH détecté sur la photo. Essayez de vous rapprocher.", "📷");
-                    }
-                } else {
-                    showAlert("❌ Votre téléphone ne supporte pas l'analyse de texte. Utilisez l'onglet 'Coller'.", "📷");
-                }
-            } catch(err) {
-                console.error(err);
-                showAlert("❌ Erreur lors de l'analyse.", "❌");
-            }
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-    event.target.value = '';
-}
+    // On utilise Tesseract.js pour lire le texte de l'image
+    Tesseract.recognize(
+        file,
+        'eng', // Langue (peu importe pour les emojis)
+        { logger: m => console.log(m) }
+    ).then(({ data: { text } }) => {
+        // On nettoie le texte lu par l'IA (on enlève les espaces et retours à la ligne)
+        let cleanText = text.replace(/\s+/g, '');
+        
+        if (cleanText.includes("⚡") || cleanText.includes("🐝") || cleanText.includes("🍯")) {
+            processVCFLASHImport(cleanText);
+        } else {
+            showAlert("❌ Aucun VCFLASH détecté. Essayez de vous rapprocher.", "📷");
+        }
+    }).catch(err => {
+        console.error(err);
+        showAlert("❌ Erreur lors de l'analyse de l'image.", "❌");
+    });
+    
+    event.target.value = ''; 
+    }
 
 // --- 4. DATA PROCESSING ---
 function processVCFLASHImport(codeOverride) {
