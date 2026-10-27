@@ -675,7 +675,7 @@ var VCFLASH_EMOJIS = [
 ];
 
 // --- 1. EXPORTER (Carré Parfait) ---
- function exportVCFLASH() {
+function exportVCFLASH() {
     var dataToExport = { hornets: hornets, surveyLocation: surveyLocation, inspectorName: inspectorName, notes: notes, personalInfo: personalInfo };
     
     let p = dataToExport.personalInfo || {};
@@ -712,23 +712,23 @@ var VCFLASH_EMOJIS = [
 
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    // --- CALCUL DU CARRÉ PARFAIT ---
     let charsArray = Array.from(flashCode);
     let totalChars = charsArray.length;
     
-    // On force un carré (ex: si on a 150 caractères, on fait 13x13)
+    // On calcule la taille du carré (ex: 13 x 13)
     let blockSize = Math.ceil(Math.sqrt(totalChars));
     
-    // On calcule une taille de police qui rentre dans max 320px de large
-    let fontSize = Math.floor(320 / blockSize) - 1; 
-    if (fontSize > 22) fontSize = 22; // Taille max
-    if (fontSize < 6) fontSize = 6;   // Taille min
+    // On donne une taille fixe à chaque case (en pixels)
+    let cellSize = Math.floor(300 / blockSize); 
+    if (cellSize > 24) cellSize = 24;
+    if (cellSize < 8) cellSize = 8;
 
-    // On construit la grille avec les balises pour forcer les colonnes
-    let gridHtml = '<div style="display: grid; grid-template-columns: repeat(' + blockSize + ', 1fr); gap: 0; font-size: ' + fontSize + 'px; line-height: 1; text-align: center; font-family: sans-serif; width: 100%; max-width: 320px; margin: 0 auto; padding: 15px; background: #f9f4e8; border-radius: 16px;">';
+    // On construit le carré avec des éléments de taille fixe
+    let gridHtml = '<div style="display: grid; grid-template-columns: repeat(' + blockSize + ', ' + cellSize + 'px); width: ' + (blockSize * cellSize) + 'px; margin: 0 auto; background: #f9f4e8; padding: 10px; border-radius: 16px;">';
     
     for (let i = 0; i < totalChars; i++) {
-        gridHtml += '<div style="overflow: hidden;">' + charsArray[i] + '</div>';
+        // Chaque symbole est bloqué dans une petite boîte carrée
+        gridHtml += '<div style="width: ' + cellSize + 'px; height: ' + cellSize + 'px; font-size: ' + (cellSize - 2) + 'px; line-height: ' + cellSize + 'px; text-align: center; overflow: hidden; display: flex; align-items: center; justify-content: center;">' + charsArray[i] + '</div>';
     }
     gridHtml += '</div>';
 
@@ -737,9 +737,9 @@ var VCFLASH_EMOJIS = [
         '<div class="custom-alert-message">' +
             'VCFLASH généré !<br>' +
             '<span style="font-size:0.75rem;color:#888;">Copié dans le presse-papiers</span>' +
-            gridHtml +
+            '<div style="margin-top: 15px; margin-bottom: 15px;">' + gridHtml + '</div>' +
         '</div>' +
-        '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
+        '<div style="display:flex;flex-direction:column;gap:8px;">' +
             '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + flashCode + '\')">📤 Partager le texte</button>' +
             '<button class="custom-alert-button" style="background:#888;" onclick="this.closest(\'.custom-alert-overlay\').remove();">Fermer</button>' +
         '</div>' +
@@ -751,7 +751,7 @@ var VCFLASH_EMOJIS = [
     overlay.innerHTML = html;
     overlay.id = 'vcflashModal';
     document.body.appendChild(overlay);
- }
+}
 
 function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
