@@ -804,34 +804,135 @@ function switchVCTab(tab) {
     }
 }
 
-// --- 3. AI PHOTO READER (OCR) ---
 function processVCFLASHPhoto(event) {
     var file = event.target.files[0];
     if (!file) return;
 
-    showToast("⏳ Analyse de la photo en cours...");
+    showToast("⏳ Analyse pixel par pixel...");
 
-    // On utilise Tesseract.js pour lire le texte de l'image
-    Tesseract.recognize(
-        file,
-        'eng', // Langue (peu importe pour les emojis)
-        { logger: m => console.log(m) }
-    ).then(({ data: { text } }) => {
-        // On nettoie le texte lu par l'IA (on enlève les espaces et retours à la ligne)
-        let cleanText = text.replace(/\s+/g, '');
-        
-        if (cleanText.includes("⚡") || cleanText.includes("🐝") || cleanText.includes("🍯")) {
-            processVCFLASHImport(cleanText);
-        } else {
-            showAlert("❌ Aucun VCFLASH détecté. Essayez de vous rapprocher.", "📷");
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        var img = new Image();
+        img.onload = function() {
+            try {
+                // 1. On prépare un "canvas" (un écran virtuel) pour lire l'image
+                var canvas = document.createElement('canvas');
+                var ctx = canvas.getContext('2d');
+                
+                // On redimensionne l'image à une taille gérable (ex: 500x500 max)
+                // pour que l'analyse soit rapide
+                var maxSize = 500;
+                var scale = Math.min(maxSize / img.width, maxSize / img.height);
+                canvas.width = img.width * scale;
+                canvas.height = img.height * scale;
+                
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+                // 2. On demande à l'utilisateur de sélectionner la zone du VCFLASH
+                // (ou on centre l'analyse sur le milieu de l'image)
+                // Pour simplifier, on va analyser tout le centre de l'image
+                // Idéalement, le bloc d'emojis prend la majeure partie de la photo.
+                
+                // On va utiliser l'algorithme pour trouver le nombre de lignes/colonnes
+                // Mais comme on ne connait pas la taille exacte du carré sur la photo,
+                // on va utiliser une astuce : le fond du VCFLASH est beige (#f9f4e8).
+                
+                // --- ÉTAPE DÉLICATE : Trouver les limites du carré ---
+                // Pour ce prototype, on va supposer que l'utilisateur a cadré le carré au centre.
+                var startX = canvas.width * 0.15;
+                var startY = canvas.height * 0.15;
+                var size = Math.min(canvas.width, canvas.height) * 0.7; // On prend 70% du centre
+
+                // On estime le nombre de cases (basé sur la taille du code généré)
+                // C'est une approximation pour l'exemple.
+                var gridSize = 15; // On suppose une grille de 15x15 (à ajuster dynamiquement)
+                var cellSize = size / gridSize;
+
+                var resultText = "";
+
+                // 3. Analyse de chaque case
+                for (var row = 0; row < gridSize; row++) {
+                    for (var col = 0; col < gridSize; col++) {
+                        // Coordonnées du centre de la case
+                        var cx = startX + (col * cellSize) + (cellSize / 2);
+                        var cy = startY + (row * cellSize) + (cellSize / 2);
+
+                        // On lit la couleur de ce pixel
+                        var pixel = ctx.getImageData(cx, cy, 1, 1).data;
+                        var r = pixel[0], g = pixel[1], b = pixel[2];
+
+                        // 4. On compare cette couleur avec les couleurs de nos emojis
+                        var closestEmoji = findClosestEmoji(r, g, b);
+                        resultText += closestEmoji;
+                    }
+                }
+
+                // 5. On tente l'import
+                processVCFLASHImport("⚡" + resultText); // On ajoute l'éclair au début
+
+            } catch(err) {
+                console.error(err);
+                showAlert("❌ Erreur d'analyse de l'image.", "❌");
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+}
+
+// --- FONCTION POUR TROUVER L'EMOJI LE PLUS PROCHE SELON LA COULEUR ---
+function findClosestEmoji(r, g, b) {
+    // On définit les couleurs moyennes de nos emojis (Rouge, Vert, Bleu)
+    // Ces valeurs sont approximatives, tu peux les ajuster.
+    var emojiColors = {
+        "🐝": [255, 200, 0],   // Jaune abeille
+        "🍯": [255, 180, 50],  // Marron/Orange miel
+        "🌸": [255, 180, 200], // Rose fleur
+        "🌷": [255, 100, 150], // Rose foncé tulipe
+        "🚫": [255, 0, 0],     // Rouge vif
+        "🌳": [100, 150, 100], // Vert arbre
+        "💧": [100, 150, 255], // Bleu eau
+        ")": [0, 0, 0],        // Noir
+        "(": [0, 0, 0],
+        "/": [0, 0, 0],
+        "?": [0, 0, 0],
+        "!": [0, 0, 0],
+        ";": [0, 0, 0],
+        ":": [0, 0, 0],
+        "-": [0, 0, 0],
+        "&": [0, 0, 0],
+        "+": [0, 0, 0],
+        "^": [0, 0, 0],
+        "°": [0, 0, 0],
+        "}": [0, 0, 0],
+        "∆": [0, 0, 0],
+        "§": [0, 0, 0],
+        "[": [0, 0, 0],
+        "]": [0, 0, 0],
+        ".": [0, 0, 0],
+        ",": [0, 0, 0],
+        "*": [0, 0, 0]
+    };
+
+    var minDistance = Infinity;
+    var bestEmoji = "🐝"; // Par défaut
+
+    for (var emoji in emojiColors) {
+        var er = emojiColors[emoji][0];
+        var eg = emojiColors[emoji][1];
+        var eb = emojiColors[emoji][2];
+
+        // Distance euclidienne entre la couleur du pixel et la couleur de l'emoji
+        var dist = Math.sqrt(Math.pow(r - er, 2) + Math.pow(g - eg, 2) + Math.pow(b - eb, 2));
+
+        if (dist < minDistance) {
+            minDistance = dist;
+            bestEmoji = emoji;
         }
-    }).catch(err => {
-        console.error(err);
-        showAlert("❌ Erreur lors de l'analyse de l'image.", "❌");
-    });
-    
-    event.target.value = ''; 
     }
+    return bestEmoji;
+            }
 
 // --- 4. DATA PROCESSING ---
 function processVCFLASHImport(codeOverride) {
