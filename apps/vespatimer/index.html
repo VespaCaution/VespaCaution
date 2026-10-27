@@ -675,7 +675,7 @@ var VCFLASH_EMOJIS = [
 ];
 
 // --- 1. EXPORTER (Carré Parfait) ---
-function exportVCFLASH() {
+ function exportVCFLASH() {
     var dataToExport = { hornets: hornets, surveyLocation: surveyLocation, inspectorName: inspectorName, notes: notes, personalInfo: personalInfo };
     
     let p = dataToExport.personalInfo || {};
@@ -712,24 +712,32 @@ function exportVCFLASH() {
 
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    // Calcul du carré
+    // --- CALCUL DU CARRÉ PARFAIT ---
     let charsArray = Array.from(flashCode);
     let totalChars = charsArray.length;
+    
+    // On force un carré (ex: si on a 150 caractères, on fait 13x13)
     let blockSize = Math.ceil(Math.sqrt(totalChars));
-    let fontSize = Math.min(20, Math.floor(340 / blockSize)); 
-    if (fontSize < 7) fontSize = 7;
+    
+    // On calcule une taille de police qui rentre dans max 320px de large
+    let fontSize = Math.floor(320 / blockSize) - 1; 
+    if (fontSize > 22) fontSize = 22; // Taille max
+    if (fontSize < 6) fontSize = 6;   // Taille min
 
-    let blockHtml = "";
-    for (let i = 0; i < totalChars; i += blockSize) {
-        blockHtml += charsArray.slice(i, i + blockSize).join('') + "<br>";
+    // On construit la grille avec les balises pour forcer les colonnes
+    let gridHtml = '<div style="display: grid; grid-template-columns: repeat(' + blockSize + ', 1fr); gap: 0; font-size: ' + fontSize + 'px; line-height: 1; text-align: center; font-family: sans-serif; width: 100%; max-width: 320px; margin: 0 auto; padding: 15px; background: #f9f4e8; border-radius: 16px;">';
+    
+    for (let i = 0; i < totalChars; i++) {
+        gridHtml += '<div style="overflow: hidden;">' + charsArray[i] + '</div>';
     }
+    gridHtml += '</div>';
 
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
             'VCFLASH généré !<br>' +
             '<span style="font-size:0.75rem;color:#888;">Copié dans le presse-papiers</span>' +
-            '<div style="font-size: ' + fontSize + 'px; line-height: 1.1; background: #f9f4e8; padding: 15px; border-radius: 16px; margin-top: 10px; font-family: sans-serif; text-align: center; word-break: break-all;">' + blockHtml + '</div>' +
+            gridHtml +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
             '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + flashCode + '\')">📤 Partager le texte</button>' +
@@ -743,7 +751,7 @@ function exportVCFLASH() {
     overlay.innerHTML = html;
     overlay.id = 'vcflashModal';
     document.body.appendChild(overlay);
-}
+ }
 
 function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
