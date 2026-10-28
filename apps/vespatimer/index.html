@@ -680,25 +680,26 @@ function exportVCFLASH() {
     let loc = dataToExport.surveyLocation || {};
     let rawString = "";
     
-    rawString += (p.firstName || "").substring(0, 10) + "|";
-    rawString += (p.lastName || "").substring(0, 10) + "|";
-    rawString += (p.phone || "").substring(0, 15) + "|";
-    rawString += (dataToExport.inspectorName || "").substring(0, 10) + "|";
-    rawString += (loc.lat || 0).toFixed(4) + "|";
-    rawString += (loc.lng || 0).toFixed(4) + "|";
-    rawString += (loc.name || "").substring(0, 15) + "|";
+    // ON RÉDUIT LA TAILLE DES DONNÉES POUR QUE LE QR CODE SOIT PLUS PETIT
+    rawString += (p.firstName || "").substring(0, 6) + "|";
+    rawString += (p.lastName || "").substring(0, 6) + "|";
+    rawString += (p.phone || "").substring(0, 10) + "|";
+    rawString += (dataToExport.inspectorName || "").substring(0, 6) + "|";
+    rawString += (loc.lat || 0).toFixed(3) + "|"; // 3 chiffres après la virgule suffisent
+    rawString += (loc.lng || 0).toFixed(3) + "|";
+    rawString += (loc.name || "").substring(0, 8) + "|";
     rawString += (dataToExport.hornets ? dataToExport.hornets.length : 0) + "|";
 
     if (dataToExport.hornets) {
         for (let i = 0; i < dataToExport.hornets.length; i++) {
             let h = dataToExport.hornets[i];
             let flightsStr = h.flights ? h.flights.join(",") : "";
-            let shortName = (h.name || "").substring(0, 8);
+            let shortName = (h.name || "").substring(0, 5);
             rawString += shortName + ";" + (h.direction || 0) + ";" + flightsStr + ";" + (h.color || "#000") + "|";
         }
     }
 
-    // 1. Encodage en emojis (texte)
+    // Encodage en emojis
     let flashCode = "⚡";
     let chars = Array.from(rawString);
     for (let i = 0; i < chars.length; i++) {
@@ -711,40 +712,45 @@ function exportVCFLASH() {
 
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    // 2. Génération du QR Code
-    // On utilise le niveau de correction 'L' (Low) pour que le QR code soit le plus petit possible
-    var qr = qrcode(0, 'L'); 
+    // --- GÉNÉRATION DU QR CODE (Taille parfaite) ---
+    var qr = qrcode(0, 'L'); // 'L' pour un QR code plus petit
     qr.addData(flashCode);
     qr.make();
     var moduleCount = qr.getModuleCount();
 
-    // 3. Création du visuel avec un style strict
-    // On utilise UNIQUEMENT 2 symboles très contrastés pour que la caméra lise
-    var emojiDark = "🚫";  // Rouge foncé
-    var emojiLight = "🌸"; // Rose clair
-
-    // On force une taille de police petite pour que ça tienne dans l'écran
-    var qrEmojiHtml = '<div style="font-family: monospace; font-size: 4px; line-height: 4px; text-align: center; margin: 10px auto; display: inline-block; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">';
+    // On utilise un Canvas HTML5 pour dessiner le QR Code (évite les problèmes de taille d'emoji)
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
     
+    // On force une taille fixe de 250x250 pixels pour le QR Code
+    var canvasSize = 250;
+    var cellSize = canvasSize / moduleCount;
+    canvas.width = canvasSize;
+    canvas.height = canvasSize;
+
+    // On dessine les carrés (on peut mettre des couleurs de VespaTimer)
     for (var row = 0; row < moduleCount; row++) {
         for (var col = 0; col < moduleCount; col++) {
             if (qr.isDark(row, col)) {
-                qrEmojiHtml += emojiDark;
+                ctx.fillStyle = "#1a1a1a"; // Couleur sombre (ou "#d4a853" pour le doré)
             } else {
-                qrEmojiHtml += emojiLight;
+                ctx.fillStyle = "#ffffff"; // Fond blanc
             }
+            ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
         }
-        qrEmojiHtml += "<br>";
     }
-    qrEmojiHtml += '</div>';
 
-    // 4. Affichage
+    // On convertit le dessin en image
+    var qrImageUrl = canvas.toDataURL("image/png");
+
+    // Affichage dans le modal
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
             'VCFLASH généré !<br>' +
             '<span style="font-size:0.75rem;color:#888;">Copié dans le presse-papiers</span>' +
-            qrEmojiHtml +
+            // On affiche l'image du QR Code, elle aura TOUJOURS la bonne taille
+            '<img src="' + qrImageUrl + '" style="width: 250px; height: 250px; margin-top: 15px; border-radius: 12px; background: white; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">' +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
             '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + flashCode + '\')">📤 Partager le texte</button>' +
