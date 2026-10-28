@@ -1410,16 +1410,24 @@ function boot(){
     setTimeout(function(){ openModal('aboutModal'); }, 1500);
   }
 
-  // DÉTECTION DU LIEN VCFLASH (URL-Safe Base64)
-  var urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('flash')) {
-      var b64Code = urlParams.get('flash');
-      setTimeout(function() {
-          processVCFLASHImport(b64Code, true);
-          window.history.replaceState(null, '', window.location.pathname);
-      }, 1000);
-  }
-  }
+// DÉTECTION DU LIEN VCFLASH (via le Hack 404)
+var savedUrl = sessionStorage.getItem('vcflash_redirect');
+
+if (savedUrl) {
+    // On nettoie la mémoire
+    sessionStorage.removeItem('vcflash_redirect');
+    
+    // On récupère la partie après le flash=
+    if (savedUrl.includes('flash=')) {
+        var b64Code = savedUrl.split('flash=')[1];
+        // On enlève le # ou tout autre caractère parasite à la fin
+        b64Code = b64Code.split('#')[0]; 
+        
+        setTimeout(function() {
+            processVCFLASHImport(b64Code, true);
+        }, 1000);
+    }
+}
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}else{boot();}
 </script>
 </body>
