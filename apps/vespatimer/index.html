@@ -663,7 +663,7 @@ function exportHistory() { closeModal('exportModal'); var hist = getHist(); var 
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 // ============================================================
-// VCFLASH - Génération de texte + QR Code en Emojis
+// SYSTÈME VCFLASH COMPLET
 // ============================================================
 
 var VCFLASH_EMOJIS = [
@@ -672,21 +672,20 @@ var VCFLASH_EMOJIS = [
     "[", "]", ".", ",", "*"
 ];
 
-// --- 1. EXPORTATION (Texte + QR en Emojis) ---
+// --- 1. EXPORTATION (QR Code Image) ---
 function exportVCFLASH() {
-    // 1. Préparation des données
     var dataToExport = { hornets: hornets, surveyLocation: surveyLocation, inspectorName: inspectorName, notes: notes, personalInfo: personalInfo };
     
     let p = dataToExport.personalInfo || {};
     let loc = dataToExport.surveyLocation || {};
     let rawString = "";
     
-    // On réduit un peu la taille pour que le QR Code soit plus petit
+    // Format compact pour que le QR reste petit
     rawString += (p.firstName || "").substring(0, 6) + "|";
     rawString += (p.lastName || "").substring(0, 6) + "|";
     rawString += (p.phone || "").substring(0, 10) + "|";
     rawString += (dataToExport.inspectorName || "").substring(0, 6) + "|";
-    rawString += (loc.lat || 0).toFixed(3) + "|"; 
+    rawString += (loc.lat || 0).toFixed(3) + "|";
     rawString += (loc.lng || 0).toFixed(3) + "|";
     rawString += (loc.name || "").substring(0, 8) + "|";
     rawString += (dataToExport.hornets ? dataToExport.hornets.length : 0) + "|";
@@ -700,7 +699,7 @@ function exportVCFLASH() {
         }
     }
 
-    // 2. Encodage en emojis
+    // Encodage en emojis
     let flashCode = "⚡";
     let chars = Array.from(rawString);
     for (let i = 0; i < chars.length; i++) {
@@ -713,8 +712,8 @@ function exportVCFLASH() {
 
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    // 3. Génération du QR Code (Image)
-    var qr = qrcode(0, 'L'); 
+    // Génération de l'image QR Code
+    var qr = qrcode(0, 'L');
     qr.addData(flashCode);
     qr.make();
     var moduleCount = qr.getModuleCount();
@@ -735,7 +734,6 @@ function exportVCFLASH() {
 
     var qrImageUrl = canvas.toDataURL("image/png");
 
-    // 4. Affichage
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
@@ -846,7 +844,7 @@ function stopQRScanner() {
     }
 }
 
-// --- 4. TRAITEMENT DES DONNÉES (Décodage et application) ---
+// --- 4. TRAITEMENT DES DONNÉES ---
 function processVCFLASHImport(codeOverride) {
     var code = codeOverride || document.getElementById('vcflashInput').value.trim();
     if (!code) return;
@@ -903,7 +901,7 @@ function processVCFLASHImport(codeOverride) {
         if (modal) modal.remove();
         showToast("✅ VCFLASH importé !");
     } catch(e) { showAlert("❌ Erreur d'import.", "❌"); }
-                                                                      }
+    }
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
