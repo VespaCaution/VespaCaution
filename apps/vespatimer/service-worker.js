@@ -1,7 +1,7 @@
 // VespaTimer v2.0 - Service Worker
 // IMPORTANT: Change CACHE_NAME on every deploy to trigger updates
 
-const CACHE_NAME = 'vespatimer-v2.0.0.0.6'; // <-- CHANGE CE NUMÉRO À CHAQUE FOIS
+const CACHE_NAME = 'vespatimer-v2.0.0.0.1';
 const MAP_TILE_CACHE = 'vespatimer-tiles-v1';
 
 const ASSETS_TO_CACHE = [
@@ -17,9 +17,7 @@ const ASSETS_TO_CACHE = [
   'https://unpkg.com/leaflet-image@0.4.0/leaflet-image.js',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css',
   'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js',
-  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-  'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js',
-  'https://unpkg.com/html5-qrcode'
+  'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'
 ];
 
 // Install: cache assets + skipWaiting so new SW activates immediately
@@ -84,13 +82,10 @@ self.addEventListener('fetch', function(event) {
   }
 
   // HTML navigation: NETWORK FIRST, fall back to cache when offline
-  // On ajoute une règle pour les liens VCFLASH (flash= ou p=)
   var isHtmlRequest = event.request.mode === 'navigate' ||
-                      event.request.url.endsWith('/') ||
-                      event.request.url.indexOf('index.html') !== -1 ||
-                      event.request.url.indexOf('flash=') !== -1 ||
-                      event.request.url.indexOf('?p=') !== -1;
-
+                    event.request.url.endsWith('/') ||
+                    event.request.url.indexOf('index.html') !== -1 ||
+                    event.request.url.indexOf('?flash=') !== -1; // <-- LIGNE AJOUTÉE
   if (isHtmlRequest) {
     event.respondWith(
       fetch(event.request).then(function(response) {
@@ -128,7 +123,7 @@ self.addEventListener('fetch', function(event) {
   );
 });
 
-// Message: receive SKIP_WAITING from page
+// Message: receive SKIP_WAITING from page (kept for compat)
 self.addEventListener('message', function(event) {
   if (event.data === 'SKIP_WAITING') {
     self.skipWaiting();
