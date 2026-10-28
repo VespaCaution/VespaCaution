@@ -674,9 +674,33 @@ var VCFLASH_EMOJIS = [
 
 // --- 1. EXPORTATION (Texte + QR en Emojis) ---
 function exportVCFLASH() {
-    // ... (garde ta préparation de données rawString comme avant) ...
+    // 1. Préparation des données
+    var dataToExport = { hornets: hornets, surveyLocation: surveyLocation, inspectorName: inspectorName, notes: notes, personalInfo: personalInfo };
+    
+    let p = dataToExport.personalInfo || {};
+    let loc = dataToExport.surveyLocation || {};
+    let rawString = "";
+    
+    // On réduit un peu la taille pour que le QR Code soit plus petit et plus lisible
+    rawString += (p.firstName || "").substring(0, 6) + "|";
+    rawString += (p.lastName || "").substring(0, 6) + "|";
+    rawString += (p.phone || "").substring(0, 10) + "|";
+    rawString += (dataToExport.inspectorName || "").substring(0, 6) + "|";
+    rawString += (loc.lat || 0).toFixed(3) + "|"; 
+    rawString += (loc.lng || 0).toFixed(3) + "|";
+    rawString += (loc.name || "").substring(0, 8) + "|";
+    rawString += (dataToExport.hornets ? dataToExport.hornets.length : 0) + "|";
 
-    // Encodage en emojis
+    if (dataToExport.hornets) {
+        for (let i = 0; i < dataToExport.hornets.length; i++) {
+            let h = dataToExport.hornets[i];
+            let flightsStr = h.flights ? h.flights.join(",") : "";
+            let shortName = (h.name || "").substring(0, 5);
+            rawString += shortName + ";" + (h.direction || 0) + ";" + flightsStr + ";" + (h.color || "#000") + "|";
+        }
+    }
+
+    // 2. Encodage en emojis
     let flashCode = "⚡";
     let chars = Array.from(rawString);
     for (let i = 0; i < chars.length; i++) {
@@ -689,20 +713,19 @@ function exportVCFLASH() {
 
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    // GÉNÉRATION DU QR CODE IMAGE (Canvas)
-    var qr = qrcode(0, 'L');
+    // 3. Génération du QR Code (Canvas)
+    var qr = qrcode(0, 'L'); // 'L' = le plus petit format possible
     qr.addData(flashCode);
     qr.make();
     var moduleCount = qr.getModuleCount();
 
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
-    var canvasSize = 250; // Taille fixe de 250x250 pixels
+    var canvasSize = 250; 
     var cellSize = canvasSize / moduleCount;
     canvas.width = canvasSize;
     canvas.height = canvasSize;
 
-    // Dessin des cases (Noir et blanc standard)
     for (var row = 0; row < moduleCount; row++) {
         for (var col = 0; col < moduleCount; col++) {
             ctx.fillStyle = qr.isDark(row, col) ? "#1a1a1a" : "#ffffff";
@@ -712,13 +735,12 @@ function exportVCFLASH() {
 
     var qrImageUrl = canvas.toDataURL("image/png");
 
-    // Affichage
+    // 4. Affichage dans le modal
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
             'VCFLASH généré !<br>' +
             '<span style="font-size:0.75rem;color:#888;">Copié dans le presse-papiers</span>' +
-            // Ici on affiche l'image générée
             '<img src="' + qrImageUrl + '" style="width: 250px; height: 250px; margin-top: 15px; border-radius: 12px; background: white; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">' +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
@@ -733,7 +755,7 @@ function exportVCFLASH() {
     overlay.innerHTML = html;
     overlay.id = 'vcflashModal';
     document.body.appendChild(overlay);
-}
+        }
 
 function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
