@@ -705,8 +705,7 @@ function exportVCFLASH() {
                     .replace(/=+$/, ''); // On enlève les '=' de fin inutiles
     
     // On pointe vers index.html pour éviter le 404
-    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?flash=" + b64Code;
-
+    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/#flash=" + b64Code;
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
     // 3. Génération du QR Code
@@ -818,12 +817,12 @@ function startCameraScanner() {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
-            stopQRScanner();
-            if (decodedText.includes("flash=")) {
-                let b64Code = decodedText.split("flash=")[1];
-                processVCFLASHImport(b64Code, true);
-            }
-        },
+    stopQRScanner();
+    if (decodedText.includes("flash=")) {
+        let b64Code = decodedText.split("flash=")[1];
+        processVCFLASHImport(b64Code, true);
+    }
+},
         (errorMessage) => { /* Ignore */ }
     ).catch(err => {
         console.error(err);
