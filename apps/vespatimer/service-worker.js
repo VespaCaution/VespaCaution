@@ -1,7 +1,7 @@
 // VespaTimer v2.0 - Service Worker
 // IMPORTANT: Change CACHE_NAME on every deploy to trigger updates
 
-const CACHE_NAME = 'vespatimer-v2.0.0.0.0';
+const CACHE_NAME = 'vespatimer-v2.0.0.0.1';
 const MAP_TILE_CACHE = 'vespatimer-tiles-v1';
 
 const ASSETS_TO_CACHE = [
@@ -83,9 +83,9 @@ self.addEventListener('fetch', function(event) {
 
   // HTML navigation: NETWORK FIRST, fall back to cache when offline
   var isHtmlRequest = event.request.mode === 'navigate' ||
-                      event.request.url.endsWith('/') ||
-                      event.request.url.indexOf('index.html') !== -1;
-
+                    event.request.url.endsWith('/') ||
+                    event.request.url.indexOf('index.html') !== -1 ||
+                    event.request.url.indexOf('?flash=') !== -1; // <-- LIGNE AJOUTÉE
   if (isHtmlRequest) {
     event.respondWith(
       fetch(event.request).then(function(response) {
