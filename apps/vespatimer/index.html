@@ -681,7 +681,7 @@ function exportVCFLASH() {
     let loc = dataToExport.surveyLocation || {};
     let rawString = "";
     
-    // On réduit un peu la taille pour que le QR Code soit plus petit et plus lisible
+    // On réduit un peu la taille pour que le QR Code soit plus petit
     rawString += (p.firstName || "").substring(0, 6) + "|";
     rawString += (p.lastName || "").substring(0, 6) + "|";
     rawString += (p.phone || "").substring(0, 10) + "|";
@@ -713,8 +713,8 @@ function exportVCFLASH() {
 
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    // 3. Génération du QR Code (Canvas)
-    var qr = qrcode(0, 'L'); // 'L' = le plus petit format possible
+    // 3. Génération du QR Code (Image)
+    var qr = qrcode(0, 'L'); 
     qr.addData(flashCode);
     qr.make();
     var moduleCount = qr.getModuleCount();
@@ -735,7 +735,7 @@ function exportVCFLASH() {
 
     var qrImageUrl = canvas.toDataURL("image/png");
 
-    // 4. Affichage dans le modal
+    // 4. Affichage
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
@@ -755,7 +755,7 @@ function exportVCFLASH() {
     overlay.innerHTML = html;
     overlay.id = 'vcflashModal';
     document.body.appendChild(overlay);
-        }
+}
 
 function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
