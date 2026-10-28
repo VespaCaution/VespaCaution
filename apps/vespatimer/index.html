@@ -705,7 +705,7 @@ function exportVCFLASH() {
                     .replace(/=+$/, ''); // On enlève les '=' de fin inutiles
     
     // On pointe vers index.html pour éviter le 404
-    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/#flash=" + b64Code;
+    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?flash=" + b64Code;
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
     // 3. Génération du QR Code
