@@ -663,7 +663,7 @@ function exportHistory() { closeModal('exportModal'); var hist = getHist(); var 
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 // ============================================================
-// SYSTÈME VCFLASH COMPLET (Lien sécurisé pour Google Lens)
+// SYSTÈME VCFLASH COMPLET (Emojis pour le texte, Base64 pour le lien)
 // ============================================================
 
 var VCFLASH_EMOJIS = [
@@ -672,27 +672,20 @@ var VCFLASH_EMOJIS = [
     "[", "]", ".", ",", "*"
 ];
 
-// --- 1. EXPORTATION (Génère le QR Code) ---
+// --- 1. EXPORTATION ---
 function exportVCFLASH() {
-    var dataToExport = { hornets: hornets, surveyLocation: surveyLocation };
+    var dataToExport = { 
+        h: hornets.map(function(x){ return { n: x.name, d: x.direction, f: x.flights }; }),
+        l: { lat: surveyLocation.lat, lng: surveyLocation.lng, name: surveyLocation.name }
+    };
     
-    let loc = dataToExport.surveyLocation || {};
-    let rawString = "";
-    
-    rawString += (loc.lat || 0).toFixed(3) + "|";
-    rawString += (loc.lng || 0).toFixed(3) + "|";
-    rawString += (loc.name || "").substring(0, 10) + "|";
-    rawString += (dataToExport.hornets ? dataToExport.hornets.length : 0) + "|";
-
-    if (dataToExport.hornets) {
-        for (let i = 0; i < dataToExport.hornets.length; i++) {
-            let h = dataToExport.hornets[i];
-            let flightsStr = h.flights ? h.flights.join(",") : "";
-            rawString += (h.name || "").substring(0, 4) + ";" + (h.direction || 0) + ";" + flightsStr + "|";
-        }
+    // 1. Création de la version Texte (avec tes emojis)
+    let rawString = dataToExport.l.lat.toFixed(3) + "|" + dataToExport.l.lng.toFixed(3) + "|" + (dataToExport.l.name || "").substring(0,10) + "|" + dataToExport.h.length + "|";
+    for (let i = 0; i < dataToExport.h.length; i++) {
+        let h = dataToExport.h[i];
+        rawString += (h.n || "").substring(0,4) + ";" + (h.d || 0) + ";" + (h.f ? h.f.join(",") : "") + "|";
     }
-
-    // Encodage en emojis
+    
     let flashCode = "";
     let chars = Array.from(rawString);
     for (let i = 0; i < chars.length; i++) {
@@ -703,22 +696,15 @@ function exportVCFLASH() {
         flashCode += VCFLASH_EMOJIS[idx1] + VCFLASH_EMOJIS[idx2];
     }
 
-    // --- CONVERSION EN LETTRES POUR GOOGLE LENS ---
-    let safeCode = "";
-    for (let i = 0; i < flashCode.length; i++) {
-        let charIndex = VCFLASH_EMOJIS.indexOf(flashCode[i]);
-        if (charIndex !== -1) {
-            safeCode += String.fromCharCode(65 + charIndex); // A-Z
-        } else {
-            safeCode += flashCode[i]; 
-        }
-    }
+    // 2. Création du Lien (avec JSON -> Base64)
+    // C'est beaucoup plus court et lisible par Google
+    let jsonStr = JSON.stringify(dataToExport);
+    let b64Code = btoa(unescape(encodeURIComponent(jsonStr))); // Base64 safe pour les accents
+    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?flash=" + b64Code;
 
-    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?flash=" + safeCode;
+    navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    navigator.clipboard.writeText(urlLink).catch(function(){});
-
-    // Génération du QR Code (Niveau L pour la lisibilité)
+    // 3. Génération du QR Code (avec le lien court)
     var qr = qrcode(0, 'L'); 
     qr.addData(urlLink);
     qr.make();
@@ -744,7 +730,7 @@ function exportVCFLASH() {
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
             'VCFLASH généré !<br>' +
-            '<span style="font-size:0.75rem;color:#888;">Scannez avec Google Lens</span>' +
+            '<span style="font-size:0.75rem;color:#888;">Texte copié. Scannez le QR avec Google Lens.</span>' +
             '<img src="' + qrImageUrl + '" style="width: 250px; height: 250px; margin-top: 15px; border-radius: 12px; background: white; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">' +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
@@ -765,7 +751,7 @@ function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
 }
 
-// --- 2. MODAL D'IMPORTATION (Onglets) ---
+// --- 2. MODAL D'IMPORTATION ---
 function openVCFLASHModal() {
     var html = '<div class="custom-alert" style="max-width:400px; padding:15px; background:var(--bg);">' +
         '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
@@ -779,7 +765,7 @@ function openVCFLASHModal() {
         '</div>' +
 
         '<div id="vcTabPaste">' +
-            '<textarea id="vcflashInput" placeholder="Collez le lien ici..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
+            '<textarea id="vcflashInput" placeholder="Collez le texte ou le lien..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
             '<button class="btn-gold" onclick="processVCFLASHImport()" style="width:100%; margin-top:10px; padding:12px; border-radius:25px; font-size:1rem;">📥 Importer</button>' +
         '</div>' +
 
@@ -829,18 +815,8 @@ function startCameraScanner() {
         (decodedText) => {
             stopQRScanner();
             if (decodedText.includes("flash=")) {
-                let parts = decodedText.split("flash=");
-                let safeCode = parts[1];
-                let flashCode = "";
-                for (let i = 0; i < safeCode.length; i++) {
-                    let charCode = safeCode.charCodeAt(i);
-                    if (charCode >= 65 && charCode <= 90) {
-                        flashCode += VCFLASH_EMOJIS[charCode - 65];
-                    } else {
-                        flashCode += safeCode[i];
-                    }
-                }
-                processVCFLASHImport(flashCode);
+                let b64Code = decodedText.split("flash=")[1];
+                processVCFLASHImport(b64Code, true);
             }
         },
         (errorMessage) => { /* Ignore */ }
@@ -861,63 +837,74 @@ function stopQRScanner() {
     }
 }
 
-// --- 4. TRAITEMENT DES DONNÉES (Reconstruit les emojis depuis les lettres) ---
-function processVCFLASHImport(codeOverride) {
+// --- 4. TRAITEMENT DES DONNÉES ---
+function processVCFLASHImport(codeOverride, isBase64) {
     var code = codeOverride || document.getElementById('vcflashInput').value.trim();
     if (!code) return;
-    
-    // Si l'utilisateur a collé le lien complet
-    if (code.includes("flash=")) {
-        code = code.split("flash=")[1];
-    }
-    
-    // Conversion des lettres en emojis
-    let flashCode = "";
-    for (let i = 0; i < code.length; i++) {
-        let charCode = code.charCodeAt(i);
-        if (charCode >= 65 && charCode <= 90) {
-            flashCode += VCFLASH_EMOJIS[charCode - 65];
-        } else {
-            flashCode += code[i];
-        }
-    }
 
-    // Décodage des emojis en texte
-    let rawString = "";
-    let chars = Array.from(flashCode);
-    for (let i = 0; i < chars.length; i += 2) {
-        let idx1 = VCFLASH_EMOJIS.indexOf(chars[i]);
-        let idx2 = VCFLASH_EMOJIS.indexOf(chars[i+1]);
-        if (idx1 !== -1 && idx2 !== -1) {
-            let charCode = (idx1 * 27) + idx2;
-            if (charCode > 0 && charCode <= 0xFFFF) {
-                rawString += String.fromCharCode(charCode);
+    let parsedData = null;
+
+    // Si c'est un lien Base64
+    if (isBase64 || code.includes("flash=") || (!code.includes("🐝") && !code.includes("⚡"))) {
+        let b64 = code;
+        if (code.includes("flash=")) b64 = code.split("flash=")[1];
+        try {
+            let jsonStr = decodeURIComponent(escape(atob(b64)));
+            parsedData = JSON.parse(jsonStr);
+        } catch(e) {
+            showAlert("❌ Lien invalide.", "❌"); return;
+        }
+    } 
+    // Si c'est du texte avec des emojis
+    else {
+        code = code.replace(/⚡/g, '');
+        let rawString = "";
+        let chars = Array.from(code);
+        for (let i = 0; i < chars.length; i += 2) {
+            let idx1 = VCFLASH_EMOJIS.indexOf(chars[i]);
+            let idx2 = VCFLASH_EMOJIS.indexOf(chars[i+1]);
+            if (idx1 !== -1 && idx2 !== -1) {
+                let charCode = (idx1 * 27) + idx2;
+                if (charCode > 0 && charCode <= 0xFFFF) {
+                    rawString += String.fromCharCode(charCode);
+                }
             }
         }
-    }
-
-    let parts = rawString.split("|");
-    if (parts.length < 4) { showAlert("❌ Code VCFLASH invalide.", "❌"); return; }
-
-    try {
-        var hasCurrentData = hornets.some(function(h){ return h.flights.length > 0; }) || surveyLocation.name || inspectorName || notes;
-        if (hasCurrentData) saveHist();
-
-        var parsedHornets = [];
+        let parts = rawString.split("|");
+        if (parts.length < 4) { showAlert("❌ Code VCFLASH invalide.", "❌"); return; }
+        
+        parsedData = {
+            l: { lat: parseFloat(parts[0]), lng: parseFloat(parts[1]), name: parts[2] },
+            h: []
+        };
         let hornetCount = parseInt(parts[3]) || 0;
         for (let i = 0; i < hornetCount; i++) {
             let hData = parts[4 + i];
             if (hData) {
                 let hParts = hData.split(";");
-                var nh = createHornet(hParts[0] || 'Frelon');
-                nh.direction = parseInt(hParts[1]) || 0;
-                nh.flights = hParts[2] ? hParts[2].split(",").map(Number) : [];
-                parsedHornets.push(nh);
+                parsedData.h.push({
+                    n: hParts[0] || 'Frelon',
+                    d: parseInt(hParts[1]) || 0,
+                    f: hParts[2] ? hParts[2].split(",").map(Number) : []
+                });
             }
         }
+    }
 
-        surveyLocation = { lat: parseFloat(parts[0]), lng: parseFloat(parts[1]), name: parts[2] };
-        hornets = parsedHornets;
+    // Application des données
+    try {
+        if (!parsedData || !parsedData.l) throw new Error("Format invalide");
+
+        var hasCurrentData = hornets.some(function(h){ return h.flights.length > 0; }) || surveyLocation.name || inspectorName || notes;
+        if (hasCurrentData) saveHist();
+
+        surveyLocation = { lat: parsedData.l.lat, lng: parsedData.l.lng, name: parsedData.l.name || '' };
+        hornets = parsedData.h.map(function(h){
+            var nh = createHornet(h.n);
+            nh.direction = h.d || 0;
+            nh.flights = h.f || [];
+            return nh;
+        });
         
         resumedFromIndex = -1;
         localStorage.setItem('resumed_idx', resumedFromIndex);
@@ -930,8 +917,11 @@ function processVCFLASHImport(codeOverride) {
         var modal = document.getElementById('vcflashModal');
         if (modal) modal.remove();
         showToast("✅ VCFLASH importé !");
-    } catch(e) { showAlert("❌ Erreur d'import.", "❌"); }
-        }
+    } catch(e) { 
+        console.error(e);
+        showAlert("❌ Erreur d'import.", "❌"); 
+    }
+    }
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
@@ -1407,30 +1397,17 @@ function boot(){
   updateDateTime();
   checkIOSInstall();
   
-  // 1. Affichage du modal "À propos"
   if (localStorage.getItem('about_shown') !== 'true') {
     localStorage.setItem('about_shown', 'true');
     setTimeout(function(){ openModal('aboutModal'); }, 1500);
   }
 
-  // 2. DÉTECTION DU LIEN VCFLASH (Google Lens)
+  // DÉTECTION DU LIEN VCFLASH (Base64)
   var urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has('flash')) {
-      var safeCode = urlParams.get('flash');
-      // On reconvertit les lettres en emojis
-      let flashCode = "";
-      for (let i = 0; i < safeCode.length; i++) {
-          let charCode = safeCode.charCodeAt(i);
-          if (charCode >= 65 && charCode <= 90) {
-              flashCode += VCFLASH_EMOJIS[charCode - 65];
-          } else {
-              flashCode += safeCode[i];
-          }
-      }
-      
+      var b64Code = urlParams.get('flash');
       setTimeout(function() {
-          processVCFLASHImport(flashCode);
-          // On nettoie l'URL
+          processVCFLASHImport(b64Code, true); // Le "true" indique que c'est du Base64
           window.history.replaceState(null, '', window.location.pathname);
       }, 1000);
   }
