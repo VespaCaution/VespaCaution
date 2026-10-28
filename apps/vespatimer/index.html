@@ -704,7 +704,7 @@ function exportVCFLASH() {
                     .replace(/=+$/, ''); 
     
     // On utilise le HASH (#) pour éviter le 404 de GitHub Pages
-    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/#flash=" + b64Code;
+    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?flash=" + b64Code;
     
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
@@ -1393,10 +1393,12 @@ function boot(){
   applyTranslations();
   renderAll();
   
+  // 1. Reprise des chronomètres en cours
   if (hornets.some(function(h){ return h.timerRunning })) {
     startTimerInterval();
   }
   
+  // 2. Initialisation de la carte
   setTimeout(function(){
     initMap();
     setTimeout(function(){ if (map) drawAnalysis(); }, 800);
@@ -1406,20 +1408,31 @@ function boot(){
   updateDateTime();
   checkIOSInstall();
   
+  // 3. Affichage du modal "À propos" au premier lancement
   if (localStorage.getItem('about_shown') !== 'true') {
     localStorage.setItem('about_shown', 'true');
     setTimeout(function(){ openModal('aboutModal'); }, 1500);
   }
 
-  // DÉTECTION DU LIEN VCFLASH (via le Hash #)
-  var hash = window.location.hash;
-  if (hash && hash.includes('flash=')) {
-      var b64Code = hash.split('flash=')[1];
-      setTimeout(function() {
-          processVCFLASHImport(b64Code, true);
-          // On nettoie l'URL
-          window.history.replaceState(null, '', window.location.pathname);
-      }, 1000);
+  // 4. DÉTECTION DU LIEN VCFLASH (via le Hack 404)
+  var savedUrl = sessionStorage.getItem('vcflash_redirect');
+  
+  if (savedUrl) {
+      // On nettoie la mémoire pour ne pas le refaire au prochain démarrage
+      sessionStorage.removeItem('vcflash_redirect');
+      
+      // On récupère la partie après le flash=
+      if (savedUrl.includes('flash=')) {
+          var b64Code = savedUrl.split('flash=')[1];
+          // On enlève tout caractère parasite à la fin (comme # ou &)
+          b64Code = b64Code.split('#')[0].split('&')[0]; 
+          
+          setTimeout(function() {
+              processVCFLASHImport(b64Code, true);
+              // On nettoie l'URL de la barre d'adresse pour qu'elle redevienne normale
+              window.history.replaceState(null, '', window.location.pathname);
+          }, 1000);
+      }
   }
 }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}else{boot();}
