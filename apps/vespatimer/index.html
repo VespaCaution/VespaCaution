@@ -663,7 +663,7 @@ function exportHistory() { closeModal('exportModal'); var hist = getHist(); var 
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 // ============================================================
-// SYSTÈME VCFLASH COMPLET
+// SYSTÈME VCFLASH COMPLET (Lien sécurisé pour Google Lens)
 // ============================================================
 
 var VCFLASH_EMOJIS = [
@@ -672,14 +672,13 @@ var VCFLASH_EMOJIS = [
     "[", "]", ".", ",", "*"
 ];
 
-// --- 1. EXPORTATION (Génère le QR Code avec lien URL) ---
+// --- 1. EXPORTATION (Génère le QR Code) ---
 function exportVCFLASH() {
     var dataToExport = { hornets: hornets, surveyLocation: surveyLocation };
     
     let loc = dataToExport.surveyLocation || {};
     let rawString = "";
     
-    // On garde l'essentiel pour que le QR code soit petit et lisible
     rawString += (loc.lat || 0).toFixed(3) + "|";
     rawString += (loc.lng || 0).toFixed(3) + "|";
     rawString += (loc.name || "").substring(0, 10) + "|";
@@ -704,12 +703,22 @@ function exportVCFLASH() {
         flashCode += VCFLASH_EMOJIS[idx1] + VCFLASH_EMOJIS[idx2];
     }
 
-    // Le Lien (avec la bonne URL)
-    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/#⚡" + flashCode;
+    // --- CONVERSION EN LETTRES POUR GOOGLE LENS ---
+    let safeCode = "";
+    for (let i = 0; i < flashCode.length; i++) {
+        let charIndex = VCFLASH_EMOJIS.indexOf(flashCode[i]);
+        if (charIndex !== -1) {
+            safeCode += String.fromCharCode(65 + charIndex); // A-Z
+        } else {
+            safeCode += flashCode[i]; 
+        }
+    }
+
+    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?flash=" + safeCode;
 
     navigator.clipboard.writeText(urlLink).catch(function(){});
 
-    // Génération du QR Code (Niveau L = plus petit et facile à scanner)
+    // Génération du QR Code (Niveau L pour la lisibilité)
     var qr = qrcode(0, 'L'); 
     qr.addData(urlLink);
     qr.make();
@@ -734,8 +743,8 @@ function exportVCFLASH() {
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
-            'VCFLASH (Lien) généré !<br>' +
-            '<span style="font-size:0.75rem;color:#888;">Scannez avec l\'appareil photo</span>' +
+            'VCFLASH généré !<br>' +
+            '<span style="font-size:0.75rem;color:#888;">Scannez avec Google Lens</span>' +
             '<img src="' + qrImageUrl + '" style="width: 250px; height: 250px; margin-top: 15px; border-radius: 12px; background: white; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">' +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
@@ -756,7 +765,7 @@ function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
 }
 
-// --- 2. MODAL D'IMPORTATION (Onglets Coller / Scanner) ---
+// --- 2. MODAL D'IMPORTATION (Onglets) ---
 function openVCFLASHModal() {
     var html = '<div class="custom-alert" style="max-width:400px; padding:15px; background:var(--bg);">' +
         '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
@@ -770,7 +779,7 @@ function openVCFLASHModal() {
         '</div>' +
 
         '<div id="vcTabPaste">' +
-            '<textarea id="vcflashInput" placeholder="⚡🐝🍯..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
+            '<textarea id="vcflashInput" placeholder="Collez le lien ici..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
             '<button class="btn-gold" onclick="processVCFLASHImport()" style="width:100%; margin-top:10px; padding:12px; border-radius:25px; font-size:1rem;">📥 Importer</button>' +
         '</div>' +
 
@@ -819,12 +828,19 @@ function startCameraScanner() {
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
             stopQRScanner();
-            // Si le lien contient le VCFLASH
-            if (decodedText.includes("⚡")) {
-                // On extrait juste la partie après le ⚡
-                let parts = decodedText.split("⚡");
-                let code = parts[parts.length - 1];
-                processVCFLASHImport(code);
+            if (decodedText.includes("flash=")) {
+                let parts = decodedText.split("flash=");
+                let safeCode = parts[1];
+                let flashCode = "";
+                for (let i = 0; i < safeCode.length; i++) {
+                    let charCode = safeCode.charCodeAt(i);
+                    if (charCode >= 65 && charCode <= 90) {
+                        flashCode += VCFLASH_EMOJIS[charCode - 65];
+                    } else {
+                        flashCode += safeCode[i];
+                    }
+                }
+                processVCFLASHImport(flashCode);
             }
         },
         (errorMessage) => { /* Ignore */ }
@@ -845,14 +861,30 @@ function stopQRScanner() {
     }
 }
 
-// --- 4. TRAITEMENT DES DONNÉES ---
+// --- 4. TRAITEMENT DES DONNÉES (Reconstruit les emojis depuis les lettres) ---
 function processVCFLASHImport(codeOverride) {
     var code = codeOverride || document.getElementById('vcflashInput').value.trim();
     if (!code) return;
-    code = code.replace(/⚡/g, '');
+    
+    // Si l'utilisateur a collé le lien complet
+    if (code.includes("flash=")) {
+        code = code.split("flash=")[1];
+    }
+    
+    // Conversion des lettres en emojis
+    let flashCode = "";
+    for (let i = 0; i < code.length; i++) {
+        let charCode = code.charCodeAt(i);
+        if (charCode >= 65 && charCode <= 90) {
+            flashCode += VCFLASH_EMOJIS[charCode - 65];
+        } else {
+            flashCode += code[i];
+        }
+    }
 
+    // Décodage des emojis en texte
     let rawString = "";
-    let chars = Array.from(code);
+    let chars = Array.from(flashCode);
     for (let i = 0; i < chars.length; i += 2) {
         let idx1 = VCFLASH_EMOJIS.indexOf(chars[i]);
         let idx2 = VCFLASH_EMOJIS.indexOf(chars[i+1]);
@@ -1361,29 +1393,48 @@ function boot(){
   updateNotifButton();
   applyTranslations();
   renderAll();
-  if (hornets.some(function(h){ return h.timerRunning })) { startTimerInterval(); }
+  
+  if (hornets.some(function(h){ return h.timerRunning })) {
+    startTimerInterval();
+  }
+  
   setTimeout(function(){
     initMap();
     setTimeout(function(){ if (map) drawAnalysis(); }, 800);
   }, 500);
+  
   handleUrlParams();
   updateDateTime();
   checkIOSInstall();
+  
+  // 1. Affichage du modal "À propos"
   if (localStorage.getItem('about_shown') !== 'true') {
     localStorage.setItem('about_shown', 'true');
     setTimeout(function(){ openModal('aboutModal'); }, 1500);
-    }
-// Détection automatique du VCFLASH via l'URL
-if (window.location.hash && window.location.hash.startsWith("#⚡")) {
-    var vcCode = window.location.hash.replace("#⚡", "");
-    setTimeout(function() {
-        processVCFLASHImport(vcCode);
-        // On nettoie l'URL pour qu'elle redevienne normale
-        history.replaceState(null, '', window.location.pathname);
-    }, 1000);
-}
-}
+  }
 
+  // 2. DÉTECTION DU LIEN VCFLASH (Google Lens)
+  var urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('flash')) {
+      var safeCode = urlParams.get('flash');
+      // On reconvertit les lettres en emojis
+      let flashCode = "";
+      for (let i = 0; i < safeCode.length; i++) {
+          let charCode = safeCode.charCodeAt(i);
+          if (charCode >= 65 && charCode <= 90) {
+              flashCode += VCFLASH_EMOJIS[charCode - 65];
+          } else {
+              flashCode += safeCode[i];
+          }
+      }
+      
+      setTimeout(function() {
+          processVCFLASHImport(flashCode);
+          // On nettoie l'URL
+          window.history.replaceState(null, '', window.location.pathname);
+      }, 1000);
+  }
+}
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}else{boot();}
 </script>
 </body>
