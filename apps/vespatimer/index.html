@@ -663,7 +663,7 @@ function exportHistory() { closeModal('exportModal'); var hist = getHist(); var 
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 // ============================================================
-// SYSTÈME VCFLASH COMPLET (Texte Emoji + Lien URL-Safe)
+// SYSTÈME VCFLASH COMPLET (Texte Emoji + Lien Hash)
 // ============================================================
 
 var VCFLASH_EMOJIS = [
@@ -698,14 +698,14 @@ function exportVCFLASH() {
 
     // 2. Création du Lien (JSON -> URL-Safe Base64)
     let jsonStr = JSON.stringify(dataToExport);
-    // On convertit en Base64 standard, puis on le rend URL-safe
     let b64Code = btoa(unescape(encodeURIComponent(jsonStr)))
                     .replace(/\+/g, '-')
                     .replace(/\//g, '_')
-                    .replace(/=+$/, ''); // On enlève les '=' de fin inutiles
+                    .replace(/=+$/, ''); 
     
-    // On pointe vers index.html pour éviter le 404
+    // On utilise le HASH (#) pour éviter le 404 de GitHub Pages
     let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/#flash=" + b64Code;
+    
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
     // 3. Génération du QR Code
@@ -755,7 +755,7 @@ function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
 }
 
-// --- 2. MODAL D'IMPORTATION ---
+// --- 2. MODAL D'IMPORTATION (Coller / Scanner) ---
 function openVCFLASHModal() {
     var html = '<div class="custom-alert" style="max-width:400px; padding:15px; background:var(--bg);">' +
         '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
@@ -769,7 +769,7 @@ function openVCFLASHModal() {
         '</div>' +
 
         '<div id="vcTabPaste">' +
-            '<textarea id="vcflashInput" placeholder="Collez le texte emoji ou le lien ici..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
+            '<textarea id="vcflashInput" placeholder="Collez le texte ou le lien..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
             '<button class="btn-gold" onclick="processVCFLASHImport()" style="width:100%; margin-top:10px; padding:12px; border-radius:25px; font-size:1rem;">📥 Importer</button>' +
         '</div>' +
 
@@ -817,12 +817,14 @@ function startCameraScanner() {
         { facingMode: "environment" },
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
-    stopQRScanner();
-    if (decodedText.includes("flash=")) {
-        let b64Code = decodedText.split("flash=")[1];
-        processVCFLASHImport(b64Code, true);
-    }
-},
+            stopQRScanner();
+            if (decodedText.includes("flash=")) {
+                let b64Code = decodedText.split("flash=")[1];
+                processVCFLASHImport(b64Code, true);
+            } else if (decodedText.includes("⚡")) {
+                processVCFLASHImport(decodedText);
+            }
+        },
         (errorMessage) => { /* Ignore */ }
     ).catch(err => {
         console.error(err);
@@ -853,7 +855,6 @@ function processVCFLASHImport(codeOverride, isBase64) {
         let b64 = code;
         if (code.includes("flash=")) b64 = code.split("flash=")[1];
         try {
-            // On remet les caractères standard pour le Base64
             let normalB64 = b64.replace(/-/g, '+').replace(/_/g, '/');
             while (normalB64.length % 4) normalB64 += '=';
             
@@ -929,7 +930,7 @@ function processVCFLASHImport(codeOverride, isBase64) {
         console.error(e);
         showAlert("❌ Erreur d'import.", "❌"); 
     }
-            }
+                              }
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
@@ -1410,16 +1411,17 @@ function boot(){
     setTimeout(function(){ openModal('aboutModal'); }, 1500);
   }
 
-  // DÉTECTION DU LIEN VCFLASH (URL-Safe Base64)
-  var urlParams = new URLSearchParams(window.location.search);
-  if (urlParams.has('flash')) {
-      var b64Code = urlParams.get('flash');
+  // DÉTECTION DU LIEN VCFLASH (via le Hash #)
+  var hash = window.location.hash;
+  if (hash && hash.includes('flash=')) {
+      var b64Code = hash.split('flash=')[1];
       setTimeout(function() {
           processVCFLASHImport(b64Code, true);
+          // On nettoie l'URL
           window.history.replaceState(null, '', window.location.pathname);
       }, 1000);
   }
-  }
+}
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}else{boot();}
 </script>
 </body>
