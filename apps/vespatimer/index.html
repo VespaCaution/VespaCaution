@@ -672,35 +672,29 @@ var VCFLASH_EMOJIS = [
     "[", "]", ".", ",", "*"
 ];
 
-// --- 1. EXPORTATION (QR Code Image) ---
+// --- 1. EXPORTATION (Génère le QR Code avec lien URL) ---
 function exportVCFLASH() {
-    var dataToExport = { hornets: hornets, surveyLocation: surveyLocation, inspectorName: inspectorName, notes: notes, personalInfo: personalInfo };
+    var dataToExport = { hornets: hornets, surveyLocation: surveyLocation };
     
-    let p = dataToExport.personalInfo || {};
     let loc = dataToExport.surveyLocation || {};
     let rawString = "";
     
-    // Format compact pour que le QR reste petit
-    rawString += (p.firstName || "").substring(0, 6) + "|";
-    rawString += (p.lastName || "").substring(0, 6) + "|";
-    rawString += (p.phone || "").substring(0, 10) + "|";
-    rawString += (dataToExport.inspectorName || "").substring(0, 6) + "|";
+    // On garde l'essentiel pour que le QR code soit petit et lisible
     rawString += (loc.lat || 0).toFixed(3) + "|";
     rawString += (loc.lng || 0).toFixed(3) + "|";
-    rawString += (loc.name || "").substring(0, 8) + "|";
+    rawString += (loc.name || "").substring(0, 10) + "|";
     rawString += (dataToExport.hornets ? dataToExport.hornets.length : 0) + "|";
 
     if (dataToExport.hornets) {
         for (let i = 0; i < dataToExport.hornets.length; i++) {
             let h = dataToExport.hornets[i];
             let flightsStr = h.flights ? h.flights.join(",") : "";
-            let shortName = (h.name || "").substring(0, 5);
-            rawString += shortName + ";" + (h.direction || 0) + ";" + flightsStr + ";" + (h.color || "#000") + "|";
+            rawString += (h.name || "").substring(0, 4) + ";" + (h.direction || 0) + ";" + flightsStr + "|";
         }
     }
 
     // Encodage en emojis
-    let flashCode = "⚡";
+    let flashCode = "";
     let chars = Array.from(rawString);
     for (let i = 0; i < chars.length; i++) {
         let charCode = chars[i].charCodeAt(0);
@@ -710,11 +704,14 @@ function exportVCFLASH() {
         flashCode += VCFLASH_EMOJIS[idx1] + VCFLASH_EMOJIS[idx2];
     }
 
-    navigator.clipboard.writeText(flashCode).catch(function(){});
+    // Le Lien (avec la bonne URL)
+    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/#⚡" + flashCode;
 
-    // Génération de l'image QR Code
-    var qr = qrcode(0, 'L');
-    qr.addData(flashCode);
+    navigator.clipboard.writeText(urlLink).catch(function(){});
+
+    // Génération du QR Code (Niveau L = plus petit et facile à scanner)
+    var qr = qrcode(0, 'L'); 
+    qr.addData(urlLink);
     qr.make();
     var moduleCount = qr.getModuleCount();
 
@@ -737,12 +734,12 @@ function exportVCFLASH() {
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
-            'VCFLASH généré !<br>' +
-            '<span style="font-size:0.75rem;color:#888;">Copié dans le presse-papiers</span>' +
+            'VCFLASH (Lien) généré !<br>' +
+            '<span style="font-size:0.75rem;color:#888;">Scannez avec l\'appareil photo</span>' +
             '<img src="' + qrImageUrl + '" style="width: 250px; height: 250px; margin-top: 15px; border-radius: 12px; background: white; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">' +
         '</div>' +
         '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
-            '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + flashCode + '\')">📤 Partager le texte</button>' +
+            '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + urlLink + '\')">📤 Partager le lien</button>' +
             '<button class="custom-alert-button" style="background:#888;" onclick="this.closest(\'.custom-alert-overlay\').remove();">Fermer</button>' +
         '</div>' +
     '</div>';
@@ -759,7 +756,7 @@ function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
 }
 
-// --- 2. MODAL D'IMPORTATION (Onglets) ---
+// --- 2. MODAL D'IMPORTATION (Onglets Coller / Scanner) ---
 function openVCFLASHModal() {
     var html = '<div class="custom-alert" style="max-width:400px; padding:15px; background:var(--bg);">' +
         '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
@@ -822,8 +819,12 @@ function startCameraScanner() {
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
             stopQRScanner();
+            // Si le lien contient le VCFLASH
             if (decodedText.includes("⚡")) {
-                processVCFLASHImport(decodedText);
+                // On extrait juste la partie après le ⚡
+                let parts = decodedText.split("⚡");
+                let code = parts[parts.length - 1];
+                processVCFLASHImport(code);
             }
         },
         (errorMessage) => { /* Ignore */ }
@@ -864,36 +865,33 @@ function processVCFLASHImport(codeOverride) {
     }
 
     let parts = rawString.split("|");
-    if (parts.length < 8) { showAlert("❌ Code VCFLASH invalide ou incomplet.", "❌"); return; }
+    if (parts.length < 4) { showAlert("❌ Code VCFLASH invalide.", "❌"); return; }
 
     try {
         var hasCurrentData = hornets.some(function(h){ return h.flights.length > 0; }) || surveyLocation.name || inspectorName || notes;
         if (hasCurrentData) saveHist();
 
         var parsedHornets = [];
-        let hornetCount = parseInt(parts[7]) || 0;
+        let hornetCount = parseInt(parts[3]) || 0;
         for (let i = 0; i < hornetCount; i++) {
-            let hData = parts[8 + i];
+            let hData = parts[4 + i];
             if (hData) {
                 let hParts = hData.split(";");
                 var nh = createHornet(hParts[0] || 'Frelon');
                 nh.direction = parseInt(hParts[1]) || 0;
                 nh.flights = hParts[2] ? hParts[2].split(",").map(Number) : [];
-                nh.color = hParts[3] || null;
                 parsedHornets.push(nh);
             }
         }
 
-        personalInfo = { firstName: parts[0], lastName: parts[1], phone: parts[2] };
-        inspectorName = parts[3];
-        surveyLocation = { lat: parseFloat(parts[4]), lng: parseFloat(parts[5]), name: parts[6] };
+        surveyLocation = { lat: parseFloat(parts[0]), lng: parseFloat(parts[1]), name: parts[2] };
         hornets = parsedHornets;
         
         resumedFromIndex = -1;
         localStorage.setItem('resumed_idx', resumedFromIndex);
-        document.getElementById('firstName').value = personalInfo.firstName || '';
-        document.getElementById('lastName').value = personalInfo.lastName || '';
-        document.getElementById('phone').value = personalInfo.phone || '';
+        
+        document.getElementById('locationInput').value = surveyLocation.name || surveyLocation.lat.toFixed(5) + ', ' + surveyLocation.lng.toFixed(5);
+        document.getElementById('locationDisplay').textContent = surveyLocation.name || surveyLocation.lat.toFixed(5) + ', ' + surveyLocation.lng.toFixed(5);
         
         updatePotMarker(); renderAll(); saveAll();
         
@@ -901,7 +899,7 @@ function processVCFLASHImport(codeOverride) {
         if (modal) modal.remove();
         showToast("✅ VCFLASH importé !");
     } catch(e) { showAlert("❌ Erreur d'import.", "❌"); }
-    }
+        }
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
@@ -1374,7 +1372,16 @@ function boot(){
   if (localStorage.getItem('about_shown') !== 'true') {
     localStorage.setItem('about_shown', 'true');
     setTimeout(function(){ openModal('aboutModal'); }, 1500);
-  }
+    }
+// Détection automatique du VCFLASH via l'URL
+if (window.location.hash && window.location.hash.startsWith("#⚡")) {
+    var vcCode = window.location.hash.replace("#⚡", "");
+    setTimeout(function() {
+        processVCFLASHImport(vcCode);
+        // On nettoie l'URL pour qu'elle redevienne normale
+        history.replaceState(null, '', window.location.pathname);
+    }, 1000);
+}
 }
 
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}else{boot();}
