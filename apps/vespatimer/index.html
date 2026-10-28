@@ -663,7 +663,7 @@ function exportHistory() { closeModal('exportModal'); var hist = getHist(); var 
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 // ============================================================
-// SYSTÈME VCFLASH COMPLET (Emojis pour le texte, Base64 pour le lien)
+// SYSTÈME VCFLASH COMPLET (Texte Emoji + Lien URL-Safe)
 // ============================================================
 
 var VCFLASH_EMOJIS = [
@@ -679,7 +679,7 @@ function exportVCFLASH() {
         l: { lat: surveyLocation.lat, lng: surveyLocation.lng, name: surveyLocation.name }
     };
     
-    // 1. Création de la version Texte (avec tes emojis)
+    // 1. Création de la version Texte (Emojis)
     let rawString = dataToExport.l.lat.toFixed(3) + "|" + dataToExport.l.lng.toFixed(3) + "|" + (dataToExport.l.name || "").substring(0,10) + "|" + dataToExport.h.length + "|";
     for (let i = 0; i < dataToExport.h.length; i++) {
         let h = dataToExport.h[i];
@@ -696,15 +696,20 @@ function exportVCFLASH() {
         flashCode += VCFLASH_EMOJIS[idx1] + VCFLASH_EMOJIS[idx2];
     }
 
-    // 2. Création du Lien (avec JSON -> Base64)
-    // C'est beaucoup plus court et lisible par Google
+    // 2. Création du Lien (JSON -> URL-Safe Base64)
     let jsonStr = JSON.stringify(dataToExport);
-    let b64Code = btoa(unescape(encodeURIComponent(jsonStr))); // Base64 safe pour les accents
-    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?flash=" + b64Code;
+    // On convertit en Base64 standard, puis on le rend URL-safe
+    let b64Code = btoa(unescape(encodeURIComponent(jsonStr)))
+                    .replace(/\+/g, '-')
+                    .replace(/\//g, '_')
+                    .replace(/=+$/, ''); // On enlève les '=' de fin inutiles
+    
+    // On pointe vers index.html pour éviter le 404
+    let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/index.html?flash=" + b64Code;
 
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    // 3. Génération du QR Code (avec le lien court)
+    // 3. Génération du QR Code
     var qr = qrcode(0, 'L'); 
     qr.addData(urlLink);
     qr.make();
@@ -765,7 +770,7 @@ function openVCFLASHModal() {
         '</div>' +
 
         '<div id="vcTabPaste">' +
-            '<textarea id="vcflashInput" placeholder="Collez le texte ou le lien..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
+            '<textarea id="vcflashInput" placeholder="Collez le texte emoji ou le lien ici..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
             '<button class="btn-gold" onclick="processVCFLASHImport()" style="width:100%; margin-top:10px; padding:12px; border-radius:25px; font-size:1rem;">📥 Importer</button>' +
         '</div>' +
 
@@ -844,18 +849,22 @@ function processVCFLASHImport(codeOverride, isBase64) {
 
     let parsedData = null;
 
-    // Si c'est un lien Base64
+    // Détection si c'est un lien Base64
     if (isBase64 || code.includes("flash=") || (!code.includes("🐝") && !code.includes("⚡"))) {
         let b64 = code;
         if (code.includes("flash=")) b64 = code.split("flash=")[1];
         try {
-            let jsonStr = decodeURIComponent(escape(atob(b64)));
+            // On remet les caractères standard pour le Base64
+            let normalB64 = b64.replace(/-/g, '+').replace(/_/g, '/');
+            while (normalB64.length % 4) normalB64 += '=';
+            
+            let jsonStr = decodeURIComponent(escape(atob(normalB64)));
             parsedData = JSON.parse(jsonStr);
         } catch(e) {
-            showAlert("❌ Lien invalide.", "❌"); return;
+            showAlert("❌ Lien invalide ou incomplet.", "❌"); return;
         }
     } 
-    // Si c'est du texte avec des emojis
+    // Sinon c'est du texte Emoji
     else {
         code = code.replace(/⚡/g, '');
         let rawString = "";
@@ -921,7 +930,7 @@ function processVCFLASHImport(codeOverride, isBase64) {
         console.error(e);
         showAlert("❌ Erreur d'import.", "❌"); 
     }
-    }
+            }
 function exportPDF() {
     closeModal('exportModal');
     if (!map) { setTimeout(function() { window.print(); }, 400); return; }
@@ -1402,16 +1411,16 @@ function boot(){
     setTimeout(function(){ openModal('aboutModal'); }, 1500);
   }
 
-  // DÉTECTION DU LIEN VCFLASH (Base64)
+  // DÉTECTION DU LIEN VCFLASH (URL-Safe Base64)
   var urlParams = new URLSearchParams(window.location.search);
   if (urlParams.has('flash')) {
       var b64Code = urlParams.get('flash');
       setTimeout(function() {
-          processVCFLASHImport(b64Code, true); // Le "true" indique que c'est du Base64
+          processVCFLASHImport(b64Code, true);
           window.history.replaceState(null, '', window.location.pathname);
       }, 1000);
   }
-}
+  }
 if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',boot);}else{boot();}
 </script>
 </body>
