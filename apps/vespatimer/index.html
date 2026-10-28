@@ -698,7 +698,7 @@ function exportVCFLASH() {
         }
     }
 
-    // Encodage en symboles
+    // 1. Encodage en emojis (texte)
     let flashCode = "⚡";
     let chars = Array.from(rawString);
     for (let i = 0; i < chars.length; i++) {
@@ -709,46 +709,36 @@ function exportVCFLASH() {
         flashCode += VCFLASH_EMOJIS[idx1] + VCFLASH_EMOJIS[idx2];
     }
 
-    // Copie dans le presse-papiers
     navigator.clipboard.writeText(flashCode).catch(function(){});
 
-    // Génération du QR Code avec la librairie
-    var qr = qrcode(0, 'M');
+    // 2. Génération du QR Code
+    // On utilise le niveau de correction 'L' (Low) pour que le QR code soit le plus petit possible
+    var qr = qrcode(0, 'L'); 
     qr.addData(flashCode);
     qr.make();
     var moduleCount = qr.getModuleCount();
 
-    // On utilise des emojis contrastés (Foncé / Clair)
-    var emojiDark = "🚫";  
-    var emojiLight = "🌸"; 
-    // Pour les données, on peut varier un peu
-    var dataDark = ["🐝", "🍯", "🚫"];
-    var dataLight = ["🌸", "🌳", "💧"];
+    // 3. Création du visuel avec un style strict
+    // On utilise UNIQUEMENT 2 symboles très contrastés pour que la caméra lise
+    var emojiDark = "🚫";  // Rouge foncé
+    var emojiLight = "🌸"; // Rose clair
 
-    var qrEmojiHtml = '<div style="font-family: monospace; font-size: 7px; line-height: 7px; text-align: center; margin: 15px auto; display: inline-block; background: white; padding: 12px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">';
+    // On force une taille de police petite pour que ça tienne dans l'écran
+    var qrEmojiHtml = '<div style="font-family: monospace; font-size: 4px; line-height: 4px; text-align: center; margin: 10px auto; display: inline-block; background: white; padding: 10px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">';
     
     for (var row = 0; row < moduleCount; row++) {
         for (var col = 0; col < moduleCount; col++) {
-            var isDark = qr.isDark(row, col);
-            
-            // On garde les 3 yeux de repérage très stricts pour que la caméra lise
-            var isEye = (row < 7 && col < 7) || (row < 7 && col >= moduleCount - 7) || (row >= moduleCount - 7 && col < 7);
-            
-            if (isEye) {
-                qrEmojiHtml += isDark ? "🚫" : "🌸";
+            if (qr.isDark(row, col)) {
+                qrEmojiHtml += emojiDark;
             } else {
-                if (isDark) {
-                    qrEmojiHtml += dataDark[Math.floor(Math.random() * dataDark.length)];
-                } else {
-                    qrEmojiHtml += dataLight[Math.floor(Math.random() * dataLight.length)];
-                }
+                qrEmojiHtml += emojiLight;
             }
         }
         qrEmojiHtml += "<br>";
     }
     qrEmojiHtml += '</div>';
 
-    // Affichage dans le modal
+    // 4. Affichage
     var html = '<div class="custom-alert" style="max-width:380px;">' +
         '<div class="custom-alert-icon">⚡</div>' +
         '<div class="custom-alert-message">' +
