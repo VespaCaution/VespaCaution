@@ -129,7 +129,7 @@
 </head>
 <body>
   <div class="header" style="justify-content:space-between;align-items:center;">
-    <h1>🐝 VespaTimer <span style="font-size:0.8rem;color:#888;">v2.0</span></h1>
+    <h1>🐝 VespaTimer <span style="font-size:0.8rem;color:#888;">v3.0</span></h1>
     <div class="flex-row" style="gap:12px;">
         <a href="https://youtube.com/@hornetjunkie" target="_blank" style="text-decoration:none;color:#FF0000;font-size:1.6rem;padding:4px;" title="YouTube"><i class="fab fa-youtube"></i></a>
         <a href="https://whatsapp.com/channel/0029VbDichqDuMRfA1Yitr2b" target="_blank" style="text-decoration:none;color:#25D366;font-size:1.6rem;padding:4px;" title="WhatsApp"><i class="fab fa-whatsapp"></i></a>
@@ -179,10 +179,10 @@
 <div class="card"><h2>📊 <span data-lang="stats_title">Statistiques</span></h2><div id="statsContent" style="font-size:0.9rem;"></div></div>
 
 <div class="bottom-bar" id="bottomBar">
-    <button class="btn-sm" onclick="openModal('optionsModal')">⚙️ <span data-lang="options">Options</span></button>
-    <button class="btn-red btn-sm" onclick="resetAll()" style="padding: 6px 12px;">🔄 <span data-lang="reset_btn_short">Nouveau</span></button>
     <button class="btn-sm" onclick="openModal('exportModal')">📤 <span data-lang="export_import">Export/Import</span></button>
-</div>
+   <button class="btn-red btn-sm" onclick="resetAll()" style="padding: 6px 12px;">🔄 <span data-lang="reset_btn_short">Nouveau</span></button>
+    <button class="btn-sm" onclick="openModal('optionsModal')">⚙️ <span data-lang="options">Options</span></button>
+        </div>
 
 <div id="updateBanner"></div>
 <div class="modal-overlay" id="optionsModal"><div class="modal" style="max-width:550px;padding-top:10px;"><div style="display:flex;align-items:center;justify-content:space-between;"><h2 style="margin:0;">⚙️ <span data-lang="options">Options</span></h2><button class="modal-close" onclick="closeModal('optionsModal')" style="position:static;">✕</button></div><div style="display:flex;flex-direction:column;gap:8px;margin-top:10px;"><p><strong data-lang="language">Langue:</strong> <button class="btn-gold btn-sm" onclick="openLangModal()">🌍 <span data-lang="language">Langue</span></button></p><button onclick="toggleNotifications()">🔔 <span id="notifBtnLabel">Notifications</span></button><button onclick="closeModal('optionsModal');openModal('aboutModal')">ℹ️ <span data-lang="about_btn">À propos</span></button><button class="btn-gold" id="installBtn2" style="display:none;" onclick="installPWA()">📲 <span data-lang="install_app">Installer l'app</span></button><button onclick="closeModal('optionsModal');openAccountModal()">👤 <span data-lang="account_title">Compte</span> <span style="font-size:0.75rem;color:#888;">(<span data-lang="account_optional">optionnel</span>)</span></button></div></div></div>
