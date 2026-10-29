@@ -8,6 +8,9 @@
   <meta name="theme-color" content="#c47b2e">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
+   html, body {
+  overscroll-behavior-y: contain; /* Bloque le pull-to-refresh sur Android/Chrome */
+   }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: system-ui, sans-serif; background: #fbf6e8; color: #2e241b; padding: 1rem; min-height: 100vh; display: flex; justify-content: center; }
     .app { max-width: 1000px; width: 100%; background: #fffdf7; border-radius: 2rem; box-shadow: 0 12px 30px rgba(0,0,0,0.08); padding: 1.8rem; border: 1px solid #f0e3cf; position: relative; }
