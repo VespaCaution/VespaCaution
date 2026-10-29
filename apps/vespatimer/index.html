@@ -672,7 +672,6 @@ var VCFLASH_EMOJIS = [
     "[", "]", ".", ",", "*"
 ];
 
-// 1. EXPORTATION
 async function exportVCFLASH() {
     var shortCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     
@@ -689,6 +688,7 @@ async function exportVCFLASH() {
         var expirationDate = new Date();
         expirationDate.setDate(expirationDate.getDate() + 7);
 
+        // 1. Enregistrer sur Supabase
         var res = await sbClient.from('vcflash_shares').insert([{
             code: shortCode,
             data: dataToExport,
@@ -697,10 +697,19 @@ async function exportVCFLASH() {
 
         if (res.error) throw res.error;
 
-        let urlLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?code=" + shortCode;
+        // 2. Créer le lien vers ton app (qui va causer le 404)
+        let longLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?code=" + shortCode;
         
+        // 3. DEMANDER À TINYURL DE CRÉER UN LIEN COURT
+        let response = await fetch("https://tinyurl.com/api-create.php?url=" + encodeURIComponent(longLink));
+        let shortUrl = await response.text();
+        
+        // Si TinyURL échoue, on utilise le lien long (au cas où)
+        let finalLink = shortUrl.startsWith("https://") ? shortUrl : longLink;
+
+        // 4. Générer le QR Code avec le lien TinyURL (qui fait 30 caractères max)
         var qr = qrcode(0, 'M'); 
-        qr.addData(urlLink);
+        qr.addData(finalLink);
         qr.make();
         var moduleCount = qr.getModuleCount();
 
@@ -729,7 +738,7 @@ async function exportVCFLASH() {
                 '<div style="font-size: 1.5rem; font-weight: bold; letter-spacing: 4px; margin-top: 10px; color: var(--gold);">' + shortCode + '</div>' +
             '</div>' +
             '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
-                '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + urlLink + '\')">📤 Partager le lien</button>' +
+                '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + finalLink + '\')">📤 Partager le lien</button>' +
                 '<button class="custom-alert-button" style="background:#888;" onclick="this.closest(\'.custom-alert-overlay\').remove();">Fermer</button>' +
             '</div>' +
         '</div>';
@@ -747,6 +756,7 @@ async function exportVCFLASH() {
     }
 }
 
+    
 function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
 }
