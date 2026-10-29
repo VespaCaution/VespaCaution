@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Redirection...</title>
+  <script>
+    // On sauvegarde l'URL complète (avec le ?code=...) dans la mémoire du téléphone
+    sessionStorage.setItem('vcflash_redirect', window.location.href);
+    // On redirige immédiatement vers la page principale (qui existe, donc pas de 404)
+    window.location.replace('https://vespacaution.github.io/VespaCaution/vespatimer/');
+  </script>
+</head>
+<body></body>
+</html>
