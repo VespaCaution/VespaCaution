@@ -12,7 +12,10 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="ApiGuide">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+ html, body {
+  overscroll-behavior-y: contain; /* Bloque le pull-to-refresh sur Android/Chrome */
+ }
+ * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: #fef9e7; color: #2c2c2c; line-height: 1.5; padding: 0.75rem; min-height: 100vh; display: flex; flex-direction: column; }
   .app-header { display: flex; align-items: baseline; justify-content: space-between; padding: 0.25rem 0.5rem 0.75rem 0.5rem; border-bottom: 2px solid #d4a373; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
   .app-title { font-size: 1.8rem; font-weight: 700; color: #7f5539; letter-spacing: -0.5px; }
