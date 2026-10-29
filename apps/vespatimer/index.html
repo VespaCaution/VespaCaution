@@ -663,7 +663,7 @@ function exportHistory() { closeModal('exportModal'); var hist = getHist(); var 
 function exportGPX() { closeModal('exportModal'); var g = '<?xml version="1.0"?><gpx version="1.1" creator="VespaTimer"><wpt lat="' + surveyLocation.lat + '" lon="' + surveyLocation.lng + '"><name>Pot</name></wpt>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) g += '<wpt lat="' + n.lat.toFixed(6) + '" lon="' + n.lng.toFixed(6) + '"><name>' + h.name + '</name></wpt>'; } g += '</gpx>'; var blob = new Blob([g], { type: 'application/gpx+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.gpx'; showExportReadyModal(blob, filename, 'application/gpx+xml'); }
 function exportKML() { closeModal('exportModal'); var k = '<?xml version="1.0"?><kml xmlns="http://www.opengis.net/kml/2.2"><Document><Placemark><name>Pot</name><Point><coordinates>' + surveyLocation.lng + ',' + surveyLocation.lat + ',0</coordinates></Point></Placemark>'; for (var i = 0; i < hornets.length; i++) { var h = hornets[i]; if (!h.flights.length) continue; var d = getDist(getAvg(h)); if (d <= 0) continue; var n = getNestCoords(h); if (n) k += '<Placemark><name>' + h.name + '</name><Point><coordinates>' + n.lng.toFixed(6) + ',' + n.lat.toFixed(6) + ',0</coordinates></Point></Placemark>'; } k += '</Document></kml>'; var blob = new Blob([k], { type: 'application/vnd.google-earth.kml+xml' }); var filename = 'vespatimer_' + new Date().toISOString().slice(0, 10) + '.kml'; showExportReadyModal(blob, filename, 'application/vnd.google-earth.kml+xml'); }
 // ============================================================
-// SYSTÈME VCFLASH COMPLET (Supabase + QR Code + 7 Jours)
+// SYSTÈME VCFLASH - 100% EMOJIS (Zéro Lien, Zéro 404)
 // ============================================================
 
 var VCFLASH_EMOJIS = [
@@ -672,7 +672,8 @@ var VCFLASH_EMOJIS = [
     "[", "]", ".", ",", "*"
 ];
 
-async function exportVCFLASH() {
+// 1. EXPORTATION (Génère un texte d'emojis)
+function exportVCFLASH() {
     var shortCode = Math.random().toString(36).substring(2, 8).toUpperCase();
     
     var dataToExport = { 
@@ -680,88 +681,48 @@ async function exportVCFLASH() {
         l: { lat: surveyLocation.lat, lng: surveyLocation.lng, name: surveyLocation.name }
     };
 
-    showToast("⏳ Génération du QR Code...");
-
-    try {
-        if (!sbClient) initSupabase();
-        
-        var expirationDate = new Date();
-        expirationDate.setDate(expirationDate.getDate() + 7);
-
-        // 1. Enregistrer sur Supabase
-        var res = await sbClient.from('vcflash_shares').insert([{
-            code: shortCode,
-            data: dataToExport,
-            expires_at: expirationDate.toISOString()
-        }]);
-
-        if (res.error) throw res.error;
-
-        // 2. Créer le lien vers ton app (qui va causer le 404)
-        let longLink = "https://vespacaution.github.io/VespaCaution/vespatimer/?code=" + shortCode;
-        
-        // 3. DEMANDER À TINYURL DE CRÉER UN LIEN COURT
-        let response = await fetch("https://tinyurl.com/api-create.php?url=" + encodeURIComponent(longLink));
-        let shortUrl = await response.text();
-        
-        // Si TinyURL échoue, on utilise le lien long (au cas où)
-        let finalLink = shortUrl.startsWith("https://") ? shortUrl : longLink;
-
-        // 4. Générer le QR Code avec le lien TinyURL (qui fait 30 caractères max)
-        var qr = qrcode(0, 'M'); 
-        qr.addData(finalLink);
-        qr.make();
-        var moduleCount = qr.getModuleCount();
-
-        var canvas = document.createElement('canvas');
-        var ctx = canvas.getContext('2d');
-        var canvasSize = 250; 
-        var cellSize = canvasSize / moduleCount;
-        canvas.width = canvasSize;
-        canvas.height = canvasSize;
-
-        for (var row = 0; row < moduleCount; row++) {
-            for (var col = 0; col < moduleCount; col++) {
-                ctx.fillStyle = qr.isDark(row, col) ? "#1a1a1a" : "#ffffff";
-                ctx.fillRect(col * cellSize, row * cellSize, cellSize, cellSize);
-            }
-        }
-
-        var qrImageUrl = canvas.toDataURL("image/png");
-
-        var html = '<div class="custom-alert" style="max-width:380px;">' +
-            '<div class="custom-alert-icon">⚡</div>' +
-            '<div class="custom-alert-message">' +
-                'VCFLASH prêt !<br>' +
-                '<span style="font-size:0.8rem;color:var(--danger);font-weight:bold;margin-top:4px;display:block;">⚠️ Valable 7 jours</span>' +
-                '<img src="' + qrImageUrl + '" style="width: 200px; height: 200px; margin-top: 15px; border-radius: 12px; background: white; padding: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">' +
-                '<div style="font-size: 1.5rem; font-weight: bold; letter-spacing: 4px; margin-top: 10px; color: var(--gold);">' + shortCode + '</div>' +
-            '</div>' +
-            '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
-                '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + finalLink + '\')">📤 Partager le lien</button>' +
-                '<button class="custom-alert-button" style="background:#888;" onclick="this.closest(\'.custom-alert-overlay\').remove();">Fermer</button>' +
-            '</div>' +
-        '</div>';
-
-        var overlay = document.createElement('div');
-        overlay.className = 'custom-alert-overlay';
-        overlay.style.display = 'flex';
-        overlay.innerHTML = html;
-        overlay.id = 'vcflashModal';
-        document.body.appendChild(overlay);
-
-    } catch(e) {
-        console.error(e);
-        showAlert("❌ Erreur de connexion au serveur.", "❌");
+    // On cache le code court au début du texte (ex: A1B2C3🐝🌸...)
+    let rawString = shortCode + "|" + JSON.stringify(dataToExport);
+    
+    let flashCode = "";
+    let chars = Array.from(rawString);
+    for (let i = 0; i < chars.length; i++) {
+        let charCode = chars[i].charCodeAt(0);
+        let idx1 = Math.floor(charCode / 27);
+        let idx2 = charCode % 27;
+        if (idx1 >= 27) idx1 = 26;
+        flashCode += VCFLASH_EMOJIS[idx1] + VCFLASH_EMOJIS[idx2];
     }
+
+    navigator.clipboard.writeText(flashCode).catch(function(){});
+
+    // On affiche le texte en GROS pour que l'appareil photo puisse le lire
+    var html = '<div class="custom-alert" style="max-width:380px;">' +
+        '<div class="custom-alert-icon">⚡</div>' +
+        '<div class="custom-alert-message">' +
+            'VCFLASH prêt !<br>' +
+            '<span style="font-size:0.75rem;color:#888;">Copié ! Montrez cet écran ou scannez-le.</span>' +
+            '<div style="font-size: 14px; line-height: 1.2; word-break: break-all; background: #f9f4e8; padding: 10px; border-radius: 12px; margin-top: 10px; font-family: monospace; max-height: 200px; overflow-y: auto;">' + flashCode + '</div>' +
+        '</div>' +
+        '<div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">' +
+            '<button class="custom-alert-button" style="background:#5f7d6b;" onclick="shareVCFLASH(\'' + flashCode + '\')">📤 Partager le texte</button>' +
+            '<button class="custom-alert-button" style="background:#888;" onclick="this.closest(\'.custom-alert-overlay\').remove();">Fermer</button>' +
+        '</div>' +
+    '</div>';
+
+    var overlay = document.createElement('div');
+    overlay.className = 'custom-alert-overlay';
+    overlay.style.display = 'flex';
+    overlay.innerHTML = html;
+    overlay.id = 'vcflashModal';
+    document.body.appendChild(overlay);
 }
 
-    
 function shareVCFLASH(code) {
     if (navigator.share) navigator.share({ title: 'VCFLASH VespaTimer', text: code }).catch(function(){});
 }
 
-// 2. MODAL D'IMPORTATION
+// 2. MODAL D'IMPORTATION (Coller / Scanner le texte)
 function openVCFLASHModal() {
     var html = '<div class="custom-alert" style="max-width:400px; padding:15px; background:var(--bg);">' +
         '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">' +
@@ -770,17 +731,18 @@ function openVCFLASHModal() {
         '</div>' +
         
         '<div style="display:flex; border-bottom:2px solid var(--border); margin-bottom:15px;">' +
-            '<button id="tabBtnPaste" onclick="switchVCTab(\'paste\')" style="flex:1; padding:10px; border:none; background:none; font-weight:bold; border-bottom:3px solid var(--gold); color:var(--gold); cursor:pointer;">📋 Code</button>' +
+            '<button id="tabBtnPaste" onclick="switchVCTab(\'paste\')" style="flex:1; padding:10px; border:none; background:none; font-weight:bold; border-bottom:3px solid var(--gold); color:var(--gold); cursor:pointer;">📋 Coller</button>' +
             '<button id="tabBtnCamera" onclick="switchVCTab(\'camera\')" style="flex:1; padding:10px; border:none; background:none; font-weight:bold; border-bottom:3px solid transparent; color:#888; cursor:pointer;">📷 Scanner</button>' +
         '</div>' +
 
         '<div id="vcTabPaste">' +
-            '<input type="text" id="vcflashInput" placeholder="Ex: A1B2C3" style="width:100%; height:50px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:1.2rem; text-align:center; text-transform:uppercase; background:#fefdf9;">' +
-            '<button class="btn-gold" onclick="processVCFLASHImport()" style="width:100%; margin-top:10px; padding:12px; border-radius:25px; font-size:1rem;">📥 Importer le code</button>' +
+            '<textarea id="vcflashInput" placeholder="Collez le texte emoji..." style="width:100%; height:100px; padding:10px; border-radius:12px; border:2px solid #e0d5c0; font-size:14px; background:#fefdf9; resize:none;"></textarea>' +
+            '<button class="btn-gold" onclick="processVCFLASHImport()" style="width:100%; margin-top:10px; padding:12px; border-radius:25px; font-size:1rem;">📥 Importer</button>' +
         '</div>' +
 
         '<div id="vcTabCamera" style="display:none; text-align:center;">' +
             '<div id="qr-reader" style="width:100%; border-radius:16px; overflow:hidden; border:2px solid var(--border); background:#1a1a2e;"></div>' +
+            '<p style="font-size:0.8rem;color:#888;margin-top:10px;">L\'appareil photo de votre téléphone peut aussi lire le texte.</p>' +
         '</div>' +
     '</div>';
 
@@ -814,7 +776,7 @@ function switchVCTab(tab) {
     }
 }
 
-// 3. SCANNER
+// 3. SCANNER (Lecture de texte brut)
 function startCameraScanner() {
     if (window.qrScannerInstance) return;
     window.qrScannerInstance = new Html5Qrcode("qr-reader");
@@ -824,11 +786,7 @@ function startCameraScanner() {
         { fps: 10, qrbox: { width: 250, height: 250 } },
         (decodedText) => {
             stopQRScanner();
-            if (decodedText.includes("code=")) {
-                let shortCode = decodedText.split("code=")[1];
-                shortCode = shortCode.split('&')[0].split('#')[0];
-                processVCFLASHImport(shortCode);
-            }
+            processVCFLASHImport(decodedText);
         },
         (errorMessage) => { /* Ignore */ }
     ).catch(err => {
@@ -848,33 +806,31 @@ function stopQRScanner() {
     }
 }
 
-// 4. TRAITEMENT
-async function processVCFLASHImport(codeOverride) {
+// 4. TRAITEMENT (Décodage direct)
+function processVCFLASHImport(codeOverride) {
     var code = codeOverride || document.getElementById('vcflashInput').value.trim();
     if (!code) return;
 
-    showToast("⏳ Récupération des données...");
-
-    try {
-        if (!sbClient) initSupabase();
-
-        var res = await sbClient.from('vcflash_shares').select('data, expires_at').eq('code', code.toUpperCase()).single();
-        
-        if (res.error || !res.data) {
-            showAlert("❌ Code VCFLASH introuvable.", "❌");
-            return;
-        }
-
-        if (res.data.expires_at) {
-            var expirationDate = new Date(res.data.expires_at);
-            var now = new Date();
-            if (now > expirationDate) {
-                showAlert("⏰ Ce code a expiré (valable 7 jours).", "⏰");
-                return;
+    // Décodage des emojis en texte
+    let rawString = "";
+    let chars = Array.from(code);
+    for (let i = 0; i < chars.length; i += 2) {
+        let idx1 = VCFLASH_EMOJIS.indexOf(chars[i]);
+        let idx2 = VCFLASH_EMOJIS.indexOf(chars[i+1]);
+        if (idx1 !== -1 && idx2 !== -1) {
+            let charCode = (idx1 * 27) + idx2;
+            if (charCode > 0 && charCode <= 0xFFFF) {
+                rawString += String.fromCharCode(charCode);
             }
         }
+    }
 
-        let parsedData = res.data.data;
+    try {
+        let parts = rawString.split("|");
+        if (parts.length < 2) throw new Error("Format invalide");
+        
+        let shortCode = parts[0];
+        let parsedData = JSON.parse(parts[1]);
 
         var hasCurrentData = hornets.some(function(h){ return h.flights.length > 0; }) || surveyLocation.name || inspectorName || notes;
         if (hasCurrentData) saveHist();
@@ -901,7 +857,7 @@ async function processVCFLASHImport(codeOverride) {
 
     } catch(e) {
         console.error(e);
-        showAlert("❌ Erreur de connexion ou code invalide.", "❌");
+        showAlert("❌ Code VCFLASH invalide.", "❌");
     }
 }
 function exportPDF() {
