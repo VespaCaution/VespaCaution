@@ -33,6 +33,9 @@
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
     <style>
+        html, body {
+  overscroll-behavior-y: contain; /* Bloque le pull-to-refresh sur Android/Chrome */
+        }
         :root { --bg: #f5f2e6; --card: #ffffff; --text: #3b2e1e; --gold: #d4a853; --danger: #c47b6b; --border: #e7d7b8; }
         * { margin:0; padding:0; box-sizing:border-box; }
         body { background:var(--bg); font-family:Arial,sans-serif; padding:8px; color:var(--text); max-width:750px; margin:0 auto; padding-bottom:80px; }
