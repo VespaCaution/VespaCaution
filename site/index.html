@@ -100,8 +100,9 @@
         /* --- DROPDOWN MENU --- */
         .dropdown { position: relative; display: inline-block; }
         .dropdown-btn { 
-            background: none; border: none; font-family: inherit; font-size: 0.9rem; font-weight: 600; 
-            color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 5px 0;
+    background: none; border: none; font-family: inherit; font-size: 0.9rem; font-weight: 600; 
+    color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 5px; 
+    padding: 5px 0; height: 28px; /* <-- Ajout de la hauteur fixe */
         }
         .dropdown-btn:hover { color: var(--primary); }
         .dropdown-content {
@@ -568,8 +569,7 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Setup and Timer</h4><p>Place your trap. When a hornet is captured, start the timer. Stop it when it leaves.</p><img src="../apps/vespatimer/1.png" alt="Timer"></div>
                         <div class="instruction-step"><h4>2. Triangulation</h4><p>Enter departure direction using the compass. The app calculates the search zone.</p><img src="../apps/vespatimer/2.png" alt="Map"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                                                <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; },
@@ -593,8 +593,7 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Configuration et Chrono</h4><p>Installez votre pot-à-mèche. Quand un frelon est capturé, lancez le chrono. Arrêtez-le à l'envol.</p><img src="../apps/vespatimer/1.png" alt="Chrono"></div>
                         <div class="instruction-step"><h4>2. Triangulation</h4><p>Entrez la direction d'envol grâce à la boussole. L'application calcule la distance et la zone de recherche.</p><img src="../apps/vespatimer/2.png" alt="Carte"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                                                <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; },
@@ -618,8 +617,7 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Einrichtung und Timer</h4><p>Stellen Sie die Falle auf. Starten Sie den Timer, wenn eine Hornisse gefangen wird. Stoppen Sie ihn beim Verlassen.</p><img src="../apps/vespatimer/1.png" alt="Timer"></div>
                         <div class="instruction-step"><h4>2. Triangulation</h4><p>Geben Sie die Richtung mit dem Kompass ein. Die App berechnet die Suchzone.</p><img src="../apps/vespatimer/2.png" alt="Karte"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                                                <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; },
@@ -643,7 +641,6 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Configurazione e Timer</h4><p>Posiziona la trappola. Quando un calabrone viene catturato, avvia il timer. Fermalo quando esce.</p><img src="../apps/vespatimer/1.png" alt="Timer"></div>
                         <div class="instruction-step"><h4>2. Triangolazione</h4><p>Inserisci la direzione di partenza usando la bussola. L'app calcola la zona di ricerca.</p><img src="../apps/vespatimer/2.png" alt="Mappa"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
                         <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
@@ -668,7 +665,6 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Configuraziun e Timer</h4><p>Installescha il pot. Avrir il timer cura che ina vespra vegn crittada. Arrivar el cura ch'ella parta.</p><img src="../apps/vespatimer/1.png" alt="Timer"></div>
                         <div class="instruction-step"><h4>2. Triangulaziun</h4><p>Endatar la direcziun cun la bussola. L'app calculescha la zona da tschertgar.</p><img src="../apps/vespatimer/2.png" alt="Map"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
                         <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
@@ -699,7 +695,6 @@ const appsConfig = {
                     <div class="accordion-content">
                         <div class="instruction-step"><h4>1. Navigation</h4><p>Select a season, then choose an activity. Read the detailed text sheets.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
                         <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
@@ -717,8 +712,7 @@ const appsConfig = {
                     <div class="accordion-content">
                         <div class="instruction-step"><h4>1. Navigation</h4><p>Sélectionnez une saison, puis une activité pour lire les fiches détaillées.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                                       <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; },
@@ -735,7 +729,6 @@ const appsConfig = {
                     <div class="accordion-content">
                         <div class="instruction-step"><h4>1. Navigation</h4><p>Wählen Sie eine Jahreszeit und dann eine Aktivität. Lesen Sie die detaillierten Textblätter.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
                         <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
@@ -753,8 +746,7 @@ const appsConfig = {
                     <div class="accordion-content">
                         <div class="instruction-step"><h4>1. Navigazione</h4><p>Seleziona una stagione, poi un'attività. Leggi le schede di testo dettagliate.</p><img src="../apps/apiguide/1.png" alt="Navigation"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                               <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; },
@@ -771,8 +763,7 @@ const appsConfig = {
                     <div class="accordion-content">
                         <div class="instruction-step"><h4>1. Navigaziun</h4><p>Tscherna ina stagiun, lura in'activitad. Legia las fichas detagliadas.</p><img src="../apps/apiguide/1.png" alt="Navigaziun"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice optional"><span>✅</span> <div>${t('need_account_no')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                            <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; }
@@ -809,8 +800,7 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Account & Apiaries</h4><p>Log in to sync your data. Create an apiary and automatically fill in its GPS coordinates.</p><img src="../apps/alvearcheck/1.png" alt="Login"></div>
                         <div class="instruction-step"><h4>2. Hives & AI</h4><p>Add hives and record frames. Use the AI microphone to dictate your notes hands-free!</p><img src="../apps/alvearcheck/2.png" alt="Hives"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice mandatory"><span>⚠️</span> <div>${t('need_account_yes')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                             <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; },
@@ -834,8 +824,7 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Compte et Ruchers</h4><p>Connectez-vous pour synchroniser vos données. Créez un rucher et remplissez ses coordonnées GPS.</p><img src="../apps/alvearcheck/1.png" alt="Login"></div>
                         <div class="instruction-step"><h4>2. Ruches et IA</h4><p>Ajoutez des ruches, notez les cadres. Utilisez le micro IA pour dicter vos notes !</p><img src="../apps/alvearcheck/2.png" alt="Ruches"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice mandatory"><span>⚠️</span> <div>${t('need_account_yes')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                             <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; },
@@ -859,8 +848,7 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Konto & Stände</h4><p>Melden Sie sich an, um Ihre Daten zu synchronisieren. Erstellen Sie einen Bienenstand und füllen Sie die GPS-Koordinaten automatisch aus.</p><img src="../apps/alvearcheck/1.png" alt="Login"></div>
                         <div class="instruction-step"><h4>2. Völker & KI</h4><p>Fügen Sie Völker hinzu und zeichnen Sie Rahmen auf. Verwenden Sie das KI-Mikrofon, um Ihre Notizen freihändig zu diktieren!</p><img src="../apps/alvearcheck/2.png" alt="Völker"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice mandatory"><span>⚠️</span> <div>${t('need_account_yes')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                              <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; },
@@ -884,8 +872,7 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Account e Apiari</h4><p>Accedi per sincronizzare i tuoi dati. Crea un apiario e compila automaticamente le sue coordinate GPS.</p><img src="../apps/alvearcheck/1.png" alt="Login"></div>
                         <div class="instruction-step"><h4>2. Arnie e IA</h4><p>Aggiungi arnie e registra i telai. Usa il microfono AI per dettare i tuoi appunti a mani libere!</p><img src="../apps/alvearcheck/2.png" alt="Arnie"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice mandatory"><span>⚠️</span> <div>${t('need_account_yes')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                              <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; },
@@ -909,8 +896,7 @@ const appsConfig = {
                         <div class="instruction-step"><h4>1. Conto ed Apiaris</h4><p>S'annunzia per sincronisar tes datas. Creescha in apiari ed emplena automaticamain sias coordinatas GPS.</p><img src="../apps/alvearcheck/1.png" alt="Login"></div>
                         <div class="instruction-step"><h4>2. Avieuls ed IA</h4><p>Agiunta avieuls e registrescha ils caders. Duvra il microfon IA per dictar tes notizias a mauns libers!</p><img src="../apps/alvearcheck/2.png" alt="Avieuls"></div>
                         <div class="video-wrapper"><iframe src="https://www.youtube.com/embed/gjpxqVj7Qxw" allowfullscreen></iframe></div>
-                        <div class="account-notice mandatory"><span>⚠️</span> <div>${t('need_account_yes')}</div></div>
-                        <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
+                              <div class="contact-action"><a href="#contact" class="btn">${t('contact_me')}</a></div>
                     </div>
                 </div>
             </div>`; }
