@@ -331,17 +331,21 @@
     <footer>
         <div class="footer-content">
             <div>
-                <h3>Vespacaution</h3>
-                <p data-i18n="footer_desc" style="color:var(--text-muted); font-size:0.95rem;">Outils pour apiculteurs et chasseurs de frelons.</p>
-            </div>
-            <div>
-                <h3 data-i18n="nav_menu">Menu</h3>
-                <ul>
-                    <li><a href="#" data-i18n="nav_home">Accueil</a></li>
-                    <li><a href="#apps" data-i18n="nav_apps">Apps</a></li>
-                    <li><a href="#support" data-i18n="nav_support">Soutenir</a></li>
-                    <li><a href="#contact" data-i18n="nav_contact">Contact</a></li>
-                </ul>
+    <h3 data-i18n="nav_menu">Menu</h3>
+    <ul>
+        <li><a href="#" data-i18n="nav_home">Accueil</a></li>
+        <li><a href="#apps" data-i18n="nav_apps">Apps</a></li>
+        <li><a href="#support" data-i18n="nav_support">Soutenir</a></li>
+        <li><a href="#contact" data-i18n="nav_contact">Contact</a></li>
+        
+        <!-- AJOUTER CES 4 LIGNES -->
+        <li style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;"><a href="#resources" onclick="renderStaticPage('links')" data-i18n="nav_links">Liens utiles</a></li>
+        <li><a href="#resources" onclick="renderStaticPage('credits')" data-i18n="nav_credits">Crédits</a></li>
+        <li><a href="status.pdf" download>Fichier Status (PDF)</a></li>
+        <li><a href="imprimable.pdf" download>Imprimables (PDF)</a></li>
+        <!-- FIN DE L'AJOUT -->
+        
+    </ul>
             </div>
             <div>
                 <h3 data-i18n="footer_legal">Légal</h3>
@@ -371,7 +375,7 @@
                 closeDropdown();
             }
         }
-       // ==========================================
+// ==========================================
 // 1. TRANSLATIONS (i18n)
 // ==========================================
 const translations = {
@@ -381,13 +385,13 @@ const translations = {
         footer_desc: "Tools for beekeepers and hornet hunters.", footer_legal: "Legal", footer_credit: "Created by Ben Hupka.", nav_menu: "Menu",
         btn_open: "🚀 Open App", btn_view: "View App Details", btn_instructions: "📖 How to use this app",
         home_title: "Welcome to Vespacaution",
-        home_desc1: "I create open, reliable, and privacy-first digital tools to help beekeepers manage their apiaries and assist volunteers in the fight against the Asian hornet (<em>Vespa velutina</em>).",
-        home_desc2: "Whether you are tracking hornets in the field, managing hive inspections, or looking for seasonal beekeeping advice, my apps are designed to work directly in your browser, offline when needed.",
+        home_desc1: "We create open, reliable, and privacy-first digital tools to help beekeepers manage their apiaries and assist volunteers in the fight against the Asian hornet (<em>Vespa velutina</em>).",
+        home_desc2: "Whether you are tracking hornets in the field, managing hive inspections, or looking for seasonal beekeeping advice, our apps are designed to work directly in your browser, offline when needed.",
         home_my_apps: "My Apps",
-        contact_title: "Contact Me", contact_desc: "Have a question, found a bug, or want to suggest a feature? Send me a message below!",
+        contact_title: "Contact Us", contact_desc: "Have a question, found a bug, or want to suggest a feature? Send us a message below!",
         contact_name: "Name", contact_email: "Email", contact_app: "Which app is this about?", contact_general: "General Question",
         contact_type: "Type of Request", contact_opt_q: "Question", contact_opt_bug: "Bug Report", contact_opt_feat: "Feature Request", contact_opt_other: "Partnership / Other",
-        contact_msg: "Message", contact_send: "Send Message", contact_sending: "Sending...", contact_success: "Message sent successfully! I will get back to you soon.", contact_error: "Something went wrong. Please try again.",
+        contact_msg: "Message", contact_send: "Send Message", contact_sending: "Sending...", contact_success: "Message sent successfully! We will get back to you soon.", contact_error: "Something went wrong. Please try again.",
         res_title: "Resources & Useful Links", res_desc: "Here are some trusted resources for beekeepers and hornet hunters in Switzerland.",
         res_swiss: "🇨🇭 Swiss Resources", res_credits: "🏆 Credits", res_creator: "Creator:", res_video: "Videos:", res_code: "Coding Assistant:", res_base: "ApiGuide based on:",
         link_frelon: "Official information and coordination for the Asian hornet in Switzerland.",
@@ -395,18 +399,16 @@ const translations = {
         link_abeilles: "The Swiss Beekeepers Association (APISUISSE).",
         link_melizoe: "Swiss platform for the sale of honey.",
         credit_sar: "SAR (Société d'Apiculture Romande)",
-        support_title: "Support Vespacaution", support_desc: "You like my applications? You can support them by making a donation with Twint at the number below. Thank you! 🙂",
+        support_title: "Support Vespacaution", support_desc: "You like our applications? You can support us by making a donation with Twint at the number below. Thank you! 🙂",
         privacy_title: "Privacy Policy", privacy_date: "Last updated:", privacy_p1: "At Vespacaution, your privacy is a top priority.",
         privacy_h1: "1. Local-First Data Storage", privacy_t1: "Applications like ApiGuide store your data locally on your device. We do not collect, transmit, or have access to this data.",
         privacy_h2: "2. Mandatory Cloud Accounts", privacy_t2: "VespaTimer (optional) and AlvearCheck (mandatory) use Supabase for secure authentication and data synchronization. You can request account deletion at any time.",
         privacy_h3: "3. AI Dictation (AlvearCheck)", privacy_t3: "When using the voice dictation feature, audio is processed securely via third-party AI providers (Groq/Whisper). The audio is used solely to extract data.",
-        privacy_h4: "4. Contact Forms", privacy_t4: "I use Web3Forms to deliver your message to my email. I collect your name, email, and message solely to respond to your inquiry.",
-        privacy_h5: "5. Analytics", privacy_t5: "I use Umami Analytics to measure site traffic. Umami is privacy-friendly, does not use cookies, and does not track personal data.",
-        privacy_h6: "6. External Links", privacy_t6: "My site contains links to external sites. I am not responsible for their privacy practices.",
+        privacy_h4: "4. Contact Forms", privacy_t4: "We use Web3Forms to deliver your message to our email. We collect your name, email, and message solely to respond to your inquiry.",
+        privacy_h5: "5. Analytics", privacy_t5: "We use Umami Analytics to measure site traffic. Umami is privacy-friendly, does not use cookies, and does not track personal data.",
+        privacy_h6: "6. External Links", privacy_t6: "Our site contains links to external sites. We are not responsible for their privacy practices.",
         privacy_h7: "7. Contact", privacy_t7: "If you have any questions about this Privacy Policy, please use the contact page.",
-        need_account_yes: "An account is <strong>mandatory</strong> to use this application and save your data securely.",
-        need_account_no: "You can use this app <strong>100% offline without an account</strong>. Creating an account is optional but allows cloud sync.",
-        contact_me: "📬 Contact Me"
+        contact_me: "📬 Contact Us"
     },
     fr: {
         nav_home: "Accueil", nav_apps: "Apps", nav_resources: "Ressources", nav_contact: "Contact", nav_privacy: "Confidentialité", nav_support: "Soutenir",
@@ -414,13 +416,13 @@ const translations = {
         footer_desc: "Outils pour apiculteurs et chasseurs de frelons.", footer_legal: "Légal", footer_credit: "Créé par Ben Hupka.", nav_menu: "Menu",
         btn_open: "🚀 Ouvrir l'application", btn_view: "Voir les détails", btn_instructions: "📖 Comment utiliser cette application",
         home_title: "Bienvenue sur Vespacaution",
-        home_desc1: "Je crée des outils numériques ouverts, fiables et respectueux de la vie privée pour aider les apiculteurs à gérer leurs ruchers et assister les bénévoles dans la lutte contre le frelon asiatique (<em>Vespa velutina</em>).",
-        home_desc2: "Que vous suiviez les frelons sur le terrain, gériez les inspections des ruches ou cherchiez des conseils saisonniers, mes applications sont conçues pour fonctionner directement dans votre navigateur, hors ligne si nécessaire.",
+        home_desc1: "Nous créons des outils numériques ouverts, fiables et respectueux de la vie privée pour aider les apiculteurs à gérer leurs ruchers et assister les bénévoles dans la lutte contre le frelon asiatique (<em>Vespa velutina</em>).",
+        home_desc2: "Que vous suiviez les frelons sur le terrain, gériez les inspections des ruches ou cherchiez des conseils saisonniers, nos applications sont conçues pour fonctionner directement dans votre navigateur, hors ligne si nécessaire.",
         home_my_apps: "Mes Applications",
-        contact_title: "Contactez-moi", contact_desc: "Une question, un bug, ou une suggestion ? Envoyez-moi un message ci-dessous !",
+        contact_title: "Contactez-nous", contact_desc: "Une question, un bug, ou une suggestion ? Envoyez-nous un message ci-dessous !",
         contact_name: "Nom", contact_email: "Email", contact_app: "Concernant quelle app ?", contact_general: "Question Générale",
         contact_type: "Type de demande", contact_opt_q: "Question", contact_opt_bug: "Signaler un bug", contact_opt_feat: "Suggestion d'amélioration", contact_opt_other: "Partenariat / Autre",
-        contact_msg: "Message", contact_send: "Envoyer le message", contact_sending: "Envoi en cours...", contact_success: "Message envoyé avec succès ! Je vous répondrai bientôt.", contact_error: "Une erreur est survenue. Veuillez réessayer.",
+        contact_msg: "Message", contact_send: "Envoyer le message", contact_sending: "Envoi en cours...", contact_success: "Message envoyé avec succès ! Nous vous répondrons bientôt.", contact_error: "Une erreur est survenue. Veuillez réessayer.",
         res_title: "Ressources & Liens Utiles", res_desc: "Voici des ressources de confiance pour les apiculteurs et chasseurs de frelons en Suisse.",
         res_swiss: "🇨🇭 Ressources Suisses", res_credits: "🏆 Crédits", res_creator: "Créateur :", res_video: "Vidéos :", res_code: "Assistant de code :", res_base: "ApiGuide basé sur :",
         link_frelon: "Informations officielles et coordination pour le frelon asiatique en Suisse.",
@@ -428,18 +430,16 @@ const translations = {
         link_abeilles: "La Fédération Suisse des Apiculteurs (APISUISSE).",
         link_melizoe: "Plateforme suisse de vente de miel.",
         credit_sar: "SAR (Société d'Apiculture Romande)",
-        support_title: "Soutenir Vespacaution", support_desc: "Vous aimez mes applications ? Vous pouvez les soutenir en faisant un don avec Twint au numéro ci-dessous. Merci ! 🙂",
+        support_title: "Soutenir Vespacaution", support_desc: "Vous aimez nos applications ? Vous pouvez nous soutenir en faisant un don avec Twint au numéro ci-dessous. Merci ! 🙂",
         privacy_title: "Politique de confidentialité", privacy_date: "Dernière mise à jour :", privacy_p1: "Chez Vespacaution, votre vie privée est une priorité.",
         privacy_h1: "1. Stockage local", privacy_t1: "Les applications comme ApiGuide stockent vos données localement sur votre appareil. Nous ne collectons ni ne transmettons ces données.",
         privacy_h2: "2. Comptes Cloud obligatoires", privacy_t2: "VespaTimer (optionnel) et AlvearCheck (obligatoire) utilisent Supabase pour l'authentification sécurisée et la synchronisation. Vous pouvez demander la suppression de votre compte à tout moment.",
         privacy_h3: "3. Dictée IA (AlvearCheck)", privacy_t3: "Lors de l'utilisation de la dictée vocale, l'audio est traité via des fournisseurs d'IA tiers (Groq/Whisper). L'audio sert uniquement à extraire les données et n'est pas stocké.",
-        privacy_h4: "4. Formulaires de contact", privacy_t4: "J'utilise Web3Forms pour recevoir vos messages. Je collecte uniquement votre nom, email et message pour vous répondre.",
-        privacy_h5: "5. Analytique", privacy_t5: "J'utilise Umami Analytics pour mesurer le trafic. Umami respecte la vie privée, n'utilise pas de cookies et ne suit aucune donnée personnelle.",
-        privacy_h6: "6. Liens externes", privacy_t6: "Mon site contient des liens vers des sites externes. Je ne suis pas responsable de leurs pratiques en matière de confidentialité.",
+        privacy_h4: "4. Formulaires de contact", privacy_t4: "Nous utilisons Web3Forms pour recevoir vos messages. Nous collectons uniquement votre nom, email et message pour vous répondre.",
+        privacy_h5: "5. Analytique", privacy_t5: "Nous utilisons Umami Analytics pour mesurer le trafic. Umami respecte la vie privée, n'utilise pas de cookies et ne suit aucune donnée personnelle.",
+        privacy_h6: "6. Liens externes", privacy_t6: "Notre site contient des liens vers des sites externes. Nous ne sommes pas responsables de leurs pratiques en matière de confidentialité.",
         privacy_h7: "7. Contact", privacy_t7: "Pour toute question, veuillez utiliser la page de contact.",
-        need_account_yes: "Un compte est <strong>obligatoire</strong> pour utiliser cette application et sauvegarder vos données en toute sécurité.",
-        need_account_no: "Vous pouvez utiliser cette application <strong>100% hors ligne sans compte</strong>. Créer un compte est optionnel mais permet la synchronisation cloud.",
-        contact_me: "📬 Contactez-moi"
+        contact_me: "📬 Contactez-nous"
     },
     de: {
         nav_home: "Startseite", nav_apps: "Apps", nav_resources: "Ressourcen", nav_contact: "Kontakt", nav_privacy: "Datenschutz", nav_support: "Unterstützen",
@@ -447,18 +447,18 @@ const translations = {
         footer_desc: "Werkzeuge für Imker und Hornissenjäger.", footer_legal: "Rechtliches", footer_credit: "Erstellt von Ben Hupka.", nav_menu: "Menü",
         btn_open: "🚀 App öffnen", btn_view: "Details ansehen", btn_instructions: "📖 Wie man diese App benutzt",
         home_title: "Willkommen bei Vespacaution",
-        home_desc1: "Ich entwickle offene, zuverlässige und datenschutzfreundliche digitale Werkzeuge für Imker und Freiwillige im Kampf gegen die Asiatische Hornisse.",
-        home_desc2: "Ob Sie Hornissen verfolgen oder Bienenstöcke inspizieren – meine Apps laufen direkt im Browser.",
+        home_desc1: "Wir entwickeln offene, zuverlässige und datenschutzfreundliche digitale Werkzeuge für Imker und Freiwillige im Kampf gegen die Asiatische Hornisse.",
+        home_desc2: "Ob Sie Hornissen verfolgen oder Bienenstöcke inspizieren – unsere Apps laufen direkt im Browser.",
         home_my_apps: "Meine Apps",
-        contact_title: "Kontakt", contact_desc: "Fragen, Fehler gefunden oder Ideen? Schreiben Sie uns!",
+        contact_title: "Kontaktieren Sie uns", contact_desc: "Fragen, Fehler gefunden oder Ideen? Schreiben Sie uns!",
         contact_name: "Name", contact_email: "E-Mail", contact_app: "Um welche App geht es?", contact_general: "Allgemeine Frage",
         contact_type: "Art der Anfrage", contact_opt_q: "Frage", contact_opt_bug: "Fehlerbericht", contact_opt_feat: "Funktionswunsch", contact_opt_other: "Partnerschaft / Sonstiges",
-        contact_msg: "Nachricht", contact_send: "Nachricht senden", contact_sending: "Wird gesendet...", contact_success: "Nachricht erfolgreich gesendet!", contact_error: "Etwas ist schiefgelaufen.",
+        contact_msg: "Nachricht", contact_send: "Nachricht senden", contact_sending: "Wird gesendet...", contact_success: "Nachricht erfolgreich gesendet! Wir melden uns bald.", contact_error: "Etwas ist schiefgelaufen.",
         res_title: "Ressourcen & Nützliche Links", res_desc: "Vertrauenswürdige Ressourcen für Imker.",
-                res_swiss: "🇨🇭 Schweizer Ressourcen", res_credits: "🏆 Credits", res_creator: "Ersteller:", res_video: "Videos:", res_code: "Code-Assistent:", res_base: "ApiGuide basiert auf:",
+        res_swiss: "🇨🇭 Schweizer Ressourcen", res_credits: "🏆 Credits", res_creator: "Ersteller:", res_video: "Videos:", res_code: "Code-Assistent:", res_base: "ApiGuide basiert auf:",
         link_frelon: "Offizielle Informationen zur Asiatischen Hornisse.", link_stop: "Meldewerkzeuge für Hornissenjäger.", link_abeilles: "Der Schweizerische Imkerverband.", link_melizoe: "Schweizer Plattform für Honigverkauf.",
         credit_sar: "SAR (Société d'Apiculture Romande)",
-        support_title: "Vespacaution unterstützen", support_desc: "Sie mögen meine Anwendungen? Unterstützen Sie sie mit einer Twint-Spende. Vielen Dank! 🙂",
+        support_title: "Vespacaution unterstützen", support_desc: "Sie mögen unsere Anwendungen? Sie können uns mit einer Twint-Spende unterstützen. Vielen Dank! 🙂",
         privacy_title: "Datenschutzerklärung", privacy_date: "Zuletzt aktualisiert:", privacy_p1: "Datenschutz hat Priorität.",
         privacy_h1: "1. Lokale Speicherung", privacy_t1: "Apps wie ApiGuide speichern Daten lokal in Ihrem Browser.",
         privacy_h2: "2. Cloud-Konten", privacy_t2: "VespaTimer und AlvearCheck nutzen Supabase für sichere Authentifizierung.",
@@ -467,26 +467,24 @@ const translations = {
         privacy_h5: "5. Analytik", privacy_t5: "Wir verwenden Umami Analytics ohne Cookies.",
         privacy_h6: "6. Externe Links", privacy_t6: "Wir sind nicht für externe Datenschutzpraktiken verantwortlich.",
         privacy_h7: "7. Kontakt", privacy_t7: "Bei Fragen nutzen Sie bitte die Kontaktseite.",
-        need_account_yes: "Ein Konto ist <strong>obligatorisch</strong>, um diese App zu nutzen.",
-        need_account_no: "Sie können diese App <strong>100% offline ohne Konto</strong> nutzen. Ein Konto ist optional.",
-        contact_me: "📬 Kontaktieren Sie mich"
+        contact_me: "📬 Kontaktieren Sie uns"
     },
     it: {
         nav_home: "Home", nav_apps: "App", nav_resources: "Risorse", nav_contact: "Contatto", nav_privacy: "Privacy", nav_support: "Sostieni",
         nav_links: "Link utili", nav_credits: "Crediti",
         footer_desc: "Strumenti per apicoltori.", footer_legal: "Legale", footer_credit: "Creato da Ben Hupka.", nav_menu: "Menu",
         btn_open: "🚀 Apri App", btn_view: "Dettagli", btn_instructions: "📖 Come usare questa app",
-        home_title: "Benvenuti su Vespacaution", home_desc1: "Creo strumenti digitali aperti e attenti alla privacy.", home_desc2: "Le mie app funzionano direttamente nel browser.",
+        home_title: "Benvenuti su Vespacaution", home_desc1: "Creiamo strumenti digitali aperti e attenti alla privacy.", home_desc2: "Le nostre app funzionano direttamente nel browser.",
         home_my_apps: "Le Mie App",
         contact_title: "Contattaci", contact_desc: "Invia un messaggio!",
         contact_name: "Nome", contact_email: "Email", contact_app: "Riguardo quale app?", contact_general: "Domanda Generale",
         contact_type: "Tipo di richiesta", contact_opt_q: "Domanda", contact_opt_bug: "Segnala un bug", contact_opt_feat: "Suggerimento", contact_opt_other: "Altro",
-        contact_msg: "Messaggio", contact_send: "Invia Messaggio", contact_sending: "Invio...", contact_success: "Inviato!", contact_error: "Errore.",
+        contact_msg: "Messaggio", contact_send: "Invia Messaggio", contact_sending: "Invio...", contact_success: "Inviato! Ti risponderemo presto.", contact_error: "Errore.",
         res_title: "Risorse & Link Utili", res_desc: "Risorse per apicoltori in Svizzera.",
         res_swiss: "🇨🇭 Risorse Svizzere", res_credits: "🏆 Crediti", res_creator: "Creatore:", res_video: "Video:", res_code: "Assistente codice:", res_base: "ApiGuide basato su:",
         link_frelon: "Informazioni ufficiali.", link_stop: "Risorse per cacciatori.", link_abeilles: "Associazione Svizzera Apicoltori.", link_melizoe: "Piattaforma svizzera per il miele.",
         credit_sar: "SAR (Société d'Apiculture Romande)",
-        support_title: "Sostieni Vespacaution", support_desc: "Sostieni le mie app con una donazione Twint. Grazie! 🙂",
+        support_title: "Sostieni Vespacaution", support_desc: "Sostieni le nostre app con una donazione Twint. Grazie! 🙂",
         privacy_title: "Informativa sulla Privacy", privacy_date: "Ultimo aggiornamento:", privacy_p1: "La tua privacy è importante.",
         privacy_h1: "1. Archiviazione locale", privacy_t1: "ApiGuide salva i dati localmente.",
         privacy_h2: "2. Account Cloud", privacy_t2: "VespaTimer e AlvearCheck usano Supabase.",
@@ -495,26 +493,24 @@ const translations = {
         privacy_h5: "5. Analisi", privacy_t5: "Utilizziamo Umami Analytics senza cookie.",
         privacy_h6: "6. Link esterni", privacy_t6: "Non siamo responsabili dei siti esterni.",
         privacy_h7: "7. Contatto", privacy_t7: "Usa la pagina di contatto.",
-        need_account_yes: "Un account è <strong>obbligatorio</strong> per questa app.",
-        need_account_no: "Puoi usare questa app <strong>offline senza account</strong>.",
-        contact_me: "📬 Contattami"
+        contact_me: "📬 Contattaci"
     },
     rm: {
         nav_home: "Chasa", nav_apps: "Apps", nav_resources: "Resursas", nav_contact: "Contact", nav_privacy: "Protecziun da datas", nav_support: "Sustegn",
         nav_links: "Colliaziuns", nav_credits: "Credits",
         footer_desc: "Instruments per apiculturs.", footer_legal: "Legal", footer_credit: "Creà da Ben Hupka.", nav_menu: "Menu",
         btn_open: "🚀 Avrir l'app", btn_view: "Detagls", btn_instructions: "📖 Co duvrar questa app",
-        home_title: "Bainvegni tar Vespacaution", home_desc1: "Jau creesch instruments digitals averts.", home_desc2: "Ils mes apps lavuran en il navigatur.",
+        home_title: "Bainvegni tar Vespacaution", home_desc1: "Nus creain instruments digitals averts.", home_desc2: "Ils noss apps lavuran en il navigatur.",
         home_my_apps: "Mes Apps",
         contact_title: "Contact", contact_desc: "Trametta in messadi!",
         contact_name: "Num", contact_email: "E-mail", contact_app: "Davart tge app?", contact_general: "Dumonda generala",
         contact_type: "Tip da dumonda", contact_opt_q: "Dumonda", contact_opt_bug: "Rapport da bug", contact_opt_feat: "Suggeriment", contact_opt_other: "Auter",
-        contact_msg: "Messadi", contact_send: "Trametter", contact_sending: "Trametta...", contact_success: "Tramess!", contact_error: "Errur.",
+        contact_msg: "Messadi", contact_send: "Trametter", contact_sending: "Trametta...", contact_success: "Tramess! Nus ta respundain bainspert.", contact_error: "Errur.",
         res_title: "Resursas & Colliaziuns", res_desc: "Resursas per apiculturs.",
         res_swiss: "🇨🇭 Resursas svizras", res_credits: "🏆 Credits", res_creator: "Creatur:", res_video: "Videos:", res_code: "Assistent da code:", res_base: "ApiGuide basa sin:",
         link_frelon: "Infurmaziuns officialas.", link_stop: "Resursas per chatschaders.", link_abeilles: "Associaziun svizra d'apiculturs.", link_melizoe: "Plattafurma svizra per mel.",
         credit_sar: "SAR (Société d'Apiculture Romande)",
-        support_title: "Sustegn Vespacaution", support_desc: "Sustegna mes apps cun ina donaziun Twint. Grazia! 🙂",
+        support_title: "Sustegn Vespacaution", support_desc: "Sustegna noss apps cun ina donaziun Twint. Grazia! 🙂",
         privacy_title: "Protecziun da datas", privacy_date: "Ultima actualisaziun:", privacy_p1: "La tia sfera privata è impurtanta.",
         privacy_h1: "1. Archivaziun locala", privacy_t1: "ApiGuide memorisescha datas localmain.",
         privacy_h2: "2. Contos Cloud", privacy_t2: "VespaTimer ed AlvearCheck duvrain Supabase.",
@@ -523,8 +519,6 @@ const translations = {
         privacy_h5: "5. Analitica", privacy_t5: "Nus duvrain Umami senza cookies.",
         privacy_h6: "6. Colliaziuns externas", privacy_t6: "Nus n'es betg responsabels per auters sits.",
         privacy_h7: "7. Contact", privacy_t7: "Duvra la pagina da contact.",
-        need_account_yes: "In conto è <strong>obligatoric</strong> per questa app.",
-        need_account_no: "Ti pos duvrar questa app <strong>offline senza conto</strong>.",
         contact_me: "📬 Contact"
     }
 };
